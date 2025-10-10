@@ -1,6 +1,6 @@
 import "./style.css";
 import { Fast3MFLoader } from "../lib/main";
-// import { ThreeMFLoader } from "../lib/3MFLoader";
+import { ThreeMFLoader } from "./3MFLoader";
 import { fast3mfBuilder } from "../lib/3mf-builder";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
@@ -29,17 +29,20 @@ function setupInput(input: HTMLInputElement) {
             return;
         } else {
             const file = curFiles[0];
-            console.time("bytes");
             const buffer = await file.arrayBuffer();
+
+            console.time("ThreeMFLoader");
+            const loader1 = new ThreeMFLoader();
+            loader1.parse(buffer);
+            console.timeEnd("ThreeMFLoader");
+
+            console.time("Fast3MFLoader");
             const loader = new Fast3MFLoader();
-            // const loader = new ThreeMFLoader();
-            // loader.parse(buffer);
             loader.parse(buffer).then((data) => {
                 // @ts-ignore
                 const group = fast3mfBuilder(data);
-                debugger;
+                console.timeEnd("Fast3MFLoader");
             });
-            console.timeEnd("bytes");
         }
     });
 }

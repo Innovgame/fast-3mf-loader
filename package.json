@@ -32,6 +32,7 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
+        "build:page": "vite build --config vite.page.config.ts",
         "test": "vitest run"
     },
     "devDependencies": {
