@@ -1,0 +1,47 @@
+{
+    "name": "fast-3mf-loader",
+    "private": false,
+    "description": "fast 3mf loader",
+    "version": "0.0.4",
+    "type": "module",
+    "license": "MIT",
+    "author": {
+        "name": "rekor",
+        "email": "innovgamejs@163.com"
+    },
+    "files": [
+        "dist",
+        "dist/fast-3mf-loader.d.ts"
+    ],
+    "keywords": [
+        "xml",
+        "3mf",
+        "three"
+    ],
+    "main": "./dist/fast-3mf-loader.umd.cjs",
+    "module": "./dist/fast-3mf-loader.js",
+    "types": "./dist/fast-3mf-loader.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/fast-3mf-loader.d.ts",
+            "import": "./dist/fast-3mf-loader.js",
+            "require": "./dist/fast-3mf-loader.umd.cjs"
+        },
+        "./*": "./*"
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build"
+    },
+    "devDependencies": {
+        "@types/three": "^0.180.0",
+        "typescript": "~5.9.2",
+        "vite": "^7.1.7",
+        "vite-plugin-dts": "^4.5.4",
+        "three": "^0.180.0"
+    },
+    "dependencies": {
+        "easysax": "^0.4.0",
+        "fflate": "^0.8.2"
+    }
+}
