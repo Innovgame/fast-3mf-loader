@@ -1,9 +1,5 @@
 # fast-3mf-loader
 
-[https://www.npmjs.com/package/fast-3mf-loader](https://www.npmjs.com/package/fast-3mf-loader)
-
-[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
-
 A high-performance 3MF file parser that uses stream parsing and WebWorker multi-threading technology, offering lower memory usage and faster parsing speed. Written in TypeScript.
 
 ## Features
