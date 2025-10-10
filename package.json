@@ -2,7 +2,7 @@
     "name": "fast-3mf-loader",
     "private": false,
     "description": "fast 3mf loader",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "type": "module",
     "license": "MIT",
     "author": {
