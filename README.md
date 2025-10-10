@@ -116,7 +116,7 @@ Compared to traditional 3MF parsers, fast-3mf-loader has significant advantages 
 
 | Metric                  | Traditional Parser | fast-3mf-loader |
 | ----------------------- | ------------------ | --------------- |
-| 100MB file parsing time |                    |                 |
+| 100MB file parsing time | 8.0s               | 2.7s            |
 | Peak memory usage       |                    |                 |
 | CPU utilization         |                    |                 |
 
@@ -133,14 +133,14 @@ git clone https://github.com/your-repo/fast-3mf-loader.git
 # Install dependencies
 npm install
 
-# Development mode
+# Development mode, develop test page
 npm run dev
 
 # Build production version
 npm run build
 
 # Run tests
-# npm test
+npm test
 ```
 
 ## Contributing

@@ -2,7 +2,7 @@
     "name": "fast-3mf-loader",
     "private": false,
     "description": "fast 3mf loader",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "type": "module",
     "license": "MIT",
     "author": {
@@ -32,7 +32,6 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
-        "build:page": "vite build --config vite.page.config.ts",
         "test": "vitest run"
     },
     "devDependencies": {

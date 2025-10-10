@@ -1,6 +1,7 @@
 import "./style.css";
 import { Fast3MFLoader } from "../lib/main";
-import { ThreeMFLoader } from "./3MFLoader";
+// @ts-ignore
+import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader";
 import { fast3mfBuilder } from "../lib/3mf-builder";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
