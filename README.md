@@ -1,6 +1,9 @@
 # fast-3mf-loader
 
-[![npm version](https://img.shields.io/npm/v/fast-3mf-loader)](https://www.npmjs.com/package/fast-3mf-loader) [![license](https://img.shields.io/npm/l/fast-3mf-loader)](https://github.com/Innovgame/fast-3mf-loader/blob/master/LICENSE)
+[![npm version](https://img.shields.io/npm/v/fast-3mf-loader)](https://www.npmjs.com/package/fast-3mf-loader) [![license](https://img.shields.io/npm/l/fast-3mf-loader)](https://github.com/Innovgame/fast-3mf-loader/blob/master/LICENSE) [![bundlephobia minzipped size](https://badgen.net/bundlephobia/minzip/fast-3mf-loader)](https://bundlephobia.com/package/fast-3mf-loader)
+
+> [!WARNING]  
+> This project is in early development. The API may change before a stable 1.0 release. Use with caution in production.
 
 A high-performance 3MF file parser that uses stream parsing and WebWorker multi-threading technology, offering lower memory usage and faster parsing speed. Written in TypeScript.
 
