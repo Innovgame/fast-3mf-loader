@@ -1,5 +1,7 @@
 import { expect, test } from "vitest";
+import { Fast3MFLoader } from "../lib/main";
 
-test("adds 1 + 2 to equal 3", () => {
-    expect(1 + 2).toBe(3);
+test("loader exposes a parse method", () => {
+    const loader = new Fast3MFLoader();
+    expect(typeof loader.parse).toBe("function");
 });

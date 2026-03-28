@@ -1,10 +1,10 @@
-import { unzipSync } from "fflate";
+import { unzipBuffer } from "./unzip";
 
 onmessage = (event: MessageEvent<ArrayBuffer>) => {
     const buffer = event.data;
 
     try {
-        const zip = unzipSync(new Uint8Array(buffer));
+        const zip = unzipBuffer(buffer);
         const transfer: Transferable[] = [];
         for (const key in zip) {
             if (!Object.hasOwn(zip, key)) continue;

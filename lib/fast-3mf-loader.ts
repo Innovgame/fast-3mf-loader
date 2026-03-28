@@ -149,19 +149,23 @@ export class Fast3MFLoader {
 
     private parseRelsXml(relsFileText: string) {
         const relationships = [];
+        const relationshipPattern = /<Relationship\b([^>]*)\/?>/g;
+        const attributePattern = /\b(Target|Id|Type)="([^"]*)"/g;
 
-        const relsXmlData = new DOMParser().parseFromString(relsFileText, "application/xml");
-
-        const relsNodes = relsXmlData.querySelectorAll("Relationship");
-
-        for (let i = 0; i < relsNodes.length; i++) {
-            const relsNode = relsNodes[i];
-
+        for (const match of relsFileText.matchAll(relationshipPattern)) {
+            const attrsText = match[1] ?? "";
             const relationship = {
-                target: relsNode.getAttribute("Target"), //required
-                id: relsNode.getAttribute("Id"), //required
-                type: relsNode.getAttribute("Type"), //required
+                target: null as string | null,
+                id: null as string | null,
+                type: null as string | null,
             };
+
+            for (const attrMatch of attrsText.matchAll(attributePattern)) {
+                const [, key, value] = attrMatch;
+                if (key === "Target") relationship.target = value;
+                if (key === "Id") relationship.id = value;
+                if (key === "Type") relationship.type = value;
+            }
 
             relationships.push(relationship);
         }
