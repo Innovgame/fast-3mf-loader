@@ -28,6 +28,8 @@
 ## In Progress
 
 - 通过新 summary docs 维持后续任务接力，而不是继续依赖临时上下文重建。
+- 正在规划面向 `1.0` 发布的 roadmap，方向收敛为“稳态 1.0”：围绕 README 中已承诺的 stream parsing、WebWorker、多线程性能、TypeScript、浏览器兼容性，优先提高性能、易用性和发布可预期性，而不是先扩 format 支持面。
+- `docs/superpowers/specs/2026-03-28-stable-1-0-roadmap-design.md` 已写出初稿，等待用户 review 后再决定是否同步更新 `current-roadmap.md` 和拆成执行计划。
 
 ## Next Up
 
