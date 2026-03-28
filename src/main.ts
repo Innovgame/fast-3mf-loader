@@ -48,4 +48,4 @@ function setupInput(input: HTMLInputElement) {
     });
 }
 
-setupInput(document.querySelector<HTMLButtonElement>("#profile_3mf") as HTMLInputElement);
+setupInput(document.querySelector<HTMLInputElement>("#profile_3mf")!);
