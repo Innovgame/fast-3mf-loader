@@ -55,6 +55,7 @@ export class Fast3MFLoader {
         let relsName: string | undefined;
         let modelRelsName: string | undefined;
         const texturesPartNames = [];
+        const printTicketPartNames: string[] = [];
         let rootModelFile: string | undefined;
         const { onProgress, workerCount } = options;
 
@@ -72,6 +73,8 @@ export class Fast3MFLoader {
                     modelPartNames.push(file); // sub models
                 } else if (file.match(/^3D\/Textures?\/.*/)) {
                     texturesPartNames.push(file);
+                } else if (file.match(/printticket/i)) {
+                    printTicketPartNames.push(file);
                 }
             }
         } catch (error) {
@@ -151,6 +154,9 @@ export class Fast3MFLoader {
 
             // printTicketParts TODO:
             const printTicketParts: Record<string, never> = {};
+            if (printTicketPartNames.length > 0) {
+                console.warn("Fast3MFLoader: 3MF print tickets are not supported yet.");
+            }
             onProgress?.(100);
 
             return {

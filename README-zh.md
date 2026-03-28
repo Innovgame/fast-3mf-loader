@@ -118,6 +118,18 @@ interface ModelPart3MF {
 
 可以通过 `fast3mfBuilder(data3mf)` 将解析结果转换成 `THREE.Group`。
 
+## 支持矩阵
+
+当前支持范围记录在 [docs/support-matrix.md](./docs/support-matrix.md)。
+
+| 功能 | 状态 | 说明 |
+| --- | --- | --- |
+| 基础材质 | 已支持 | 可构建为 Three.js 材质 |
+| 纹理组 | 已支持 | 由 `multipletextures.3mf` 覆盖 |
+| 顶点色 | 已支持 | 由 `vertexcolors.3mf` 覆盖 |
+| 组件装配 | 已支持 | 由 `truck.3mf` 覆盖 |
+| Print Ticket | 暂不支持 | 当前返回空对象并给出警告 |
+
 ## 性能对比
 
 与传统的3MF解析器相比，fast-3mf-loader在大型文件处理上有显著优势：

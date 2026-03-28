@@ -120,6 +120,18 @@ interface ModelPart3MF {
 
 Use `fast3mfBuilder(data3mf)` to convert the parsed data into a `THREE.Group`.
 
+## Support Matrix
+
+Current support is documented in [docs/support-matrix.md](./docs/support-matrix.md).
+
+| Feature | Status | Notes |
+| --- | --- | --- |
+| Base materials | Supported | Built into Three.js materials |
+| Texture groups | Supported | Covered by `multipletextures.3mf` |
+| Vertex colors | Supported | Covered by `vertexcolors.3mf` |
+| Components | Supported | Covered by `truck.3mf` |
+| Print tickets | Not yet supported | Parser returns an empty object and warns |
+
 ## Performance Comparison
 
 Compared to traditional 3MF parsers, fast-3mf-loader has significant advantages in large file processing:
