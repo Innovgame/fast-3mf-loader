@@ -1,8 +1,15 @@
-import { defineConfig } from "vite";
+import { configDefaults, defineConfig } from "vitest/config";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
     plugins: [dts({ insertTypesEntry: true, outDir: "./dist" })],
+    test: {
+        exclude: [
+            ...configDefaults.exclude,
+            "**/.worktrees/**",
+            "**/worktrees/**",
+        ],
+    },
     build: {
         lib: {
             entry: "./lib/main.ts",

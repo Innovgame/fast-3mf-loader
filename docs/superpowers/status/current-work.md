@@ -21,6 +21,9 @@
   - `docs/superpowers/context/user-preferences.md`
   - `docs/superpowers/status/current-work.md`
   - `docs/superpowers/roadmap/current-roadmap.md`
+- 修复了本地 worktree 存在时的 Vitest 测试发现漂移：
+  - `vite.config.ts` 现在显式排除 `**/.worktrees/**` 与 `**/worktrees/**`
+  - `test/vite-config.test.ts` 锁定了这条配置回归
 
 ## In Progress
 
