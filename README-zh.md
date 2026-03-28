@@ -51,7 +51,7 @@ console.log("解析结果:", group);
 **参数:**
 - `data`: 3MF文件数据，ArrayBuffer
 - `options`: 可选配置对象
-  - `workerCount`: number - 使用的 WebWorker 数量。默认会根据当前运行环境的并发能力自动推导，并在无法判断时回退到安全值。
+  - `workerCount`: number - 使用的 WebWorker 数量。默认会根据当前运行环境的并发能力自动推导，并在无法判断时回退到安全值。传入非法值时会给出 warning 并回退到默认策略。
   - `onProgress`: (progress: number) => void - 进度回调函数
 
 **返回值:**
@@ -107,6 +107,7 @@ type Model3MF = {
 
 - 面向支持 `Worker` 与 `Blob` 的现代浏览器
 - `workerCount` 默认使用 `min(hardwareConcurrency - 1, 15)`，无法判断时安全回退到 `4`
+- 非法 `workerCount` 会给出 warning，并回退到默认 worker 策略
 - 当前未支持能力会通过 warning 明确提示，而不是静默伪装为成功
 
 ## 开发

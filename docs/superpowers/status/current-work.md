@@ -46,6 +46,9 @@
   - `package.json` 新增 `benchmark:release`，固定使用 `warmupRuns=2`、`measuredRuns=7`、`workerCount=6`
   - `release:check` 现在通过 `benchmark:release` 收集 release-machine benchmark evidence，而不是依赖手写环境变量
   - `test/release-gates.test.ts`、`docs/benchmarking.md` 与 `docs/releases/1.0.0-draft.md` 已同步到这条固定入口
+- 2026-03-29 已开始收敛 Phase 3 runtime ergonomics：
+  - `Fast3MFLoader#parse()` 现在会在收到非法 `workerCount` 时给出明确 warning，再回退到默认 worker 策略
+  - `test/runtime-behavior.test.ts`、`README.md` 与 `README-zh.md` 已同步到这条 warning 语义
 
 ## In Progress
 
@@ -55,6 +58,9 @@
   - 继续稳定 API / error / runtime ergonomics，收敛剩余 `1.0` blocker
 - 2026-03-28 当前这轮接力先落在 Phase 2 evidence hardening：
   - `benchmark:release` 与 `release:check` 已验证通过，当前 benchmark methodology 的主要收口点已经从“确定命令入口”切到“发布前在 release machine 刷新一次样本”
+- 2026-03-29 当前继续动作：
+  - 已从 Phase 2 切入 Phase 3，先处理 `workerCount` 非法值原本会静默回退的问题
+  - 下一步继续检查 warning / error 语义里是否还存在类似的“静默回退但缺少诊断信息”缺口
 
 ## Next Up
 

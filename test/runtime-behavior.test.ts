@@ -27,3 +27,14 @@ test("parse does not emit timing logs during successful parsing", async () => {
     expect(timeSpy).not.toHaveBeenCalled();
     expect(timeEndSpy).not.toHaveBeenCalled();
 });
+
+test("parse warns when workerCount is invalid and falls back to the default strategy", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const loader = new Fast3MFLoader();
+
+    await loader.parse(await readFixture("cube_gears.3mf"), {
+        workerCount: 0,
+    });
+
+    expect(warnSpy).toHaveBeenCalledWith("Fast3MFLoader: Invalid `workerCount` option. Falling back to the default worker strategy.");
+});

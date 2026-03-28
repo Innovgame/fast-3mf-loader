@@ -53,7 +53,7 @@ Parses 3MF file and returns model data.
 **Parameters:**
 - `data`: 3MF file data, ArrayBuffer
 - `options`: Optional configuration object
-  - `workerCount`: number - Number of WebWorkers to use. Defaults to an auto-detected value based on available runtime concurrency, with a safe fallback.
+  - `workerCount`: number - Number of WebWorkers to use. Defaults to an auto-detected value based on available runtime concurrency, with a safe fallback. Invalid values warn and fall back to the default strategy.
   - `onProgress`: (progress: number) => void - Progress callback function
 
 **Return Value:**
@@ -109,6 +109,7 @@ Supports all modern browsers (Chrome, Firefox, Safari, Edge, etc.) and environme
 
 - Designed for modern browsers with `Worker` and `Blob` support
 - `workerCount` defaults to `min(hardwareConcurrency - 1, 15)` with a safe fallback of `4`
+- Invalid `workerCount` values warn and fall back to the default worker strategy
 - Unsupported features currently warn instead of silently pretending to succeed
 
 ## Development

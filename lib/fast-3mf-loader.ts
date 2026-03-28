@@ -60,8 +60,12 @@ export type ParseOptions = {
     workerCount?: number;
 };
 
+function isValidRequestedWorkerCount(requestedCount: unknown): requestedCount is number {
+    return typeof requestedCount === "number" && Number.isFinite(requestedCount) && requestedCount > 0;
+}
+
 export function resolveWorkerCount(requestedCount?: number, hardwareConcurrency = globalThis.navigator?.hardwareConcurrency): number {
-    if (typeof requestedCount === "number" && Number.isFinite(requestedCount) && requestedCount > 0) {
+    if (isValidRequestedWorkerCount(requestedCount)) {
         return Math.floor(requestedCount);
     }
 
@@ -76,6 +80,9 @@ export class Fast3MFLoader {
     async parse(data: ArrayBuffer, options: ParseOptions = {}): Promise<ParseResult> {
         let zip: Unzipped | undefined;
         const onProgress = options.onProgress;
+        if (options.workerCount !== undefined && !isValidRequestedWorkerCount(options.workerCount)) {
+            console.warn("Fast3MFLoader: Invalid `workerCount` option. Falling back to the default worker strategy.");
+        }
         const workerCount = resolveWorkerCount(options.workerCount);
 
         onProgress?.(10);
