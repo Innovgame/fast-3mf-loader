@@ -11,6 +11,17 @@ import {
     Texture2dType,
     TriangleProperty,
 } from "./util";
+import type { ParseEvent, ParseStartEvent, ParseTextEvent } from "./parse-events";
+
+type ExtractableEvent = StateInput | ParseEvent | ParseStartEvent | ParseTextEvent;
+
+function isTextEvent(input: ExtractableEvent): input is StateInput | ParseTextEvent {
+    return ("kind" in input && input.kind === "text") || (!("kind" in input) && typeof input.text === "string");
+}
+
+function isStartLikeEvent(input: ExtractableEvent): input is StateInput | ParseStartEvent {
+    return ("kind" in input && input.kind === "start") || (!("kind" in input) && input.start === true);
+}
 
 // All helpers after this point
 function getScaleFromUnit(unit: string = "millimeter") {
@@ -30,7 +41,8 @@ function getScaleFromUnit(unit: string = "millimeter") {
     return [scale, scale, scale];
 }
 
-export function extractModelData(input: StateInput) {
+export function extractModelData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -52,14 +64,16 @@ export function extractModelData(input: StateInput) {
     return { unit, version, requiredExtensions, extensions, scale };
 }
 
-export function extractMetadata(input: StateInput) {
+export function extractMetadata(input: ExtractableEvent) {
+    if (!isTextEvent(input)) return;
     const { text, metadataName } = input;
     if (text && metadataName) {
         return { [metadataName]: text };
     }
 }
 
-export function extractObjectStart(input: StateInput) {
+export function extractObjectStart(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -80,7 +94,8 @@ export function extractObjectStart(input: StateInput) {
     return data;
 }
 
-export function extractVertexData(input: StateInput) {
+export function extractVertexData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -97,7 +112,8 @@ export function extractVertexData(input: StateInput) {
     return results;
 }
 
-export function extractTriangleData(input: StateInput) {
+export function extractTriangleData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -131,7 +147,8 @@ export function extractTriangleData(input: StateInput) {
     return result;
 }
 
-export function extractBuildItemData(input: StateInput) {
+export function extractBuildItemData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -151,7 +168,8 @@ export function extractBuildItemData(input: StateInput) {
     return data;
 }
 
-export function extractComponentData(input: StateInput) {
+export function extractComponentData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -172,7 +190,8 @@ export function extractComponentData(input: StateInput) {
     return data;
 }
 
-export function extractBasematerialsData(input: StateInput) {
+export function extractBasematerialsData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -183,7 +202,8 @@ export function extractBasematerialsData(input: StateInput) {
     return basematerialsData;
 }
 
-export function extractBasematerialData(input: StateInput) {
+export function extractBasematerialData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -194,7 +214,8 @@ export function extractBasematerialData(input: StateInput) {
     return data;
 }
 
-export function extractTexture2dData(input: StateInput) {
+export function extractTexture2dData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -206,7 +227,8 @@ export function extractTexture2dData(input: StateInput) {
     return data;
 }
 
-export function extractColorGroupData(input: StateInput) {
+export function extractColorGroupData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -218,7 +240,8 @@ export function extractColorGroupData(input: StateInput) {
     return data;
 }
 
-export function extractColorData(input: StateInput) {
+export function extractColorData(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -231,7 +254,8 @@ export function extractColorData(input: StateInput) {
     };
 }
 
-export function extractTexture2dGroup(input: StateInput) {
+export function extractTexture2dGroup(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
@@ -244,7 +268,8 @@ export function extractTexture2dGroup(input: StateInput) {
     return data;
 }
 
-export function extractTexture2dCoord(input: StateInput) {
+export function extractTexture2dCoord(input: ExtractableEvent) {
+    if (!isStartLikeEvent(input)) return;
     const { getAttr } = input;
     const attributes = getAttr?.();
     if (!attributes) return;
