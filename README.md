@@ -5,15 +5,15 @@
 > [!WARNING]  
 > This project is in early development. The API may change before a stable 1.0 release. Use with caution in production.
 
-A high-performance 3MF file parser that uses stream parsing and WebWorker multi-threading technology, designed for lower memory usage and faster parse times. Written in TypeScript.
+A browser-first 3MF parser for TypeScript projects that uses SAX-style XML parsing internally and WebWorker parallelism to keep large archive parsing efficient.
 
 ## Features
 
-- 🚀 **Stream Parsing** - Supports chunked loading and parsing of large files, reducing memory usage
-- ⚡ **Multi-threaded Processing** - Uses WebWorker for parallel parsing to improve performance
-- 📦 **Lightweight and Efficient** - Optimized memory management, especially suitable for large 3MF files
-- 🛠 **TypeScript Support** - Fully written in TypeScript with complete type definitions
-- 🌐 **Browser Compatible** - Can be used directly in modern browsers
+- 🚀 **Streaming-Oriented Parsing** - Uses SAX-style XML parsing internally to keep memory usage lower on large 3MF archives
+- ⚡ **WebWorker Parallelism** - Parses model parts across WebWorkers with an auto-sized worker pool
+- 📦 **Benchmark-Backed Efficiency** - Ships measured optimizations for large texture-heavy and component-heavy fixtures
+- 🛠 **Stable TypeScript Surface** - Exports `Fast3MFLoader`, `fast3mfBuilder`, and the documented helper types
+- 🌐 **Browser-First Runtime** - Targets modern browsers with `Worker` and `Blob` support
 
 ## Installation
 
@@ -89,6 +89,11 @@ Current support is documented in [docs/support-matrix.md](./docs/support-matrix.
 | Vertex colors | Supported | Covered by `vertexcolors.3mf` |
 | Components | Supported | Covered by `truck.3mf` |
 | Print tickets | Not yet supported | Parser returns an empty object and warns |
+
+## Support Boundary
+
+Current support is defined by fixture-backed behavior and documented in [docs/support-matrix.md](./docs/support-matrix.md).
+Unsupported features, including print tickets and extension resources beyond current fixture coverage, should be treated as unsupported until explicitly documented otherwise.
 
 ## Benchmarking
 

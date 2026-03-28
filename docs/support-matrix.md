@@ -1,6 +1,8 @@
 # 3MF Support Matrix
 
-This matrix describes the features that `fast-3mf-loader` currently supports in practice, based on the fixture coverage in `test/`.
+This matrix describes the features that `fast-3mf-loader` currently supports in practice, based on the fixture-backed coverage in `test/`.
+
+If a capability is not listed here with evidence, it should be treated as unsupported until explicit implementation, tests, and docs land together.
 
 | Feature | Status | Evidence | Notes |
 | --- | --- | --- | --- |

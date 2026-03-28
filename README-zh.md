@@ -3,15 +3,15 @@
 [https://img.shields.io/npm/v/fast-3mf-loader.svg](https://www.npmjs.com/package/fast-3mf-loader)
 [https://img.shields.io/badge/license-MIT-blue.svg](https://opensource.org/licenses/MIT)
 
-一个高性能的3MF文件解析器，采用流式解析和 WebWorker 多线程技术，目标是用更低的内存占用获得更快的解析表现。使用 TypeScript 编写。
+一个面向现代浏览器的 TypeScript 3MF 解析库，内部采用 SAX 风格流式解析与 WebWorker 并行处理，在大型 archive 上兼顾性能与较低内存占用。
 
 ## 特性
 
-- 🚀 **流式解析** - 支持分块加载和解析大文件，减少内存占用
-- ⚡ **多线程处理** - 使用WebWorker实现并行解析，提升性能
-- 📦 **轻量高效** - 优化的内存管理，特别适合处理大型3MF文件
-- 🛠 **TypeScript支持** - 完全使用TypeScript编写，提供完整的类型定义
-- 🌐 **浏览器兼容** - 可在现代浏览器中直接使用
+- 🚀 **流式导向解析** - 内部采用 SAX 风格流式解析，在大型 3MF archive 上帮助降低内存压力
+- ⚡ **WebWorker 并行处理** - 使用自动调节规模的 worker pool 并行解析 model parts
+- 📦 **基准支撑的效率** - 针对纹理密集与组件密集 fixture 提供实测优化
+- 🛠 **稳定的 TypeScript 接口** - 导出 `Fast3MFLoader`、`fast3mfBuilder` 及文档中列出的辅助类型
+- 🌐 **浏览器优先运行时** - 面向支持 `Worker` 与 `Blob` 的现代浏览器
 
 ## 安装
 
@@ -87,6 +87,11 @@ type Model3MF = {
 | 顶点色 | 已支持 | 由 `vertexcolors.3mf` 覆盖 |
 | 组件装配 | 已支持 | 由 `truck.3mf` 覆盖 |
 | Print Ticket | 暂不支持 | 当前返回空对象并给出警告 |
+
+## 支持边界
+
+当前支持范围以 fixture-backed behavior 为准，并记录在 [docs/support-matrix.md](./docs/support-matrix.md) 中。
+包括 Print Ticket 和超出当前 fixture coverage 的 extension resources 在内的能力，在文档明确说明前都应视为未支持。
 
 ## 基准测试
 
