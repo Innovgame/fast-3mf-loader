@@ -5,6 +5,8 @@ import { WorkerPool } from "./WorkerPool";
 import { ParseResult, ParsedModelPart, Relationship } from "./util";
 
 type UnzipWorkerMessage = { type: "done"; zip: Unzipped } | { type: "error"; message: string };
+const DEFAULT_WORKER_COUNT = 4;
+const MAX_DEFAULT_WORKER_COUNT = 15;
 
 function isUnzipWorkerMessage(payload: UnzipWorkerMessage | Unzipped): payload is UnzipWorkerMessage {
     return typeof payload === "object" && payload !== null && "type" in payload && (payload.type === "done" || payload.type === "error");
@@ -39,17 +41,27 @@ async function unzipData(data: ArrayBuffer) {
 type MessageParseModel = { type: "done"; state: ParsedModelPart } | { type: "error"; message: string };
 
 export type { ParseResult, ParsedModelPart, Relationship };
+export type Model3MF = ParseResult;
 
 export type ParseOptions = {
     onProgress?: (percent: number) => void;
     workerCount?: number;
 };
 
+export function resolveWorkerCount(requestedCount?: number, hardwareConcurrency = globalThis.navigator?.hardwareConcurrency): number {
+    if (typeof requestedCount === "number" && Number.isFinite(requestedCount) && requestedCount > 0) {
+        return Math.floor(requestedCount);
+    }
+
+    if (typeof hardwareConcurrency === "number" && Number.isFinite(hardwareConcurrency) && hardwareConcurrency > 0) {
+        return Math.max(1, Math.min(Math.floor(hardwareConcurrency) - 1, MAX_DEFAULT_WORKER_COUNT));
+    }
+
+    return DEFAULT_WORKER_COUNT;
+}
+
 export class Fast3MFLoader {
-    async parse(data: ArrayBuffer, options: ParseOptions = {
-            onProgress() {},
-            workerCount: Math.min(navigator.hardwareConcurrency - 1, 15),
-        }): Promise<ParseResult> {
+    async parse(data: ArrayBuffer, options: ParseOptions = {}): Promise<ParseResult> {
         let zip: Unzipped | undefined;
         const modelPartNames: string[] = [];
         let relsName: string | undefined;
@@ -57,7 +69,8 @@ export class Fast3MFLoader {
         const texturesPartNames = [];
         const printTicketPartNames: string[] = [];
         let rootModelFile: string | undefined;
-        const { onProgress, workerCount } = options;
+        const onProgress = options.onProgress;
+        const workerCount = resolveWorkerCount(options.workerCount);
 
         onProgress?.(10);
         try {
@@ -126,21 +139,17 @@ export class Fast3MFLoader {
             const textDecoder = new TextDecoder();
             // rels
             if (relsName === undefined) throw new Error("THREE.ThreeMFLoader: Cannot find relationship file `rels` in 3MF archive.");
-            console.time("rels");
             const relsView = zip[relsName];
             const relsFileText = textDecoder.decode(relsView);
             const rels = this.parseRelsXml(relsFileText);
-            console.timeEnd("rels");
             onProgress?.(95);
 
             // modelRels
             let modelRels: Relationship[] | undefined;
             if (modelRelsName) {
-                console.time("modelRels");
                 const relsView = zip[modelRelsName];
                 const relsFileText = textDecoder.decode(relsView);
                 modelRels = this.parseRelsXml(relsFileText);
-                console.timeEnd("modelRels");
             }
 
             onProgress?.(98);

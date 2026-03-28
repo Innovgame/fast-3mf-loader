@@ -51,69 +51,27 @@ console.log("解析结果:", group);
 **参数:**
 - `data`: 3MF文件数据，ArrayBuffer
 - `options`: 可选配置对象
-  - `workerCount`: number - 使用的WebWorker数量
+  - `workerCount`: number - 使用的 WebWorker 数量。默认会根据当前运行环境的并发能力自动推导，并在无法判断时回退到安全值。
   - `onProgress`: (progress: number) => void - 进度回调函数
 
 **返回值:**
-Promise解析为包含3D模型数据的对象，结构如下：
+Promise 解析为 `Model3MF`。包中同时导出了 `Model3MF` 这个面向文档的 `ParseResult` 别名，以及相关辅助类型 `ParseOptions`、`ParsedModelPart`、`Relationship`。
 
 ```typescript
-type ParseOptions = {
-    workerCount?: number;
-    onProgress?: (progress: number) => void;
+import type {
+  Model3MF,
+  ParseOptions,
+  ParsedModelPart,
+  Relationship,
+} from "fast-3mf-loader";
+
+type Model3MF = {
+  rels: Relationship[];
+  modelRels?: Relationship[];
+  model: Record<string, ParsedModelPart>;
+  printTicket: Record<string, never>;
+  texture: Record<string, ArrayBuffer>;
 };
-
-interface Model3MF {
-    rels: {
-        target: string | null;
-        id: string | null;
-        type: string | null;
-    }[];
-    modelRels: {
-        target: string | null;
-        id: string | null;
-        type: string | null;
-    }[] | undefined;
-    model: {
-        [key: string]: ModelPart3MF;
-    };
-    printTicket: {};
-    texture: {
-        [key: string]: ArrayBuffer;
-    };
-}
-
-interface ModelPart3MF {
-            unit: string | undefined;
-            version: string | undefined;
-            transform: {};
-            metadata: {};
-            resources: {
-                object: {
-                    [key: string]: ObjectType;
-                };
-                basematerials: {
-                    [key: string]: BasematerialsType;
-                };
-                texture2d: {
-                    [key: string]: Texture2dType;
-                };
-                colorgroup: {
-                    [key: string]: ColorGroupType;
-                };
-                texture2dgroup: {
-                    [key: string]: Texture2dGroupType;
-                };
-                pbmetallicdisplayproperties: {
-                    [key: string]: any;
-                };
-            };
-            build: BuildItemType[];
-            extensions: {
-                [key: string]: string;
-            };
-            requiredExtensions: string | undefined;
-}
 ```
 
 可以通过 `fast3mfBuilder(data3mf)` 将解析结果转换成 `THREE.Group`。
@@ -144,7 +102,7 @@ interface ModelPart3MF {
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-repo/fast-3mf-loader.git
+git clone https://github.com/Innovgame/fast-3mf-loader.git
 
 # 安装依赖
 npm install

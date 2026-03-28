@@ -53,69 +53,27 @@ Parses 3MF file and returns model data.
 **Parameters:**
 - `data`: 3MF file data, ArrayBuffer
 - `options`: Optional configuration object
-  - `workerCount`: number - Number of WebWorkers to use
+  - `workerCount`: number - Number of WebWorkers to use. Defaults to an auto-detected value based on available runtime concurrency, with a safe fallback.
   - `onProgress`: (progress: number) => void - Progress callback function
 
 **Return Value:**
-Promise that resolves to an object containing 3D model data with the following structure:
+Promise that resolves to `Model3MF`. The package exports `Model3MF` as a documentation-friendly alias of `ParseResult`, plus the related helper types `ParseOptions`, `ParsedModelPart`, and `Relationship`.
 
 ```typescript
-type ParseOptions = {
-    workerCount?: number;
-    onProgress?: (progress: number) => void;
+import type {
+  Model3MF,
+  ParseOptions,
+  ParsedModelPart,
+  Relationship,
+} from "fast-3mf-loader";
+
+type Model3MF = {
+  rels: Relationship[];
+  modelRels?: Relationship[];
+  model: Record<string, ParsedModelPart>;
+  printTicket: Record<string, never>;
+  texture: Record<string, ArrayBuffer>;
 };
-
-interface Model3MF {
-    rels: {
-        target: string | null;
-        id: string | null;
-        type: string | null;
-    }[];
-    modelRels: {
-        target: string | null;
-        id: string | null;
-        type: string | null;
-    }[] | undefined;
-    model: {
-        [key: string]: ModelPart3MF;
-    };
-    printTicket: {};
-    texture: {
-        [key: string]: ArrayBuffer;
-    };
-}
-
-interface ModelPart3MF {
-            unit: string | undefined;
-            version: string | undefined;
-            transform: {};
-            metadata: {};
-            resources: {
-                object: {
-                    [key: string]: ObjectType;
-                };
-                basematerials: {
-                    [key: string]: BasematerialsType;
-                };
-                texture2d: {
-                    [key: string]: Texture2dType;
-                };
-                colorgroup: {
-                    [key: string]: ColorGroupType;
-                };
-                texture2dgroup: {
-                    [key: string]: Texture2dGroupType;
-                };
-                pbmetallicdisplayproperties: {
-                    [key: string]: any;
-                };
-            };
-            build: BuildItemType[];
-            extensions: {
-                [key: string]: string;
-            };
-            requiredExtensions: string | undefined;
-}
 ```
 
 Use `fast3mfBuilder(data3mf)` to convert the parsed data into a `THREE.Group`.
@@ -146,7 +104,7 @@ Supports all modern browsers (Chrome, Firefox, Safari, Edge, etc.) and environme
 
 ```bash
 # Clone repository
-git clone https://github.com/your-repo/fast-3mf-loader.git
+git clone https://github.com/Innovgame/fast-3mf-loader.git
 
 # Install dependencies
 npm install
