@@ -67,9 +67,16 @@
   - parse pipeline stabilization
   - parser boundary coverage
   - benchmark phase split
-- 当前下一阶段主线：
-  - performance hotspots optimization
-  - capability clarity / support-matrix 持续校准
+  - fixture-backed support matrix baseline
+- 当前长期方向已收敛为 `稳态 1.0` 发布，而不是继续优先扩 format 支持面：
+  - claim alignment：README、support matrix、类型和实际能力对齐
+  - performance hardening：围绕大 fixture 保持 benchmark-backed 优化
+  - usability / API stability：冻结公开契约、收敛 worker 与错误体验
+  - release readiness：把验证、打包和发布说明做成固定门槛
+- `1.1+` 再考虑：
+  - 真正的 chunked input public API
+  - `Print Ticket` 与更多 extension resources 支持
+  - 更广泛的非浏览器运行时叙事
 
 ## Key References
 
@@ -81,6 +88,8 @@
   `docs/superpowers/specs/2026-03-28-parse-pipeline-stabilization-design.md`
 - Performance hotspots design：
   `docs/superpowers/specs/2026-03-28-performance-hotspots-design.md`
+- Stable 1.0 roadmap design：
+  `docs/superpowers/specs/2026-03-28-stable-1-0-roadmap-design.md`
 - Library stabilization plan：
   `docs/superpowers/plans/2026-03-28-library-stabilization.md`
 - Parse pipeline stabilization plan：
