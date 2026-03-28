@@ -2,7 +2,7 @@ import UZipWorker from "./unzip.worker?worker&inline";
 import ParseModelWorker from "./parse-model.worker?worker&inline";
 import { type Unzipped } from "fflate";
 import { WorkerPool } from "./WorkerPool";
-import { StateType } from "./util";
+import { ParseResult, ParsedModelPart, Relationship } from "./util";
 
 type UnzipWorkerMessage = { type: "done"; zip: Unzipped } | { type: "error"; message: string };
 
@@ -36,22 +36,26 @@ async function unzipData(data: ArrayBuffer) {
     });
 }
 
-type MessageParseModel = { type: "done"; state: StateType } | { type: "error"; message: string };
+type MessageParseModel = { type: "done"; state: ParsedModelPart } | { type: "error"; message: string };
+
+export type { ParseResult, ParsedModelPart, Relationship };
+
+export type ParseOptions = {
+    onProgress?: (percent: number) => void;
+    workerCount?: number;
+};
 
 export class Fast3MFLoader {
-    async parse(
-        data: ArrayBuffer,
-        options: { onProgress?: (percent: number) => void; workerCount?: number } = {
+    async parse(data: ArrayBuffer, options: ParseOptions = {
             onProgress() {},
             workerCount: Math.min(navigator.hardwareConcurrency - 1, 15),
-        }
-    ) {
+        }): Promise<ParseResult> {
         let zip: Unzipped | undefined;
         const modelPartNames: string[] = [];
         let relsName: string | undefined;
         let modelRelsName: string | undefined;
         const texturesPartNames = [];
-        let rootModelFile: any | undefined;
+        let rootModelFile: string | undefined;
         const { onProgress, workerCount } = options;
 
         onProgress?.(10);
@@ -75,6 +79,7 @@ export class Fast3MFLoader {
         }
         onProgress?.(30);
         if (!zip) throw new Error("unzip error");
+        if (!rootModelFile) throw new Error("THREE.ThreeMFLoader: Cannot find root model file in 3MF archive.");
 
         modelPartNames.push(rootModelFile); // push root model at the end so it is processed after the sub models
         if (relsName === undefined) throw new Error("THREE.ThreeMFLoader: Cannot find relationship file `rels` in 3MF archive.");
@@ -103,7 +108,7 @@ export class Fast3MFLoader {
             // modelParts
             const messages = await Promise.all(prommies);
             // const modelParts = messages.map((v) => v.data.state);
-            const modelParts: { [key: string]: StateType } = {};
+            const modelParts: Record<string, ParsedModelPart> = {};
             for (let i = 0; i < modelPartNames.length; i++) {
                 const modelPart = modelPartNames[i];
                 const data = messages[i].data;
@@ -126,7 +131,7 @@ export class Fast3MFLoader {
             onProgress?.(95);
 
             // modelRels
-            let modelRels;
+            let modelRels: Relationship[] | undefined;
             if (modelRelsName) {
                 console.time("modelRels");
                 const relsView = zip[modelRelsName];
@@ -145,7 +150,7 @@ export class Fast3MFLoader {
             }
 
             // printTicketParts TODO:
-            const printTicketParts = {};
+            const printTicketParts: Record<string, never> = {};
             onProgress?.(100);
 
             return {
@@ -162,8 +167,8 @@ export class Fast3MFLoader {
         }
     }
 
-    private parseRelsXml(relsFileText: string) {
-        const relationships = [];
+    private parseRelsXml(relsFileText: string): Relationship[] {
+        const relationships: Relationship[] = [];
         const relationshipPattern = /<Relationship\b([^>]*)\/?>/g;
         const attributePattern = /\b(Target|Id|Type)="([^"]*)"/g;
 

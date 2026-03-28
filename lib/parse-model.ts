@@ -1,6 +1,6 @@
-// @ts-ignore
 import EasySAXParser from "easysax";
 import { parse } from "./parse";
+import type { ParsedColorGroupType, ParsedModelPart, ParsedObjectType, ParsedTexture2dGroupType } from "./util";
 
 export async function parseModelBuffer(data: Uint8Array<ArrayBuffer>) {
     const easysaxParser = new EasySAXParser({ autoEntity: false });
@@ -19,47 +19,60 @@ export async function parseModelBuffer(data: Uint8Array<ArrayBuffer>) {
 
     const transfer: Transferable[] = [];
 
+    const { current, ...parsedState } = state;
+    const parsedObjects: Record<string, ParsedObjectType> = {};
+    const parsedTextureGroups: Record<string, ParsedTexture2dGroupType> = {};
+    const parsedColorGroups: Record<string, ParsedColorGroupType> = {};
+
     for (const key in state.resources.object) {
         if (!Object.hasOwn(state.resources.object, key)) continue;
         const object = state.resources.object[key];
-        if (object.mesh.vertices.length > 0) {
-            const vs = new Float32Array(object.mesh.vertices);
-            object.mesh.vertices = vs as any;
-            transfer.push(vs.buffer);
-        }
+        const vertices = new Float32Array(object.mesh.vertices);
+        const triangles = new Uint32Array(object.mesh.triangles);
+        transfer.push(vertices.buffer, triangles.buffer);
 
-        if (object.mesh.triangles.length > 0) {
-            const fs = new Uint32Array(object.mesh.triangles);
-            object.mesh.triangles = fs as any;
-            transfer.push(fs.buffer);
-        }
+        parsedObjects[key] = {
+            ...object,
+            mesh: {
+                ...object.mesh,
+                vertices,
+                triangles,
+            },
+        };
     }
 
     for (const key in state.resources.texture2dgroup) {
         if (!Object.hasOwn(state.resources.texture2dgroup, key)) continue;
         const texture2dcoord = state.resources.texture2dgroup[key];
-        if (texture2dcoord.uvs.length > 0) {
-            const vs = new Float32Array(texture2dcoord.uvs);
-            texture2dcoord.uvs = vs as any;
-            transfer.push(vs.buffer);
-        }
+        const uvs = new Float32Array(texture2dcoord.uvs);
+        transfer.push(uvs.buffer);
+        parsedTextureGroups[key] = {
+            ...texture2dcoord,
+            uvs,
+        };
     }
 
     for (const key in state.resources.colorgroup) {
         if (!Object.hasOwn(state.resources.colorgroup, key)) continue;
         const colorgroup = state.resources.colorgroup[key];
-        if (colorgroup.colors.length > 0) {
-            const vs = new Float32Array(colorgroup.colors);
-            colorgroup.colors = vs as any;
-            transfer.push(vs.buffer);
-        }
+        const colors = new Float32Array(colorgroup.colors);
+        transfer.push(colors.buffer);
+        parsedColorGroups[key] = {
+            ...colorgroup,
+            colors,
+        };
     }
 
-    // @ts-ignore
-    delete state["current"];
-
     return {
-        state,
+        state: {
+            ...parsedState,
+            resources: {
+                ...parsedState.resources,
+                object: parsedObjects,
+                texture2dgroup: parsedTextureGroups,
+                colorgroup: parsedColorGroups,
+            },
+        } satisfies ParsedModelPart,
         transfer,
     };
 }

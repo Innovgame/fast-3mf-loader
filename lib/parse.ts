@@ -1,3 +1,4 @@
+import type EasySAXParser from "easysax";
 import {
     createBuildItem,
     createComponent,
@@ -39,7 +40,7 @@ export function detectAndCreateModels(state: StateType, input: StateInput) {
         createMetadata(state, extractMetadata(input));
     } else if (input.tagName === "object") {
         if (input.start) createObject(state, extractObjectStart(input));
-        if (input.end) state.current.currentObjectId = undefined!;
+        if (input.end) state.current.currentObjectId = undefined;
     } else if (input.tagName === "vertex" && input.start) {
         createVertex(state, extractVertexData(input));
     } else if (input.tagName === "triangle" && input.start) {
@@ -50,25 +51,25 @@ export function detectAndCreateModels(state: StateType, input: StateInput) {
         createComponent(state, extractComponentData(input));
     } else if (input.tagName === "basematerials") {
         if (input.start) createBasematerials(state, extractBasematerialsData(input));
-        if (input.end) state.current.currentBasematerialsId = undefined!;
+        if (input.end) state.current.currentBasematerialsId = undefined;
     } else if (input.tagName === "base" && input.start) {
         createBasematerial(state, extractBasematerialData(input));
     } else if (input.tagName.endsWith("texture2d") && input.start) {
         createTexture2d(state, extractTexture2dData(input));
     } else if (input.tagName.endsWith("colorgroup")) {
         if (input.start) createColorGroup(state, extractColorGroupData(input));
-        if (input.end) state.current.currentColorGroupId = undefined!;
+        if (input.end) state.current.currentColorGroupId = undefined;
     } else if (input.tagName.endsWith("color") && input.start) {
         createColor(state, extractColorData(input));
     } else if (input.tagName.endsWith("texture2dgroup")) {
         if (input.start) createTexture2dGroup(state, extractTexture2dGroup(input));
-        if (input.end) state.current.currentTexture2dGroupId = undefined!;
+        if (input.end) state.current.currentTexture2dGroupId = undefined;
     } else if (input.tagName.endsWith("tex2coord") && input.start) {
         createTexture2dCoord(state, extractTexture2dCoord(input));
     }
 }
 
-export function parse(easysaxParser: any, start: () => Promise<void>) {
+export function parse(easysaxParser: EasySAXParser, start: () => Promise<void>) {
     return new Promise<StateType>(async (resolve, reject) => {
         const state = Object.assign({}, makeModelsStateExtras());
 
@@ -84,27 +85,34 @@ export function parse(easysaxParser: any, start: () => Promise<void>) {
         });
 
         let tagName: string | undefined = undefined;
-        easysaxParser.on("startNode", function (elementName: string, getAttr: Function, isTagEnd: boolean, getStringNode: Function) {
+        let currentMetadataName: string | undefined;
+        easysaxParser.on("startNode", function (elementName, getAttr, isTagEnd, getStringNode) {
             // elementName -- (string) element name. If namespaces are enabled, it automatically sets the prefix
             // getAttr() -- (function) parse attributes and return an object
             // isTagEnd -- (boolean) flag that the element is empty "<elem/>"
             // getStringNode() -- (function) returns the unparsed string of the element. example: <item title="text" id="x345">
             // debugger;
+            if (elementName === "metadata") {
+                currentMetadataName = getAttr()?.["name"];
+            }
             tagName = elementName;
-            processData({ tagName: elementName, empty: isTagEnd, getStringNode, getAttr, start: true });
+            processData({ tagName: elementName, empty: isTagEnd, getStringNode, getAttr, metadataName: currentMetadataName, start: true });
         });
 
-        easysaxParser.on("endNode", function (elementName: string, isTagStart: boolean, getStringNode: Function) {
+        easysaxParser.on("endNode", function (elementName, isTagStart, getStringNode) {
             // isTagStart -- (boolean) flag that the element is empty "<elem/>"
             // debugger
             processData({ tagName: elementName, empty: isTagStart, getStringNode, end: true });
+            if (elementName === "metadata") {
+                currentMetadataName = undefined;
+            }
             tagName = undefined;
         });
 
-        easysaxParser.on("textNode", function (text: string) {
+        easysaxParser.on("textNode", function (text) {
             // text -- (String) line of text
             if (!tagName) return;
-            processData({ tagName: tagName, text });
+            processData({ tagName: tagName, text, metadataName: currentMetadataName });
         });
 
         try {

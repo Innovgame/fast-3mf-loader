@@ -56,19 +56,23 @@
 //     }
 // }
 
+import type { SAXGetAttr, SAXGetStringNode } from "easysax";
+
 export type TriangleProperty = {
     v1: number;
     v2: number;
     v3: number;
-    p1: number;
-    p2: number;
-    p3: number;
+    p1?: number;
+    p2?: number;
+    p3?: number;
     pid?: number;
 };
 export type ComponentType = {
     objectId: string;
     /** 4x4 */
     transform?: number[];
+    id?: string;
+    path?: string;
 };
 
 export type MeshData = {
@@ -81,15 +85,15 @@ export type ObjectType = {
     id: string;
     type?: string;
     name?: string;
-    pid?: any;
-    pindex?: any;
-    thumbnail?: any;
-    partnumber?: any;
+    pid?: string;
+    pindex?: string;
+    thumbnail?: string;
+    partnumber?: string;
     mesh: MeshData;
     components: ComponentType[];
 };
 
-export type BuildItemType = { objectId: string; transform?: number[] };
+export type BuildItemType = { objectId: string; transform?: number[]; partnumber?: string; path?: string };
 
 export type BasematerialType = {
     index: number;
@@ -121,33 +125,85 @@ export type Texture2dGroupType = {
 };
 
 export type BasematerialsType = {
-    id: number;
+    id: string;
     basematerials: BasematerialType[];
+};
+
+export type Relationship = {
+    target: string | null;
+    id: string | null;
+    type: string | null;
+};
+
+export type CurrentParseState = {
+    currentObjectId?: string;
+    currentBasematerialsId?: string;
+    currentColorGroupId?: string;
+    currentTexture2dGroupId?: string;
+};
+
+export type ParsedModelPart = {
+    unit?: string;
+    version?: string;
+    transform: { scale?: number[] };
+    metadata: Record<string, string>;
+    resources: {
+        object: Record<string, ParsedObjectType>;
+        basematerials: Record<string, BasematerialsType>;
+        texture2d: Record<string, Texture2dType>;
+        colorgroup: Record<string, ParsedColorGroupType>;
+        texture2dgroup: Record<string, ParsedTexture2dGroupType>;
+        pbmetallicdisplayproperties: Record<string, unknown>;
+    };
+    build: BuildItemType[];
+    extensions: Record<string, string>;
+    requiredExtensions?: string;
+};
+
+export type ParseResult = {
+    rels: Relationship[];
+    modelRels?: Relationship[];
+    model: Record<string, ParsedModelPart>;
+    printTicket: Record<string, never>;
+    texture: Record<string, ArrayBuffer>;
+};
+
+export type ParsedMeshData = {
+    vertices: Float32Array;
+    triangles: Uint32Array;
+    triangleProperties: TriangleProperty[];
+};
+
+export type ParsedObjectType = Omit<ObjectType, "mesh"> & {
+    mesh: ParsedMeshData;
+};
+
+export type ParsedColorGroupType = Omit<ColorGroupType, "colors"> & {
+    colors: Float32Array;
+};
+
+export type ParsedTexture2dGroupType = Omit<Texture2dGroupType, "uvs"> & {
+    uvs: Float32Array;
 };
 
 export function makeModelsStateExtras() {
     return {
-        current: {
-            currentObjectId: undefined! as string,
-            currentBasematerialsId: undefined! as string,
-            currentColorGroupId: undefined! as string,
-            currentTexture2dGroupId: undefined! as string,
-        },
-        unit: "" as string | undefined,
-        version: "" as string | undefined,
-        transform: {},
-        metadata: {},
+        current: {} as CurrentParseState,
+        unit: undefined as string | undefined,
+        version: undefined as string | undefined,
+        transform: {} as { scale?: number[] },
+        metadata: {} as Record<string, string>,
         resources: {
-            object: {} as { [key: string]: ObjectType },
-            basematerials: {} as { [key: string]: BasematerialsType },
-            texture2d: {} as { [key: string]: Texture2dType },
-            colorgroup: {} as { [key: string]: ColorGroupType },
-            texture2dgroup: {} as { [key: string]: Texture2dGroupType },
-            pbmetallicdisplayproperties: {} as { [key: string]: any },
+            object: {} as Record<string, ObjectType>,
+            basematerials: {} as Record<string, BasematerialsType>,
+            texture2d: {} as Record<string, Texture2dType>,
+            colorgroup: {} as Record<string, ColorGroupType>,
+            texture2dgroup: {} as Record<string, Texture2dGroupType>,
+            pbmetallicdisplayproperties: {} as Record<string, unknown>,
         },
         build: [] as BuildItemType[],
-        extensions: {} as { [key: string]: string },
-        requiredExtensions: undefined! as string | undefined,
+        extensions: {} as Record<string, string>,
+        requiredExtensions: undefined as string | undefined,
     };
 }
 
@@ -177,12 +233,13 @@ export type StateType = ReturnType<typeof makeModelsStateExtras>;
 
 export type StateInput = {
     tagName: string;
-    getStringNode?: Function;
-    getAttr?: Function;
+    getStringNode?: SAXGetStringNode;
+    getAttr?: SAXGetAttr;
     // element is empty
     empty?: boolean;
     /** 文本区域 */
     text?: string;
+    metadataName?: string;
     /** 标签开始 */
     start?: boolean;
     /** 标签结束 */

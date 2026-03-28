@@ -255,11 +255,13 @@ function buildBasematerialsMeshes(
 
     for (let i = 0, l = triangleProperties.length; i < l; i++) {
         const triangleProperty = triangleProperties[i];
-        const pindex = triangleProperty.p1 !== undefined ? triangleProperty.p1 : objectPindex;
+        const pindex = triangleProperty.p1 ?? (objectPindex !== undefined ? Number(objectPindex) : undefined);
+        if (pindex === undefined || Number.isNaN(pindex)) continue;
+        const materialKey = String(pindex);
 
-        if (materialMap[pindex] === undefined) materialMap[pindex] = [];
+        if (materialMap[materialKey] === undefined) materialMap[materialKey] = [];
 
-        materialMap[pindex].push(triangleProperty);
+        materialMap[materialKey].push(triangleProperty);
     }
 
     //
@@ -313,11 +315,16 @@ function buildBasematerial(materialData: BasematerialType, _objects: { [key: str
 
     const displaypropertiesid = materialData.displaypropertiesid;
     const pbmetallicdisplayproperties = modelData.resources.pbmetallicdisplayproperties;
+    type MetallicDisplayProperties = {
+        data: Array<{ roughness: number; metallicness: number }>;
+    };
+    const pbmetallicdisplayproperty = displaypropertiesid
+        ? (pbmetallicdisplayproperties[displaypropertiesid] as MetallicDisplayProperties | undefined)
+        : undefined;
 
-    if (displaypropertiesid && pbmetallicdisplayproperties[displaypropertiesid] !== undefined) {
+    if (displaypropertiesid && pbmetallicdisplayproperty) {
         // metallic display property, use StandardMaterial
 
-        const pbmetallicdisplayproperty = pbmetallicdisplayproperties[displaypropertiesid];
         const metallicData = pbmetallicdisplayproperty.data[materialData.index];
 
         material = new THREE.MeshStandardMaterial({ flatShading: true, roughness: metallicData.roughness, metalness: metallicData.metallicness });
@@ -366,6 +373,7 @@ function buildTexturedMesh(
 
     for (let i = 0, l = triangleProperties.length; i < l; i++) {
         const triangleProperty = triangleProperties[i];
+        if (triangleProperty.p1 === undefined || triangleProperty.p2 === undefined || triangleProperty.p3 === undefined) continue;
 
         positionData.push(vertices[triangleProperty.v1 * 3 + 0]);
         positionData.push(vertices[triangleProperty.v1 * 3 + 1]);
@@ -530,9 +538,11 @@ function buildVertexColorMesh(colorgroup: ColorGroupType, triangleProperties: Tr
 
         //
 
-        const p1 = triangleProperty.p1 !== undefined ? triangleProperty.p1 : objectData.pindex;
+        const fallbackPindex = objectData.pindex !== undefined ? Number(objectData.pindex) : undefined;
+        const p1 = triangleProperty.p1 ?? fallbackPindex;
         const p2 = triangleProperty.p2 !== undefined ? triangleProperty.p2 : p1;
         const p3 = triangleProperty.p3 !== undefined ? triangleProperty.p3 : p1;
+        if (p1 === undefined || p2 === undefined || p3 === undefined) continue;
 
         colorData.push(colors[p1 * 3 + 0]);
         colorData.push(colors[p1 * 3 + 1]);

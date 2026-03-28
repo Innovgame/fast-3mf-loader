@@ -6,7 +6,7 @@ onmessage = async (event: MessageEvent<Uint8Array<ArrayBuffer>>) => {
     try {
         const { state, transfer } = await parseModelBuffer(data);
         postMessage({ type: "done", state }, { transfer: transfer });
-    } catch (error: any) {
-        postMessage({ type: "error", message: error?.message ?? "fflate missing and file is compressed." });
+    } catch (error: unknown) {
+        postMessage({ type: "error", message: error instanceof Error ? error.message : "fflate missing and file is compressed." });
     }
 };

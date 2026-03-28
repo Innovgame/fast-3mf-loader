@@ -52,16 +52,11 @@ export function extractModelData(input: StateInput) {
     return { unit, version, requiredExtensions, extensions, scale };
 }
 
-let _metadataAttrs: any;
 export function extractMetadata(input: StateInput) {
-    const { text, getAttr } = input;
-    const name = _metadataAttrs?.["name"];
-    if (text && name) {
-        return { [name]: text };
+    const { text, metadataName } = input;
+    if (text && metadataName) {
+        return { [metadataName]: text };
     }
-
-    const attributes = getAttr?.();
-    _metadataAttrs = attributes;
 }
 
 export function extractObjectStart(input: StateInput) {
@@ -149,8 +144,6 @@ export function extractBuildItemData(input: StateInput) {
             if (key === "transform") {
                 data["transform"] = matrixFromTransformString(attributes[key]);
             } else {
-                // others
-                // @ts-ignore
                 data[key] = attributes[key];
             }
         }
@@ -172,8 +165,6 @@ export function extractComponentData(input: StateInput) {
             if (key === "transform") {
                 data["transform"] = matrixFromTransformString(attributes[key]);
             } else {
-                // others
-                // @ts-ignore
                 data[key] = attributes[key];
             }
         }
