@@ -3,7 +3,7 @@
 [https://img.shields.io/npm/v/fast-3mf-loader.svg](https://www.npmjs.com/package/fast-3mf-loader)
 [https://img.shields.io/badge/license-MIT-blue.svg](https://opensource.org/licenses/MIT)
 
-一个高性能的3MF文件解析器，采用流式解析和WebWorker多线程技术，内存占用更低，解析速度更快。使用TypeScript编写。
+一个高性能的3MF文件解析器，采用流式解析和 WebWorker 多线程技术，目标是用更低的内存占用获得更快的解析表现。使用 TypeScript 编写。
 
 ## 特性
 
@@ -130,15 +130,11 @@ interface ModelPart3MF {
 | 组件装配 | 已支持 | 由 `truck.3mf` 覆盖 |
 | Print Ticket | 暂不支持 | 当前返回空对象并给出警告 |
 
-## 性能对比
+## 基准测试
 
-与传统的3MF解析器相比，fast-3mf-loader在大型文件处理上有显著优势：
+可以通过 `npm run build && npm run benchmark` 复现实测结果。
 
-| 指标              | 传统解析器 | fast-3mf-loader |
-| ----------------- | ---------- | --------------- |
-| 100MB文件解析时间 |            |                 |
-| 内存峰值占用      |            |                 |
-| CPU利用率         |            |                 |
+当前的基准流程和示例数据记录在 [docs/benchmarking.md](./docs/benchmarking.md) 中。文档里的数字来自 Apple Silicon / Node 22 上执行 `node scripts/benchmark.mjs` 的一次样本，适合作为可复现参考，而不是所有环境下的绝对承诺。
 
 ## 浏览器支持
 

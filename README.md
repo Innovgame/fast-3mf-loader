@@ -5,7 +5,7 @@
 > [!WARNING]  
 > This project is in early development. The API may change before a stable 1.0 release. Use with caution in production.
 
-A high-performance 3MF file parser that uses stream parsing and WebWorker multi-threading technology, offering lower memory usage and faster parsing speed. Written in TypeScript.
+A high-performance 3MF file parser that uses stream parsing and WebWorker multi-threading technology, designed for lower memory usage and faster parse times. Written in TypeScript.
 
 ## Features
 
@@ -132,15 +132,11 @@ Current support is documented in [docs/support-matrix.md](./docs/support-matrix.
 | Components | Supported | Covered by `truck.3mf` |
 | Print tickets | Not yet supported | Parser returns an empty object and warns |
 
-## Performance Comparison
+## Benchmarking
 
-Compared to traditional 3MF parsers, fast-3mf-loader has significant advantages in large file processing:
+Benchmarks are collected with `npm run build && npm run benchmark`.
 
-| Metric                  | Traditional Parser | fast-3mf-loader |
-| ----------------------- | ------------------ | --------------- |
-| 100MB file parsing time | 8.0s               | 2.7s            |
-| Peak memory usage       |                    |                 |
-| CPU utilization         |                    |                 |
+The current procedure and sample results are documented in [docs/benchmarking.md](./docs/benchmarking.md). Those numbers were collected with `node scripts/benchmark.mjs` on Apple Silicon / Node 22 and should be treated as reproducible samples rather than universal guarantees.
 
 ## Browser Support
 
