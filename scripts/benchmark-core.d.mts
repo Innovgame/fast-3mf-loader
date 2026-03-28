@@ -8,6 +8,19 @@ export type BenchmarkRow = {
     children: number;
 };
 
+export type BenchmarkAggregateRow = BenchmarkRow & {
+    parseRangeMs: [number, number];
+    buildRangeMs: [number, number];
+    totalRangeMs: [number, number];
+    runs: number;
+};
+
+export type BenchmarkConfig = {
+    warmupRuns: number;
+    measuredRuns: number;
+    workerCount: number;
+};
+
 export type BenchmarkSummaryRow = {
     Fixture: string;
     "Size (KiB)": string;
@@ -56,4 +69,12 @@ export function measureFixture<TParsed extends { model: Record<string, unknown> 
     now?: () => number;
 }): Promise<BenchmarkRow>;
 
+export function resolveBenchmarkConfig({
+    hardwareConcurrency,
+    env,
+}: {
+    hardwareConcurrency: number;
+    env?: Record<string, string | undefined>;
+}): BenchmarkConfig;
+export function summarizeFixtureMeasurements(rows: BenchmarkRow[]): BenchmarkAggregateRow;
 export function summarizeRows(rows: BenchmarkRow[]): BenchmarkSummaryRow[];

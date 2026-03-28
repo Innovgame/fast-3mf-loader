@@ -34,6 +34,14 @@
 - 修复了本地 worktree 存在时的 Vitest 测试发现漂移：
   - `vite.config.ts` 现在显式排除 `**/.worktrees/**` 与 `**/worktrees/**`
   - `test/vite-config.test.ts` 锁定了这条配置回归
+- 2026-03-28 已完成一轮 benchmark evidence hardening：
+  - `scripts/benchmark-core.mjs` 新增按 fixture 汇总 measured runs 的 median/min/max 逻辑
+  - `scripts/benchmark.mjs` 现在除主表外还输出每个 fixture 的 spread 行，避免把单次样例值误读成稳定门槛
+  - `test/benchmark-core.test.ts` 与 `docs/benchmarking.md` 已同步到“median + spread”口径
+- 2026-03-29 已继续收敛 benchmark methodology：
+  - `scripts/benchmark-core.mjs` 新增 `resolveBenchmarkConfig()`，允许通过环境变量覆盖 warmup / measured runs / workerCount
+  - `scripts/benchmark.mjs` 已接入可配置采样，方便在 release 机器或噪声较大的环境中提高 evidence 采样密度
+  - `docs/benchmarking.md` 已补充环境变量入口，避免后续会话再次为了调采样而改脚本
 
 ## In Progress
 
@@ -41,10 +49,13 @@
 - 当前剩余主线收敛为 Phase 2 / 3：
   - 继续以 `multipletextures.3mf` 与 `truck.3mf` 维持 benchmark-backed performance evidence
   - 继续稳定 API / error / runtime ergonomics，收敛剩余 `1.0` blocker
+- 2026-03-28 当前这轮接力先落在 Phase 2 evidence hardening：
+  - 本地默认 `npm run benchmark` 与显式 `FAST3MF_BENCHMARK_WARMUP_RUNS=2 FAST3MF_BENCHMARK_MEASURED_RUNS=7 FAST3MF_BENCHMARK_WORKERS=6 npm run benchmark` 都已验证通过
+  - methodology 入口已经够灵活，当前剩余判断点从“如何改采样”收敛为“`1.0` release machine 最终应采用哪组 benchmark 采样参数”
 
 ## Next Up
 
-- 优先继续 Phase 2：Performance Hardening，观察大 fixture benchmark 是否还需要进一步优化或补充 evidence。
+- 优先继续 Phase 2：Performance Hardening，为 `1.0` release machine 确认 benchmark 建议采样参数，并判断当前波动是否还需要额外 methodology 约束。
 - 随后推进 Phase 3：围绕公开 API、warning/error 语义、浏览器运行前提继续稳定 `1.0` first-use ergonomics。
 - 在真正发布 `1.0` 前，用 `npm run release:check` 作为固定收口命令。
 

@@ -5,16 +5,17 @@ import process from "node:process";
 import { pathToFileURL } from "node:url";
 import { Worker as NodeWorker } from "node:worker_threads";
 import * as THREE from "three";
-import { installNodeTextureLoaderFallback, measureFixture, summarizeRows } from "./benchmark-core.mjs";
+import { installNodeTextureLoaderFallback, measureFixture, resolveBenchmarkConfig, summarizeFixtureMeasurements, summarizeRows } from "./benchmark-core.mjs";
 
 const fixtureNames = [
     "multipletextures.3mf",
     "truck.3mf",
 ];
-const warmupRuns = 1;
-const measuredRuns = 5;
 const hardwareConcurrency = availableParallelism();
-const workerCount = Math.min(Math.max(1, hardwareConcurrency - 1), 15);
+const { warmupRuns, measuredRuns, workerCount } = resolveBenchmarkConfig({
+    hardwareConcurrency,
+    env: process.env,
+});
 const distEntry = resolve(process.cwd(), "dist/fast-3mf-loader.js");
 
 installNavigatorPolyfill(hardwareConcurrency);
@@ -67,15 +68,7 @@ try {
             );
         }
 
-        rows.push({
-            fixture: fixtureName,
-            sizeKiB: measurements[0].sizeKiB,
-            parseMs: average(measurements.map((row) => row.parseMs)),
-            buildMs: average(measurements.map((row) => row.buildMs)),
-            totalMs: average(measurements.map((row) => row.totalMs)),
-            models: measurements[0].models,
-            children: measurements[0].children,
-        });
+        rows.push(summarizeFixtureMeasurements(measurements));
     }
 
     console.log(`fast-3mf-loader benchmark`);
@@ -83,14 +76,12 @@ try {
     console.log(`Warmup runs: ${warmupRuns} | Measured runs: ${measuredRuns}`);
     console.log("");
     printTable(rows);
+    console.log("");
+    printSpread(rows);
 } finally {
     restoreTextureLoader();
     console.time = originalConsoleTime;
     console.timeEnd = originalConsoleTimeEnd;
-}
-
-function average(values) {
-    return values.reduce((total, value) => total + value, 0) / values.length;
 }
 
 function installNavigatorPolyfill(concurrency) {
@@ -212,4 +203,16 @@ function printTable(rows) {
     for (const row of formattedRows) {
         console.log(columns.map((column) => row[column].padEnd(widths[column])).join("  "));
     }
+}
+
+function printSpread(rows) {
+    for (const row of rows) {
+        console.log(
+            `${row.fixture} spread | parse ${formatRange(row.parseRangeMs)} | build ${formatRange(row.buildRangeMs)} | total ${formatRange(row.totalRangeMs)} | n=${row.runs}`,
+        );
+    }
+}
+
+function formatRange([minimum, maximum]) {
+    return `${minimum.toFixed(1)}-${maximum.toFixed(1)}ms`;
 }
