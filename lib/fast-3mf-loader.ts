@@ -7,11 +7,11 @@ import { StateType } from "./util";
 async function unzipData(data: ArrayBuffer) {
     return new Promise<Unzipped>((resolve, reject) => {
         const worker = new UZipWorker();
-        worker.onmessage = (evt) => {
+        worker.onmessage = (evt: MessageEvent<Unzipped>) => {
             resolve(evt.data);
             worker.terminate();
         };
-        worker.onerror = (err) => {
+        worker.onerror = (err: ErrorEvent) => {
             reject(err);
             worker.terminate();
         };

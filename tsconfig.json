@@ -23,7 +23,7 @@
     "noUncheckedSideEffectImports": true
   },
   "include": [
-    "src",
-    "lib"
+    "lib",
+    "src/vite-env.d.ts"
   ]
 }

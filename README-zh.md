@@ -24,25 +24,27 @@ yarn add fast-3mf-loader
 ## 使用示例
 
 ```typescript
-import { ThreeMFLoader, fast3mfBuilder } from 'fast-3mf-loader';
+import { Fast3MFLoader, fast3mfBuilder } from "fast-3mf-loader";
 
 // 使用fetch获取文件
-const response = await fetch('path/to/model.3mf');
+const response = await fetch("path/to/model.3mf");
 const buffer = await response.arrayBuffer();
 
 // 解析3MF文件
-const loader = new ThreeMFLoader();
-const xmlData = await loader.parse(buffer, (progress) => {
-  console.log(`解析进度: ${progress}%`);
+const loader = new Fast3MFLoader();
+const data3mf = await loader.parse(buffer, {
+  onProgress(progress) {
+    console.log(`解析进度: ${progress}%`);
+  },
 });
 
-const group = fast3mfBuilder(xmlData);
-console.log('解析结果:', group);
+const group = fast3mfBuilder(data3mf);
+console.log("解析结果:", group);
 ```
 
 ## API
 
-### `ThreeMFLoader(data: Blob | ArrayBuffer, options?: ParseOptions): Promise<Model3MF>`
+### `Fast3MFLoader#parse(data: ArrayBuffer, options?: ParseOptions): Promise<Model3MF>`
 
 解析3MF文件并返回模型数据。
 
@@ -56,6 +58,11 @@ console.log('解析结果:', group);
 Promise解析为包含3D模型数据的对象，结构如下：
 
 ```typescript
+type ParseOptions = {
+    workerCount?: number;
+    onProgress?: (progress: number) => void;
+};
+
 interface Model3MF {
     rels: {
         target: string | null;
@@ -68,13 +75,15 @@ interface Model3MF {
         type: string | null;
     }[] | undefined;
     model: {
-        [key: string]: {
-            current: {
-                currentObjectId: string;
-                currentBasematerialsId: string;
-                currentColorGroupId: string;
-                currentTexture2dGroupId: string;
-            };
+        [key: string]: ModelPart3MF;
+    };
+    printTicket: {};
+    texture: {
+        [key: string]: ArrayBuffer;
+    };
+}
+
+interface ModelPart3MF {
             unit: string | undefined;
             version: string | undefined;
             transform: {};
@@ -104,14 +113,10 @@ interface Model3MF {
                 [key: string]: string;
             };
             requiredExtensions: string | undefined;
-        };
-    };
-    printTicket: {};
-    texture: {
-        [key: string]: ArrayBuffer;
-    };
 }
 ```
+
+可以通过 `fast3mfBuilder(data3mf)` 将解析结果转换成 `THREE.Group`。
 
 ## 性能对比
 

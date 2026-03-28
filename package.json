@@ -10,8 +10,7 @@
         "email": "innovgamejs@163.com"
     },
     "files": [
-        "dist",
-        "dist/fast-3mf-loader.d.ts"
+        "dist"
     ],
     "keywords": [
         "xml",
@@ -20,10 +19,10 @@
     ],
     "main": "./dist/fast-3mf-loader.umd.cjs",
     "module": "./dist/fast-3mf-loader.js",
-    "types": "./dist/fast-3mf-loader.d.ts",
+    "types": "./dist/lib/main.d.ts",
     "exports": {
         ".": {
-            "types": "./dist/fast-3mf-loader.d.ts",
+            "types": "./dist/lib/main.d.ts",
             "import": "./dist/fast-3mf-loader.js",
             "require": "./dist/fast-3mf-loader.umd.cjs"
         },
@@ -31,7 +30,8 @@
     },
     "scripts": {
         "dev": "vite",
-        "build": "tsc && vite build",
+        "build": "tsc -p tsconfig.lib.json && vite build",
+        "check:demo": "tsc -p tsconfig.demo.json --noEmit",
         "test": "vitest run"
     },
     "devDependencies": {

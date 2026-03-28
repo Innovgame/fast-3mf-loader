@@ -26,25 +26,27 @@ yarn add fast-3mf-loader
 ## Usage Example
 
 ```typescript
-import { ThreeMFLoader, fast3mfBuilder } from 'fast-3mf-loader';
+import { Fast3MFLoader, fast3mfBuilder } from "fast-3mf-loader";
 
 // Get file using fetch
-const response = await fetch('path/to/model.3mf');
+const response = await fetch("path/to/model.3mf");
 const buffer = await response.arrayBuffer();
 
 // Parse 3MF file
-const loader = new ThreeMFLoader();
-const xmlData = await loader.parse(buffer, (progress) => {
-  console.log(`Parsing progress: ${progress}%`);
+const loader = new Fast3MFLoader();
+const data3mf = await loader.parse(buffer, {
+  onProgress(progress) {
+    console.log(`Parsing progress: ${progress}%`);
+  },
 });
 
-const group = fast3mfBuilder(xmlData);
-console.log('Parsing result:', group);
+const group = fast3mfBuilder(data3mf);
+console.log("Parsing result:", group);
 ```
 
 ## API
 
-### `ThreeMFLoader(data: Blob | ArrayBuffer, options?: ParseOptions): Promise<Model3MF>`
+### `Fast3MFLoader#parse(data: ArrayBuffer, options?: ParseOptions): Promise<Model3MF>`
 
 Parses 3MF file and returns model data.
 
@@ -58,6 +60,11 @@ Parses 3MF file and returns model data.
 Promise that resolves to an object containing 3D model data with the following structure:
 
 ```typescript
+type ParseOptions = {
+    workerCount?: number;
+    onProgress?: (progress: number) => void;
+};
+
 interface Model3MF {
     rels: {
         target: string | null;
@@ -70,13 +77,15 @@ interface Model3MF {
         type: string | null;
     }[] | undefined;
     model: {
-        [key: string]: {
-            current: {
-                currentObjectId: string;
-                currentBasematerialsId: string;
-                currentColorGroupId: string;
-                currentTexture2dGroupId: string;
-            };
+        [key: string]: ModelPart3MF;
+    };
+    printTicket: {};
+    texture: {
+        [key: string]: ArrayBuffer;
+    };
+}
+
+interface ModelPart3MF {
             unit: string | undefined;
             version: string | undefined;
             transform: {};
@@ -106,14 +115,10 @@ interface Model3MF {
                 [key: string]: string;
             };
             requiredExtensions: string | undefined;
-        };
-    };
-    printTicket: {};
-    texture: {
-        [key: string]: ArrayBuffer;
-    };
 }
 ```
+
+Use `fast3mfBuilder(data3mf)` to convert the parsed data into a `THREE.Group`.
 
 ## Performance Comparison
 
