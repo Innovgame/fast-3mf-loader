@@ -245,7 +245,7 @@ function buildMeshes(
                 break;
 
             default:
-                console.error("THREE.3MFLoader: Unsupported resource type.");
+                console.warn(`fast3mfBuilder: Unsupported resource type for pid \`${resourceId}\`.`);
         }
     }
 

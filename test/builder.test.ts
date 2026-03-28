@@ -55,6 +55,46 @@ describe("fast3mfBuilder", () => {
         ).toThrow("fast3mfBuilder: Cannot find 3D model relationship in 3MF archive.");
     });
 
+    test("warns with a builder-facing message for unsupported resource ids", () => {
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+        const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+        const group = fast3mfBuilder({
+            rels: [{ target: "/3D/3dmodel.model" }],
+            modelRels: [],
+            model: {
+                "3D/3dmodel.model": {
+                    resources: {
+                        object: {
+                            "1": {
+                                id: "1",
+                                pid: "ext1",
+                                mesh: {
+                                    vertices: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]),
+                                    triangles: new Uint32Array([0, 1, 2]),
+                                    triangleProperties: [{ pid: "ext1" }],
+                                },
+                                components: [],
+                            },
+                        },
+                        basematerials: {},
+                        texture2d: {},
+                        colorgroup: {},
+                        texture2dgroup: {},
+                        pbmetallicdisplayproperties: {},
+                    },
+                    build: [{ objectId: "1" }],
+                },
+            },
+            printTicket: {},
+            texture: {},
+        } as any);
+
+        expect(group).toBeInstanceOf(THREE.Group);
+        expect(warnSpy).toHaveBeenCalledWith("fast3mfBuilder: Unsupported resource type for pid `ext1`.");
+        expect(errorSpy).not.toHaveBeenCalled();
+    });
+
     test("builds vertex colors for vertexcolors.3mf", async () => {
         const loader = new Fast3MFLoader();
         const data = await loader.parse(await readFixture("vertexcolors.3mf"));
