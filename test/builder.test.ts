@@ -43,6 +43,18 @@ describe("fast3mfBuilder", () => {
         expect(group.children.length).toBeGreaterThan(0);
     });
 
+    test("throws a builder-facing error when the root model relationship is missing", () => {
+        expect(() =>
+            fast3mfBuilder({
+                rels: [],
+                modelRels: [],
+                model: {},
+                printTicket: {},
+                texture: {},
+            } as any),
+        ).toThrow("fast3mfBuilder: Cannot find 3D model relationship in 3MF archive.");
+    });
+
     test("builds vertex colors for vertexcolors.3mf", async () => {
         const loader = new Fast3MFLoader();
         const data = await loader.parse(await readFixture("vertexcolors.3mf"));

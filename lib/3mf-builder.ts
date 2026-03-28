@@ -74,7 +74,7 @@ function fetch3DModelPart(rels: ParseResult["rels"]) {
         if (extension?.toLowerCase() === "model") return rel;
     }
 
-    throw new Error("THREE.ThreeMFLoader: Cannot find 3D model relationship in 3MF archive.");
+    throw new Error("fast3mfBuilder: Cannot find 3D model relationship in 3MF archive.");
 }
 
 function buildObjects(data3mf: ParseResult) {

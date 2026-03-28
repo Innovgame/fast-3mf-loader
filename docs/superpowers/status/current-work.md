@@ -50,6 +50,7 @@
   - `Fast3MFLoader#parse()` 现在会在收到非法 `workerCount` 时给出明确 warning，再回退到默认 worker 策略
   - `Fast3MFLoader#parse()` 现在也会在输入不是 `ArrayBuffer` 时立即抛出 loader-facing error，而不是落入底层 unzip 报错
   - worker 初始化失败现在会统一抛出直接指向 `Worker` / `Blob` 前提的 loader-facing error，而不是把底层构造错误直接暴露给用户
+  - `fast3mfBuilder()` 缺少 root model relationship 时，现在也会抛出 builder-facing error，而不是继续暴露旧的 `THREE.ThreeMFLoader` 前缀
   - `test/runtime-behavior.test.ts`、`test/error-handling.test.ts`、`README.md` 与 `README-zh.md` 已同步到这组 warning/error 语义
 
 ## In Progress
@@ -62,7 +63,7 @@
   - `benchmark:release` 与 `release:check` 已验证通过，当前 benchmark methodology 的主要收口点已经从“确定命令入口”切到“发布前在 release machine 刷新一次样本”
 - 2026-03-29 当前继续动作：
   - 已从 Phase 2 切入 Phase 3，先处理 `workerCount` 非法值原本会静默回退、以及非 `ArrayBuffer` 输入原本会落入底层错误的问题
-  - 下一步继续检查 warning / error 语义里是否还存在类似的“静默回退但缺少诊断信息”缺口，目前已覆盖非法参数、错误输入类型和 worker runtime prerequisite 三类 first-use 失败场景
+  - 下一步继续检查 warning / error 语义里是否还存在类似的“静默回退但缺少诊断信息”缺口，目前已覆盖非法参数、错误输入类型、worker runtime prerequisite，以及 builder 侧的旧错误前缀残留
 
 ## Next Up
 
