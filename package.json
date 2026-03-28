@@ -32,11 +32,12 @@
         "dev": "vite",
         "build": "tsc -p tsconfig.lib.json && vite build",
         "benchmark": "node scripts/benchmark.mjs",
+        "benchmark:release": "FAST3MF_BENCHMARK_WARMUP_RUNS=2 FAST3MF_BENCHMARK_MEASURED_RUNS=7 FAST3MF_BENCHMARK_WORKERS=6 npm run benchmark",
         "check:demo": "tsc -p tsconfig.demo.json --noEmit",
         "check:test": "tsc -p tsconfig.test.json --noEmit",
         "test": "vitest run",
         "verify": "npm run check:demo && npm run check:test && npm test && npm run build",
-        "release:check": "npm run verify && npm run benchmark && npm pack --dry-run"
+        "release:check": "npm run verify && npm run benchmark:release && npm pack --dry-run"
     },
     "devDependencies": {
         "@types/node": "^25.5.0",

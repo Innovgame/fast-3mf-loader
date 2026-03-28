@@ -42,6 +42,10 @@
   - `scripts/benchmark-core.mjs` 新增 `resolveBenchmarkConfig()`，允许通过环境变量覆盖 warmup / measured runs / workerCount
   - `scripts/benchmark.mjs` 已接入可配置采样，方便在 release 机器或噪声较大的环境中提高 evidence 采样密度
   - `docs/benchmarking.md` 已补充环境变量入口，避免后续会话再次为了调采样而改脚本
+- 2026-03-29 已把 release benchmark preset 固化进发布门槛：
+  - `package.json` 新增 `benchmark:release`，固定使用 `warmupRuns=2`、`measuredRuns=7`、`workerCount=6`
+  - `release:check` 现在通过 `benchmark:release` 收集 release-machine benchmark evidence，而不是依赖手写环境变量
+  - `test/release-gates.test.ts`、`docs/benchmarking.md` 与 `docs/releases/1.0.0-draft.md` 已同步到这条固定入口
 
 ## In Progress
 
@@ -50,13 +54,12 @@
   - 继续以 `multipletextures.3mf` 与 `truck.3mf` 维持 benchmark-backed performance evidence
   - 继续稳定 API / error / runtime ergonomics，收敛剩余 `1.0` blocker
 - 2026-03-28 当前这轮接力先落在 Phase 2 evidence hardening：
-  - 本地默认 `npm run benchmark` 与显式 `FAST3MF_BENCHMARK_WARMUP_RUNS=2 FAST3MF_BENCHMARK_MEASURED_RUNS=7 FAST3MF_BENCHMARK_WORKERS=6 npm run benchmark` 都已验证通过
-  - methodology 入口已经够灵活，当前剩余判断点从“如何改采样”收敛为“`1.0` release machine 最终应采用哪组 benchmark 采样参数”
+  - `benchmark:release` 与 `release:check` 已验证通过，当前 benchmark methodology 的主要收口点已经从“确定命令入口”切到“发布前在 release machine 刷新一次样本”
 
 ## Next Up
 
-- 优先继续 Phase 2：Performance Hardening，为 `1.0` release machine 确认 benchmark 建议采样参数，并判断当前波动是否还需要额外 methodology 约束。
-- 随后推进 Phase 3：围绕公开 API、warning/error 语义、浏览器运行前提继续稳定 `1.0` first-use ergonomics。
+- 优先继续 Phase 3：围绕公开 API、warning/error 语义、浏览器运行前提继续稳定 `1.0` first-use ergonomics。
+- 发布前在目标 release machine 上执行一次 `npm run release:check`，并用 `benchmark:release` 的输出刷新 benchmark 样本。
 - 在真正发布 `1.0` 前，用 `npm run release:check` 作为固定收口命令。
 
 ## Open Risks / Decisions

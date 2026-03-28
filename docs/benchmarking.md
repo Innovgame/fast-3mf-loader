@@ -11,6 +11,12 @@ npm run benchmark
 
 The benchmark imports the built `dist/fast-3mf-loader.js` bundle, runs end-to-end parse/build measurements against the large supported fixtures in `3mf/`, and reports median parse, build, and total times alongside the min/max spread from the measured runs.
 
+For the stable `1.0` release gate, use the fixed release preset instead of retyping environment variables:
+
+```bash
+npm run benchmark:release
+```
+
 Optional overrides for deeper sampling or release-machine calibration:
 
 ```bash
@@ -66,5 +72,7 @@ The builder-side wins are the clearest signal here: `multipletextures.3mf` dropp
 ## Stable 1.0 Benchmark Gate
 
 Before publishing `1.0`, run `npm run release:check` on the release machine and refresh the large-fixture benchmark sample if the medians or spread moved materially. If the release machine is noisy, re-run with explicit sampling overrides instead of silently replacing the sample with a single quick local run.
+
+`npm run release:check` now delegates benchmark evidence collection to `npm run benchmark:release`, which fixes `warmupRuns=2`, `measuredRuns=7`, and `workerCount=6` for the release-machine sample.
 
 Run `node scripts/benchmark.mjs` after `npm run build` to refresh this section with current medians and spread for your machine.
