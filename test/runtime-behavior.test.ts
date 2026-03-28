@@ -9,7 +9,7 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-test("resolveWorkerCount falls back to safe library defaults", () => {
+test("resolveWorkerCount documents the browser-first fallback strategy", () => {
     expect(resolveWorkerCount(undefined, Number.NaN)).toBe(4);
     expect(resolveWorkerCount(undefined, 1)).toBe(1);
     expect(resolveWorkerCount(undefined, 10)).toBe(9);

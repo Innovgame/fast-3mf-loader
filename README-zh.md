@@ -103,6 +103,12 @@ type Model3MF = {
 
 支持所有现代浏览器（Chrome, Firefox, Safari, Edge等）以及支持WebWorker和Blob API的环境。
 
+## 运行时说明
+
+- 面向支持 `Worker` 与 `Blob` 的现代浏览器
+- `workerCount` 默认使用 `min(hardwareConcurrency - 1, 15)`，无法判断时安全回退到 `4`
+- 当前未支持能力会通过 warning 明确提示，而不是静默伪装为成功
+
 ## 开发
 
 ```bash

@@ -9,6 +9,17 @@ type UnzipWorkerMessage = { type: "done"; zip: Unzipped } | { type: "error"; mes
 const DEFAULT_WORKER_COUNT = 4;
 const MAX_DEFAULT_WORKER_COUNT = 15;
 
+function toLoaderError(error: unknown, fallback: string): Error {
+    const raw = error instanceof Error ? error.message : String(error);
+    const message = raw && raw !== "undefined" ? raw : fallback;
+
+    if (message.startsWith("Fast3MFLoader:")) {
+        return new Error(message);
+    }
+
+    return new Error(`Fast3MFLoader: ${message}`);
+}
+
 function isUnzipWorkerMessage(payload: UnzipWorkerMessage | Unzipped): payload is UnzipWorkerMessage {
     return typeof payload === "object" && payload !== null && "type" in payload && (payload.type === "done" || payload.type === "error");
 }
@@ -73,17 +84,17 @@ export class Fast3MFLoader {
             zip = await unzipData(data);
             manifest = collectArchiveManifest(zip);
         } catch (error) {
-            throw error instanceof Error ? error : new Error(String(error));
+            throw toLoaderError(error, "Failed to unzip 3MF archive.");
         }
         onProgress?.(30);
         if (!zip) throw new Error("unzip error");
         if (!manifest) throw new Error("unzip error");
 
         const { relsName, modelRelsName, rootModelFile, modelPartNames, texturesPartNames, printTicketPartNames } = manifest;
-        if (!rootModelFile) throw new Error("THREE.ThreeMFLoader: Cannot find root model file in 3MF archive.");
+        if (!rootModelFile) throw new Error("Fast3MFLoader: Cannot find root model file in 3MF archive.");
 
         modelPartNames.push(rootModelFile); // push root model at the end so it is processed after the sub models
-        if (relsName === undefined) throw new Error("THREE.ThreeMFLoader: Cannot find relationship file `rels` in 3MF archive.");
+        if (relsName === undefined) throw new Error("Fast3MFLoader: Cannot find relationship file `rels` in 3MF archive.");
 
         const parseModelWorkerPool = new WorkerPool(workerCount);
         try {
@@ -117,7 +128,7 @@ export class Fast3MFLoader {
 
             const textDecoder = new TextDecoder();
             // rels
-            if (relsName === undefined) throw new Error("THREE.ThreeMFLoader: Cannot find relationship file `rels` in 3MF archive.");
+            if (relsName === undefined) throw new Error("Fast3MFLoader: Cannot find relationship file `rels` in 3MF archive.");
             const relsView = zip[relsName];
             const relsFileText = textDecoder.decode(relsView);
             const rels = this.parseRelsXml(relsFileText);
@@ -155,7 +166,7 @@ export class Fast3MFLoader {
                 texture: texturesParts,
             };
         } catch (error) {
-            throw error instanceof Error ? error : new Error(String(error));
+            throw toLoaderError(error, "Failed to parse 3MF archive.");
         } finally {
             parseModelWorkerPool.dispose();
         }

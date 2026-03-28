@@ -130,7 +130,7 @@ describe("Fast3MFLoader.parse error handling", () => {
         const Fast3MFLoader = await loadFast3MFLoader();
         const loader = new Fast3MFLoader();
 
-        await expect(loader.parse(new ArrayBuffer(8))).rejects.toThrow();
+        await expect(loader.parse(new ArrayBuffer(8))).rejects.toThrow("Fast3MFLoader:");
     });
 
     test("rejects parse worker failures", async () => {

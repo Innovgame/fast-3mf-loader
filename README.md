@@ -105,6 +105,12 @@ The current procedure and sample results are documented in [docs/benchmarking.md
 
 Supports all modern browsers (Chrome, Firefox, Safari, Edge, etc.) and environments that support WebWorker and Blob API.
 
+## Runtime Notes
+
+- Designed for modern browsers with `Worker` and `Blob` support
+- `workerCount` defaults to `min(hardwareConcurrency - 1, 15)` with a safe fallback of `4`
+- Unsupported features currently warn instead of silently pretending to succeed
+
 ## Development
 
 ```bash
