@@ -49,7 +49,7 @@ console.log("解析结果:", group);
 解析3MF文件并返回模型数据。
 
 **参数:**
-- `data`: 3MF文件数据，ArrayBuffer
+- `data`: 3MF文件数据，`ArrayBuffer`。传入其他输入类型时会直接抛出 loader-facing error。
 - `options`: 可选配置对象
   - `workerCount`: number - 使用的 WebWorker 数量。默认会根据当前运行环境的并发能力自动推导，并在无法判断时回退到安全值。传入非法值时会给出 warning 并回退到默认策略。
   - `onProgress`: (progress: number) => void - 进度回调函数

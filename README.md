@@ -51,7 +51,7 @@ console.log("Parsing result:", group);
 Parses 3MF file and returns model data.
 
 **Parameters:**
-- `data`: 3MF file data, ArrayBuffer
+- `data`: 3MF file data, `ArrayBuffer`. Other input types are rejected with a loader-facing error.
 - `options`: Optional configuration object
   - `workerCount`: number - Number of WebWorkers to use. Defaults to an auto-detected value based on available runtime concurrency, with a safe fallback. Invalid values warn and fall back to the default strategy.
   - `onProgress`: (progress: number) => void - Progress callback function

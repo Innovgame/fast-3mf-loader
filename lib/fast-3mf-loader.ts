@@ -64,6 +64,10 @@ function isValidRequestedWorkerCount(requestedCount: unknown): requestedCount is
     return typeof requestedCount === "number" && Number.isFinite(requestedCount) && requestedCount > 0;
 }
 
+function isArrayBuffer(data: unknown): data is ArrayBuffer {
+    return data instanceof ArrayBuffer;
+}
+
 export function resolveWorkerCount(requestedCount?: number, hardwareConcurrency = globalThis.navigator?.hardwareConcurrency): number {
     if (isValidRequestedWorkerCount(requestedCount)) {
         return Math.floor(requestedCount);
@@ -78,6 +82,10 @@ export function resolveWorkerCount(requestedCount?: number, hardwareConcurrency 
 
 export class Fast3MFLoader {
     async parse(data: ArrayBuffer, options: ParseOptions = {}): Promise<ParseResult> {
+        if (!isArrayBuffer(data)) {
+            throw new Error("Fast3MFLoader: `data` must be an ArrayBuffer.");
+        }
+
         let zip: Unzipped | undefined;
         const onProgress = options.onProgress;
         if (options.workerCount !== undefined && !isValidRequestedWorkerCount(options.workerCount)) {

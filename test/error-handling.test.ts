@@ -126,6 +126,15 @@ afterEach(() => {
 });
 
 describe("Fast3MFLoader.parse error handling", () => {
+    test("rejects non-ArrayBuffer input with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader();
+        const loader = new Fast3MFLoader();
+
+        await expect(loader.parse(new Uint8Array([1, 2, 3]) as unknown as ArrayBuffer)).rejects.toThrow(
+            "Fast3MFLoader: `data` must be an ArrayBuffer.",
+        );
+    });
+
     test("rejects invalid archive input", async () => {
         const Fast3MFLoader = await loadFast3MFLoader();
         const loader = new Fast3MFLoader();
