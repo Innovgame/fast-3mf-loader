@@ -15,16 +15,21 @@
 - 新增治理设计与实施文档：
   - `docs/superpowers/specs/2026-03-28-superpowers-governance-bootstrap-design.md`
   - `docs/superpowers/plans/2026-03-28-superpowers-governance-bootstrap.md`
+- 仓库级 governance bootstrap 已完成首轮接线：
+  - `AGENTS.md`
+  - `docs/superpowers/context/current-architecture-context.md`
+  - `docs/superpowers/context/user-preferences.md`
+  - `docs/superpowers/status/current-work.md`
+  - `docs/superpowers/roadmap/current-roadmap.md`
 
 ## In Progress
 
-- 创建 `docs/superpowers/context/*`、`docs/superpowers/status/current-work.md`、`docs/superpowers/roadmap/current-roadmap.md`。
-- 更新仓库根部 `AGENTS.md`，让它引用真实存在、职责分明的入口文档。
+- 通过新 summary docs 维持后续任务接力，而不是继续依赖临时上下文重建。
 
 ## Next Up
 
-- 完成 roadmap summary 并把它接入 `AGENTS.md`。
-- 用新的 handoff 入口承接后续 performance hotspots 与 capability clarity 工作。
+- 继续推进 performance hotspots workstream，按 benchmark phase split 做证据化优化。
+- 持续校准 capability clarity，包括 support matrix、README 和 fixture-backed behavior 的一致性。
 
 ## Open Risks / Decisions
 
