@@ -11,8 +11,11 @@ onmessage = (event: MessageEvent<ArrayBuffer>) => {
             const file = zip[key];
             transfer.push(file.buffer);
         }
-        postMessage(zip, { transfer: transfer });
-    } catch (error) {
-        console.error("fflate missing and file is compressed.");
+        postMessage({ type: "done", zip }, { transfer: transfer });
+    } catch (error: unknown) {
+        postMessage({
+            type: "error",
+            message: error instanceof Error ? error.message : "Failed to unzip 3MF archive.",
+        });
     }
 };

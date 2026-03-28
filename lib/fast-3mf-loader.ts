@@ -4,15 +4,31 @@ import { type Unzipped } from "fflate";
 import { WorkerPool } from "./WorkerPool";
 import { StateType } from "./util";
 
+type UnzipWorkerMessage = { type: "done"; zip: Unzipped } | { type: "error"; message: string };
+
+function isUnzipWorkerMessage(payload: UnzipWorkerMessage | Unzipped): payload is UnzipWorkerMessage {
+    return typeof payload === "object" && payload !== null && "type" in payload && (payload.type === "done" || payload.type === "error");
+}
+
 async function unzipData(data: ArrayBuffer) {
     return new Promise<Unzipped>((resolve, reject) => {
         const worker = new UZipWorker();
-        worker.onmessage = (evt: MessageEvent<Unzipped>) => {
-            resolve(evt.data);
+        worker.onmessage = (evt: MessageEvent<UnzipWorkerMessage | Unzipped>) => {
+            const payload = evt.data;
+
+            if (isUnzipWorkerMessage(payload)) {
+                if (payload.type === "done") {
+                    resolve(payload.zip);
+                } else {
+                    reject(new Error(payload.message));
+                }
+            } else {
+                resolve(payload);
+            }
             worker.terminate();
         };
         worker.onerror = (err: ErrorEvent) => {
-            reject(err);
+            reject(new Error(err.message || "Failed to unzip 3MF archive."));
             worker.terminate();
         };
 
@@ -55,8 +71,7 @@ export class Fast3MFLoader {
                 }
             }
         } catch (error) {
-            console.error("uzip data error: ", error);
-            return undefined;
+            throw error instanceof Error ? error : new Error(String(error));
         }
         onProgress?.(30);
         if (!zip) throw new Error("unzip error");
@@ -141,7 +156,7 @@ export class Fast3MFLoader {
                 texture: texturesParts,
             };
         } catch (error) {
-            console.error("parseModelWorkerPool error: ", error);
+            throw error instanceof Error ? error : new Error(String(error));
         } finally {
             parseModelWorkerPool.dispose();
         }
