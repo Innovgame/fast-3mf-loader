@@ -53,6 +53,9 @@
   - `fast3mfBuilder()` 缺少 root model relationship 时，现在也会抛出 builder-facing error，而不是继续暴露旧的 `THREE.ThreeMFLoader` 前缀
   - `fast3mfBuilder()` 遇到未知 resource `pid` 时，现在会给出带 `pid` 的 builder-facing warning，而不是输出旧的 `THREE.3MFLoader` error 文案
   - `test/runtime-behavior.test.ts`、`test/error-handling.test.ts`、`README.md` 与 `README-zh.md` 已同步到这组 warning/error 语义
+- 2026-03-29 已确认 `docs/superpowers/specs/2026-03-29-benchmark-threejs-comparison-design.md`，
+  并新增 `docs/superpowers/plans/2026-03-29-benchmark-threejs-comparison.md`
+  作为实现接力入口
 
 ## In Progress
 
@@ -69,10 +72,15 @@
   - 计划把 `three.js` 默认 `3MFLoader` 并入现有 `npm run benchmark`
   - 对照口径为 `parse + build + total`
   - `three.js` 在单个 fixture 上失败时显示为 `unsupported/failed`，不让整个 benchmark 命令退出
+- 2026-03-29 当前已进入 benchmark three.js 对照的 implementation-planning 节点：
+  - 已接受 spec
+  - 已把 three.js 默认 loader 只有 `parse(data) -> Group` 的接口现实写进计划
+  - 下一步等待确认执行方式后，按 plan 落地 adapter、comparison table 和文档刷新
 
 ## Next Up
 
 - 优先继续 Phase 3：围绕公开 API、warning/error 语义、浏览器运行前提继续稳定 `1.0` first-use ergonomics。
+- 执行 `docs/superpowers/plans/2026-03-29-benchmark-threejs-comparison.md`，把 `three.js` 默认 `3MFLoader` benchmark 对照接入现有 `npm run benchmark`。
 - 发布前在目标 release machine 上执行一次 `npm run release:check`，并用 `benchmark:release` 的输出刷新 benchmark 样本。
 - 在真正发布 `1.0` 前，用 `npm run release:check` 作为固定收口命令。
 
