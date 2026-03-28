@@ -108,6 +108,7 @@ Supports all modern browsers (Chrome, Firefox, Safari, Edge, etc.) and environme
 ## Runtime Notes
 
 - Designed for modern browsers with `Worker` and `Blob` support
+- If the runtime cannot initialize inline workers, parsing fails with a loader-facing error that points back to the `Worker` / `Blob` prerequisite
 - `workerCount` defaults to `min(hardwareConcurrency - 1, 15)` with a safe fallback of `4`
 - Invalid `workerCount` values warn and fall back to the default worker strategy
 - Unsupported features currently warn instead of silently pretending to succeed

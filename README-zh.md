@@ -106,6 +106,7 @@ type Model3MF = {
 ## 运行时说明
 
 - 面向支持 `Worker` 与 `Blob` 的现代浏览器
+- 如果当前运行时无法初始化 inline worker，解析会抛出直接指向 `Worker` / `Blob` 前提的 loader-facing error
 - `workerCount` 默认使用 `min(hardwareConcurrency - 1, 15)`，无法判断时安全回退到 `4`
 - 非法 `workerCount` 会给出 warning，并回退到默认 worker 策略
 - 当前未支持能力会通过 warning 明确提示，而不是静默伪装为成功

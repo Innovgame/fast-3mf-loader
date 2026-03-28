@@ -1,11 +1,27 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { readFixture } from "./helpers/read-fixture";
 
-async function loadFast3MFLoader(options: { parseWorkerMessage?: { type: "error"; message: string }; parseWorkerErrorEvent?: string } = {}) {
+async function loadFast3MFLoader(
+    options: {
+        unzipWorkerConstructorError?: string;
+        parseWorkerMessage?: { type: "error"; message: string };
+        parseWorkerErrorEvent?: string;
+    } = {},
+) {
     vi.resetModules();
-
     const { unzipBuffer } = await import("../lib/unzip");
+
     vi.doMock("../lib/unzip.worker?worker&inline", () => {
+        if (options.unzipWorkerConstructorError) {
+            return {
+                default: class MockUnzipWorker {
+                    constructor() {
+                        throw new Error(options.unzipWorkerConstructorError);
+                    }
+                },
+            };
+        }
+
         return {
             default: class MockUnzipWorker {
                 public onmessage: ((event: MessageEvent<ReturnType<typeof unzipBuffer>>) => void) | null = null;
@@ -126,6 +142,17 @@ afterEach(() => {
 });
 
 describe("Fast3MFLoader.parse error handling", () => {
+    test("rejects worker runtime initialization failures with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader({
+            unzipWorkerConstructorError: "Worker is not defined",
+        });
+        const loader = new Fast3MFLoader();
+
+        await expect(loader.parse(new ArrayBuffer(8))).rejects.toThrow(
+            "Fast3MFLoader: Worker runtime is unavailable. This library requires browser support for Worker and Blob.",
+        );
+    });
+
     test("rejects non-ArrayBuffer input with a loader-facing message", async () => {
         const Fast3MFLoader = await loadFast3MFLoader();
         const loader = new Fast3MFLoader();

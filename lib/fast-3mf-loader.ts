@@ -20,13 +20,31 @@ function toLoaderError(error: unknown, fallback: string): Error {
     return new Error(`Fast3MFLoader: ${message}`);
 }
 
+function toWorkerRuntimeError(): Error {
+    return new Error("Worker runtime is unavailable. This library requires browser support for Worker and Blob.");
+}
+
+function createWorkerOrThrow<T>(factory: () => T): T {
+    try {
+        return factory();
+    } catch {
+        throw toWorkerRuntimeError();
+    }
+}
+
 function isUnzipWorkerMessage(payload: UnzipWorkerMessage | Unzipped): payload is UnzipWorkerMessage {
     return typeof payload === "object" && payload !== null && "type" in payload && (payload.type === "done" || payload.type === "error");
 }
 
 async function unzipData(data: ArrayBuffer) {
     return new Promise<Unzipped>((resolve, reject) => {
-        const worker = new UZipWorker();
+        let worker: InstanceType<typeof UZipWorker>;
+        try {
+            worker = createWorkerOrThrow(() => new UZipWorker());
+        } catch (error) {
+            reject(error);
+            return;
+        }
         worker.onmessage = (evt: MessageEvent<UnzipWorkerMessage | Unzipped>) => {
             const payload = evt.data;
 
@@ -114,7 +132,7 @@ export class Fast3MFLoader {
         const parseModelWorkerPool = new WorkerPool(workerCount);
         try {
             parseModelWorkerPool.setWorkerCreator(() => {
-                return new ParseModelWorker();
+                return createWorkerOrThrow(() => new ParseModelWorker());
             });
 
             const reportProgress = createProgressTracker(modelPartNames.length, onProgress);
