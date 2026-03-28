@@ -22,6 +22,14 @@ function hasTextureMap(material: THREE.Material | THREE.Material[]) {
     return "map" in material && !!material.map;
 }
 
+function mockTextureLoader() {
+    return vi.spyOn(THREE.TextureLoader.prototype, "load").mockImplementation((_url, onLoad) => {
+        const texture = new THREE.Texture() as THREE.Texture<HTMLImageElement>;
+        onLoad?.(texture);
+        return texture;
+    });
+}
+
 function createArchiveWithPrintTicket() {
     const rels = `<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
@@ -62,11 +70,7 @@ describe("support matrix coverage", () => {
     });
 
     test("multipletextures fixture confirms texture support", async () => {
-        vi.spyOn(THREE.TextureLoader.prototype, "load").mockImplementation((_url, onLoad) => {
-            const texture = new THREE.Texture() as THREE.Texture<HTMLImageElement>;
-            onLoad?.(texture);
-            return texture;
-        });
+        mockTextureLoader();
 
         const loader = new Fast3MFLoader();
         const data = await loader.parse(await readFixture("multipletextures.3mf"));
@@ -88,11 +92,16 @@ describe("support matrix coverage", () => {
     });
 
     test("truck fixture confirms component support", async () => {
+        mockTextureLoader();
+
         const loader = new Fast3MFLoader();
         const data = await loader.parse(await readFixture("truck.3mf"));
+        const group = fast3mfBuilder(data);
         const objectValues = Object.values(data.model).flatMap((model) => Object.values(model.resources.object));
 
         expect(objectValues.some((object) => object.components.length > 0)).toBe(true);
+        expect(group.children.length).toBeGreaterThan(0);
+        expect(collectMeshes(group).length).toBeGreaterThan(0);
     });
 
     test("print tickets warn and remain unsupported", async () => {

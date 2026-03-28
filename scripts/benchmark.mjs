@@ -1,17 +1,15 @@
 import { readFile } from "node:fs/promises";
 import { availableParallelism } from "node:os";
 import { resolve } from "node:path";
-import { performance } from "node:perf_hooks";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
 import { Worker as NodeWorker } from "node:worker_threads";
+import * as THREE from "three";
+import { installNodeTextureLoaderFallback, measureFixture, summarizeRows } from "./benchmark-core.mjs";
 
 const fixtureNames = [
-    "cube_gears.3mf",
     "multipletextures.3mf",
     "truck.3mf",
-    "vertexcolors.3mf",
-    "volumetric.3mf",
 ];
 const warmupRuns = 1;
 const measuredRuns = 5;
@@ -21,10 +19,15 @@ const distEntry = resolve(process.cwd(), "dist/fast-3mf-loader.js");
 
 installNavigatorPolyfill(hardwareConcurrency);
 installWorkerPolyfill();
+const restoreTextureLoader = installNodeTextureLoaderFallback({
+    TextureLoader: THREE.TextureLoader,
+    Texture: THREE.Texture,
+});
 
 let Fast3MFLoader;
+let fast3mfBuilder;
 try {
-    ({ Fast3MFLoader } = await import(pathToFileURL(distEntry).href));
+    ({ Fast3MFLoader, fast3mfBuilder } = await import(pathToFileURL(distEntry).href));
 } catch (error) {
     console.error("Failed to load dist/fast-3mf-loader.js. Run `npm run build` first.");
     throw error;
@@ -42,25 +45,36 @@ try {
         const fixtureBytes = Uint8Array.from(file);
 
         for (let i = 0; i < warmupRuns; i++) {
-            await parseFixture(fixtureBytes);
+            await measureFixture({
+                fixtureName,
+                fixtureBytes,
+                workerCount,
+                Fast3MFLoader,
+                fast3mfBuilder,
+            });
         }
 
-        const times = [];
-        let modelCount = 0;
+        const measurements = [];
         for (let i = 0; i < measuredRuns; i++) {
-            const start = performance.now();
-            const result = await parseFixture(fixtureBytes);
-            times.push(performance.now() - start);
-            modelCount = Object.keys(result.model).length;
+            measurements.push(
+                await measureFixture({
+                    fixtureName,
+                    fixtureBytes,
+                    workerCount,
+                    Fast3MFLoader,
+                    fast3mfBuilder,
+                }),
+            );
         }
 
         rows.push({
             fixture: fixtureName,
-            sizeKiB: fixtureBytes.byteLength / 1024,
-            avgMs: average(times),
-            minMs: Math.min(...times),
-            maxMs: Math.max(...times),
-            models: modelCount,
+            sizeKiB: measurements[0].sizeKiB,
+            parseMs: average(measurements.map((row) => row.parseMs)),
+            buildMs: average(measurements.map((row) => row.buildMs)),
+            totalMs: average(measurements.map((row) => row.totalMs)),
+            models: measurements[0].models,
+            children: measurements[0].children,
         });
     }
 
@@ -70,18 +84,9 @@ try {
     console.log("");
     printTable(rows);
 } finally {
+    restoreTextureLoader();
     console.time = originalConsoleTime;
     console.timeEnd = originalConsoleTimeEnd;
-}
-
-async function parseFixture(fixtureBytes) {
-    const loader = new Fast3MFLoader();
-    const input = fixtureBytes.slice().buffer;
-
-    return loader.parse(input, {
-        onProgress() {},
-        workerCount,
-    });
 }
 
 function average(values) {
@@ -191,14 +196,7 @@ ${source}
 }
 
 function printTable(rows) {
-    const formattedRows = rows.map((row) => ({
-        Fixture: row.fixture,
-        "Size (KiB)": row.sizeKiB.toFixed(1),
-        "Avg (ms)": row.avgMs.toFixed(1),
-        "Min (ms)": row.minMs.toFixed(1),
-        "Max (ms)": row.maxMs.toFixed(1),
-        Models: String(row.models),
-    }));
+    const formattedRows = summarizeRows(rows);
     const columns = Object.keys(formattedRows[0]);
     const widths = Object.fromEntries(
         columns.map((column) => [

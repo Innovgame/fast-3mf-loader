@@ -3,6 +3,7 @@ import ParseModelWorker from "./parse-model.worker?worker&inline";
 import { type Unzipped } from "fflate";
 import { WorkerPool } from "./WorkerPool";
 import { ParseResult, ParsedModelPart, Relationship } from "./util";
+import { collectArchiveManifest, createProgressTracker } from "./archive-manifest";
 
 type UnzipWorkerMessage = { type: "done"; zip: Unzipped } | { type: "error"; message: string };
 const DEFAULT_WORKER_COUNT = 4;
@@ -63,38 +64,22 @@ export function resolveWorkerCount(requestedCount?: number, hardwareConcurrency 
 export class Fast3MFLoader {
     async parse(data: ArrayBuffer, options: ParseOptions = {}): Promise<ParseResult> {
         let zip: Unzipped | undefined;
-        const modelPartNames: string[] = [];
-        let relsName: string | undefined;
-        let modelRelsName: string | undefined;
-        const texturesPartNames = [];
-        const printTicketPartNames: string[] = [];
-        let rootModelFile: string | undefined;
         const onProgress = options.onProgress;
         const workerCount = resolveWorkerCount(options.workerCount);
 
         onProgress?.(10);
+        let manifest;
         try {
             zip = await unzipData(data);
-            for (const file in zip) {
-                if (file.match(/\_rels\/.rels$/)) {
-                    relsName = file;
-                } else if (file.match(/3D\/_rels\/.*\.model\.rels$/)) {
-                    modelRelsName = file;
-                } else if (file.match(/^3D\/[^\/]*\.model$/)) {
-                    rootModelFile = file;
-                } else if (file.match(/^3D\/.*\/.*\.model$/)) {
-                    modelPartNames.push(file); // sub models
-                } else if (file.match(/^3D\/Textures?\/.*/)) {
-                    texturesPartNames.push(file);
-                } else if (file.match(/printticket/i)) {
-                    printTicketPartNames.push(file);
-                }
-            }
+            manifest = collectArchiveManifest(zip);
         } catch (error) {
             throw error instanceof Error ? error : new Error(String(error));
         }
         onProgress?.(30);
         if (!zip) throw new Error("unzip error");
+        if (!manifest) throw new Error("unzip error");
+
+        const { relsName, modelRelsName, rootModelFile, modelPartNames, texturesPartNames, printTicketPartNames } = manifest;
         if (!rootModelFile) throw new Error("THREE.ThreeMFLoader: Cannot find root model file in 3MF archive.");
 
         modelPartNames.push(rootModelFile); // push root model at the end so it is processed after the sub models
@@ -106,18 +91,12 @@ export class Fast3MFLoader {
                 return new ParseModelWorker();
             });
 
-            const percentArray = new Array<number>(modelPartNames.length).fill(0);
-            const obj_progress = (curr: number, index: number) => {
-                percentArray[index] = curr;
-                const num = percentArray.reduce((prev, curr) => prev + curr, 0);
-                const percent = ~~(num / modelPartNames.length);
-                onProgress?.(~~(30 + percent * 0.6));
-            };
+            const reportProgress = createProgressTracker(modelPartNames.length, onProgress);
 
-            const prommies = modelPartNames.map(async (modelPart, index) => {
+            const prommies = modelPartNames.map(async (modelPart) => {
                 const view = zip[modelPart];
                 const data = await parseModelWorkerPool.postMessage<MessageEvent<MessageParseModel>>(view, { transfer: [view.buffer] });
-                obj_progress(100, index);
+                reportProgress(100);
                 return data;
             });
 
