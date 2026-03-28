@@ -34,7 +34,9 @@
         "benchmark": "node scripts/benchmark.mjs",
         "check:demo": "tsc -p tsconfig.demo.json --noEmit",
         "check:test": "tsc -p tsconfig.test.json --noEmit",
-        "test": "vitest run"
+        "test": "vitest run",
+        "verify": "npm run check:demo && npm run check:test && npm test && npm run build",
+        "release:check": "npm run verify && npm run benchmark && npm pack --dry-run"
     },
     "devDependencies": {
         "@types/node": "^25.5.0",

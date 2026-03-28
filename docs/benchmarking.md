@@ -43,4 +43,8 @@ Same-machine before/after measurements from this optimization plan:
 
 The builder-side wins are the clearest signal here: `multipletextures.3mf` dropped from `22.8ms` to `4.3ms` in build time, and `truck.3mf` dropped from `31.6ms` to `12.9ms`. Parse time remains the noisier phase, so total time should be compared alongside the phase split rather than on its own.
 
+## Stable 1.0 Benchmark Gate
+
+Before publishing `1.0`, run `npm run release:check` on the release machine and refresh the large-fixture benchmark sample if the numbers moved materially.
+
 Run `node scripts/benchmark.mjs` after `npm run build` to refresh this section with current numbers for your machine.
