@@ -14,6 +14,14 @@ function collectMeshes(group: THREE.Group) {
     return meshes;
 }
 
+function hasTextureMap(material: THREE.Material | THREE.Material[]) {
+    if (Array.isArray(material)) {
+        return material.some((entry) => "map" in entry && !!entry.map);
+    }
+
+    return "map" in material && !!material.map;
+}
+
 function createArchiveWithPrintTicket() {
     const rels = `<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
@@ -45,7 +53,7 @@ function createArchiveWithPrintTicket() {
         "Metadata/printticket.xml": strToU8("<printticket />"),
     });
 
-    return archive.buffer.slice(archive.byteOffset, archive.byteOffset + archive.byteLength);
+    return archive.buffer.slice(archive.byteOffset, archive.byteOffset + archive.byteLength) as ArrayBuffer;
 }
 
 describe("support matrix coverage", () => {
@@ -55,7 +63,7 @@ describe("support matrix coverage", () => {
 
     test("multipletextures fixture confirms texture support", async () => {
         vi.spyOn(THREE.TextureLoader.prototype, "load").mockImplementation((_url, onLoad) => {
-            const texture = new THREE.Texture();
+            const texture = new THREE.Texture() as THREE.Texture<HTMLImageElement>;
             onLoad?.(texture);
             return texture;
         });
@@ -64,11 +72,7 @@ describe("support matrix coverage", () => {
         const data = await loader.parse(await readFixture("multipletextures.3mf"));
         const group = fast3mfBuilder(data);
 
-        const texturedMesh = collectMeshes(group).find((mesh) => {
-            const material = mesh.material;
-            if (Array.isArray(material)) return material.some((entry) => !!entry.map);
-            return !!material.map;
-        });
+        const texturedMesh = collectMeshes(group).find((mesh) => hasTextureMap(mesh.material));
 
         expect(texturedMesh).toBeTruthy();
     });

@@ -3,5 +3,5 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["lib", "src/vite-env.d.ts"]
+  "include": ["lib", "types", "src/vite-env.d.ts"]
 }

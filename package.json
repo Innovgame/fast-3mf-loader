@@ -33,9 +33,11 @@
         "build": "tsc -p tsconfig.lib.json && vite build",
         "benchmark": "node scripts/benchmark.mjs",
         "check:demo": "tsc -p tsconfig.demo.json --noEmit",
+        "check:test": "tsc -p tsconfig.test.json --noEmit",
         "test": "vitest run"
     },
     "devDependencies": {
+        "@types/node": "^25.5.0",
         "@types/three": "^0.183.1",
         "three": "^0.183.2",
         "typescript": "~6.0.2",

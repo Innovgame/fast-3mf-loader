@@ -5,6 +5,14 @@ import { readFixture } from "./helpers/read-fixture";
 
 const { Fast3MFLoader, fast3mfBuilder } = await import("../lib/main");
 
+function hasTextureMap(material: THREE.Material | THREE.Material[]) {
+    if (Array.isArray(material)) {
+        return material.some((entry) => "map" in entry && !!entry.map);
+    }
+
+    return "map" in material && !!material.map;
+}
+
 describe("fast3mfBuilder", () => {
     afterEach(() => {
         vi.restoreAllMocks();
@@ -38,7 +46,7 @@ describe("fast3mfBuilder", () => {
 
     test("builds textured materials for multipletextures.3mf", async () => {
         vi.spyOn(THREE.TextureLoader.prototype, "load").mockImplementation((_url, onLoad) => {
-            const texture = new THREE.Texture();
+            const texture = new THREE.Texture() as THREE.Texture<HTMLImageElement>;
             onLoad?.(texture);
             return texture;
         });
@@ -46,11 +54,7 @@ describe("fast3mfBuilder", () => {
         const loader = new Fast3MFLoader();
         const data = await loader.parse(await readFixture("multipletextures.3mf"));
         const group = fast3mfBuilder(data);
-        const texturedMesh = collectMeshes(group).find((mesh) => {
-            const material = mesh.material;
-            if (Array.isArray(material)) return material.some((entry) => !!entry.map);
-            return !!material.map;
-        });
+        const texturedMesh = collectMeshes(group).find((mesh) => hasTextureMap(mesh.material));
 
         expect(texturedMesh).toBeTruthy();
     });
