@@ -65,6 +65,10 @@
 - 2026-03-29 当前继续动作：
   - 已从 Phase 2 切入 Phase 3，先处理 `workerCount` 非法值原本会静默回退、以及非 `ArrayBuffer` 输入原本会落入底层错误的问题
   - 下一步继续检查 warning / error 语义里是否还存在类似的“静默回退但缺少诊断信息”缺口，目前已覆盖非法参数、错误输入类型、worker runtime prerequisite，以及 builder 侧的旧错误前缀 / 资源 warning 残留
+- 2026-03-29 新的 benchmark 设计入口已确认：
+  - 计划把 `three.js` 默认 `3MFLoader` 并入现有 `npm run benchmark`
+  - 对照口径为 `parse + build + total`
+  - `three.js` 在单个 fixture 上失败时显示为 `unsupported/failed`，不让整个 benchmark 命令退出
 
 ## Next Up
 
