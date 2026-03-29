@@ -79,7 +79,7 @@
   - `test/builder.test.ts` 已新增 focused regression coverage，锁定这三条资源子引用失败路径
 - 2026-03-29 已在本轮 Phase 3 错误语义收口后重新执行 `pnpm verify`：
   - `check:demo`、`check:test`、全量 `vitest` 与 `build` 当前全部通过
-  - 当前回归覆盖包含 19 个测试文件、77 个测试用例，未发现由本轮 parse / builder / parse worker / WorkerPool 诊断收口引入的新失败
+  - 当前回归覆盖包含 19 个测试文件、86 个测试用例，未发现由本轮 parse / builder / parse worker / WorkerPool / archive part / relationship XML 诊断收口引入的新失败
 - 2026-03-29 已继续收敛 parse worker 失败诊断：
   - `Fast3MFLoader#parse()` 现在会为 parse worker 的空消息或不可读失败补上带 model part 路径的 loader-facing error，而不是退化成宽泛的 archive 级错误
   - `lib/parse-model.worker.ts` 已移除错位的旧 fallback 文案，统一改为 parse model part 语义
@@ -87,6 +87,13 @@
 - 2026-03-29 已继续收敛 WorkerPool 队列失败语义：
   - `lib/WorkerPool.ts` 现在会在 worker `postMessage()` 同步抛错时立即 reject 当前任务、清理坏 worker，并继续派发后续队列任务，而不是让队列悬挂
   - `test/worker-pool.test.ts` 已新增 focused regression coverage，锁定“队列中的坏任务失败后，后续任务仍能继续完成”
+- 2026-03-29 已继续收敛 archive part 读取失败语义：
+  - `Fast3MFLoader#parse()` 现在会在 relationship file、model relationship file、model part、texture part 缺失时抛出明确的 loader-facing error，而不是落入原生解码或属性访问错误
+  - `test/error-handling.test.ts` 已新增 manifest override 覆盖，锁定 root model file 缺失、`rels` 缺失、relationship payload 缺失、model part 缺失与 texture part 缺失这几条回退路径
+- 2026-03-29 已继续收敛 relationship XML 解析边界：
+  - `Fast3MFLoader#parse()` 现在支持 root rels 与 model rels 中使用单引号属性的合法 XML 关系条目，不再因为属性引号风格不同而静默退化成空值关系
+  - relationship entry 缺少 `Target`、`Id` 或 `Type` 时，现在会在 loader 阶段抛出带文件路径的明确 error，而不是把损坏关系留到后续 builder 或 texture 收集阶段才暴露
+  - `test/loader.parse.test.ts` 与 `test/error-handling.test.ts` 已新增 focused coverage，锁定单引号关系解析与 malformed relationship 诊断
 - 2026-03-29 已确认 `docs/superpowers/specs/2026-03-29-benchmark-threejs-comparison-design.md`，
   并新增 `docs/superpowers/plans/2026-03-29-benchmark-threejs-comparison.md`
   作为实现接力入口

@@ -33,6 +33,16 @@ function toModelPartParseError(modelPart: string, error: unknown): Error {
     return new Error(getErrorMessage(error) ?? `Failed to parse model part \`${modelPart}\`.`);
 }
 
+function getArchivePartOrThrow(zip: Unzipped, partName: string, partType: string) {
+    const part = zip[partName];
+
+    if (!part) {
+        throw new Error(`Failed to read ${partType} \`${partName}\` from 3MF archive.`);
+    }
+
+    return part;
+}
+
 function toWorkerRuntimeError(): Error {
     return new Error("Worker runtime is unavailable. This library requires browser support for Worker and Blob.");
 }
@@ -151,11 +161,7 @@ export class Fast3MFLoader {
             const reportProgress = createProgressTracker(modelPartNames.length, onProgress);
 
             const prommies = modelPartNames.map(async (modelPart) => {
-                const view = zip[modelPart];
-
-                if (!view) {
-                    throw new Error(`Failed to read model part \`${modelPart}\` from 3MF archive.`);
-                }
+                const view = getArchivePartOrThrow(zip, modelPart, "model part");
 
                 try {
                     const data = await parseModelWorkerPool.postMessage<MessageEvent<MessageParseModel>>(view, { transfer: [view.buffer] });
@@ -184,17 +190,17 @@ export class Fast3MFLoader {
             const textDecoder = new TextDecoder();
             // rels
             if (relsName === undefined) throw new Error("Fast3MFLoader: Cannot find relationship file `rels` in 3MF archive.");
-            const relsView = zip[relsName];
+            const relsView = getArchivePartOrThrow(zip, relsName, "relationship file");
             const relsFileText = textDecoder.decode(relsView);
-            const rels = this.parseRelsXml(relsFileText);
+            const rels = this.parseRelsXml(relsFileText, relsName, "relationship file");
             onProgress?.(95);
 
             // modelRels
             let modelRels: Relationship[] | undefined;
             if (modelRelsName) {
-                const relsView = zip[modelRelsName];
+                const relsView = getArchivePartOrThrow(zip, modelRelsName, "model relationship file");
                 const relsFileText = textDecoder.decode(relsView);
-                modelRels = this.parseRelsXml(relsFileText);
+                modelRels = this.parseRelsXml(relsFileText, modelRelsName, "model relationship file");
             }
 
             onProgress?.(98);
@@ -203,7 +209,8 @@ export class Fast3MFLoader {
             const texturesParts: { [key: string]: ArrayBuffer } = {};
             for (let i = 0; i < texturesPartNames.length; i++) {
                 const texturesPartName = texturesPartNames[i];
-                texturesParts[texturesPartName] = zip[texturesPartName].buffer as ArrayBuffer;
+                const textureView = getArchivePartOrThrow(zip, texturesPartName, "texture part");
+                texturesParts[texturesPartName] = textureView.buffer as ArrayBuffer;
             }
 
             // printTicketParts TODO:
@@ -227,10 +234,10 @@ export class Fast3MFLoader {
         }
     }
 
-    private parseRelsXml(relsFileText: string): Relationship[] {
+    private parseRelsXml(relsFileText: string, partName: string, partType: string): Relationship[] {
         const relationships: Relationship[] = [];
         const relationshipPattern = /<Relationship\b([^>]*)\/?>/g;
-        const attributePattern = /\b(Target|Id|Type)="([^"]*)"/g;
+        const attributePattern = /\b(Target|Id|Type)\s*=\s*(["'])(.*?)\2/g;
 
         for (const match of relsFileText.matchAll(relationshipPattern)) {
             const attrsText = match[1] ?? "";
@@ -241,13 +248,28 @@ export class Fast3MFLoader {
             };
 
             for (const attrMatch of attrsText.matchAll(attributePattern)) {
-                const [, key, value] = attrMatch;
+                const [, key, , value] = attrMatch;
                 if (key === "Target") relationship.target = value;
                 if (key === "Id") relationship.id = value;
                 if (key === "Type") relationship.type = value;
             }
 
+            const missingAttributes: string[] = [];
+            if (!relationship.target) missingAttributes.push("Target");
+            if (!relationship.id) missingAttributes.push("Id");
+            if (!relationship.type) missingAttributes.push("Type");
+
+            if (missingAttributes.length > 0) {
+                throw new Error(
+                    `Fast3MFLoader: Invalid relationship entry in ${partType} \`${partName}\`: missing ${missingAttributes.join(", ")}.`,
+                );
+            }
+
             relationships.push(relationship);
+        }
+
+        if (relsFileText.includes("<Relationship") && relationships.length === 0) {
+            throw new Error(`Fast3MFLoader: Failed to parse ${partType} \`${partName}\`.`);
         }
 
         return relationships;

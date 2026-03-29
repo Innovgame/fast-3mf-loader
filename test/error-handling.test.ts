@@ -1,13 +1,14 @@
 import { strToU8, zipSync } from "fflate";
 import { afterEach, describe, expect, test, vi } from "vitest";
+import type { ArchiveManifest } from "../lib/archive-manifest";
 import { readFixture } from "./helpers/read-fixture";
 
 function createMinimalArchive() {
-        const rels = `<?xml version="1.0" encoding="UTF-8"?>
+    const rels = `<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
     <Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
 </Relationships>`;
-        const model = `<?xml version="1.0" encoding="UTF-8"?>
+    const model = `<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
     <resources>
         <object id="1" type="model">
@@ -27,12 +28,32 @@ function createMinimalArchive() {
         <item objectid="1" />
     </build>
 </model>`;
-        const archive = zipSync({
-                "_rels/.rels": strToU8(rels),
-                "3D/3dmodel.model": strToU8(model),
-        });
 
-        return archive.buffer.slice(archive.byteOffset, archive.byteOffset + archive.byteLength) as ArrayBuffer;
+        return createArchive({ rels, model });
+}
+
+function createArchive(options: {
+    rels?: string;
+    model?: string;
+    modelRels?: string;
+    textures?: Record<string, string>;
+} = {}) {
+    const archive: Record<string, Uint8Array> = {
+        "_rels/.rels": strToU8(options.rels ?? ""),
+        "3D/3dmodel.model": strToU8(options.model ?? ""),
+    };
+
+    if (options.modelRels) {
+        archive["3D/_rels/3dmodel.model.rels"] = strToU8(options.modelRels);
+    }
+
+    for (const [path, content] of Object.entries(options.textures ?? {})) {
+        archive[path] = strToU8(content);
+    }
+
+    const zipped = zipSync(archive);
+
+    return zipped.buffer.slice(zipped.byteOffset, zipped.byteOffset + zipped.byteLength) as ArrayBuffer;
 }
 
 async function loadFast3MFLoader(
@@ -41,18 +62,32 @@ async function loadFast3MFLoader(
         parseWorkerMessage?: { type: "error"; message: string };
         parseWorkerErrorEvent?: string;
         manifestMissing?: boolean;
+        manifestOverride?: Partial<ArchiveManifest>;
     } = {},
 ) {
     vi.resetModules();
     const { unzipBuffer } = await import("../lib/unzip");
 
-    if (options.manifestMissing) {
+    if (options.manifestMissing || options.manifestOverride) {
         vi.doMock("../lib/archive-manifest", async () => {
             const actual = await vi.importActual<typeof import("../lib/archive-manifest")>("../lib/archive-manifest");
 
             return {
                 ...actual,
-                collectArchiveManifest: () => undefined,
+                collectArchiveManifest: (zip: Parameters<typeof actual.collectArchiveManifest>[0]) => {
+                    if (options.manifestMissing) {
+                        return undefined;
+                    }
+
+                    const manifest = actual.collectArchiveManifest(zip);
+                    return {
+                        ...manifest,
+                        ...options.manifestOverride,
+                        modelPartNames: options.manifestOverride?.modelPartNames ?? manifest.modelPartNames,
+                        texturesPartNames: options.manifestOverride?.texturesPartNames ?? manifest.texturesPartNames,
+                        printTicketPartNames: options.manifestOverride?.printTicketPartNames ?? manifest.printTicketPartNames,
+                    };
+                },
             };
         });
     }
@@ -224,6 +259,109 @@ describe("Fast3MFLoader.parse error handling", () => {
 
         await expect(loader.parse(await readFixture("cube_gears.3mf"))).rejects.toThrow(
             "Fast3MFLoader: Failed to inspect 3MF archive contents.",
+        );
+    });
+
+    test("rejects missing root model file classification with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader({
+            manifestOverride: { rootModelFile: undefined },
+        });
+        const loader = new Fast3MFLoader();
+
+        await expect(loader.parse(await readFixture("cube_gears.3mf"))).rejects.toThrow(
+            "Fast3MFLoader: Cannot find root model file in 3MF archive.",
+        );
+    });
+
+    test("rejects missing relationship file classification with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader({
+            manifestOverride: { relsName: undefined },
+        });
+        const loader = new Fast3MFLoader();
+
+        await expect(loader.parse(await readFixture("cube_gears.3mf"))).rejects.toThrow(
+            "Fast3MFLoader: Cannot find relationship file `rels` in 3MF archive.",
+        );
+    });
+
+    test("rejects missing relationship file payload with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader({
+            manifestOverride: { relsName: "_rels/missing.rels" },
+        });
+        const loader = new Fast3MFLoader();
+
+        await expect(loader.parse(await readFixture("cube_gears.3mf"))).rejects.toThrow(
+            "Fast3MFLoader: Failed to read relationship file `_rels/missing.rels` from 3MF archive.",
+        );
+    });
+
+    test("rejects missing model part payload with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader({
+            manifestOverride: { modelPartNames: ["3D/missing-sub.model"] },
+        });
+        const loader = new Fast3MFLoader();
+
+        await expect(loader.parse(createMinimalArchive())).rejects.toThrow(
+            "Fast3MFLoader: Failed to read model part `3D/missing-sub.model` from 3MF archive.",
+        );
+    });
+
+    test("rejects missing texture payload with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader({
+            manifestOverride: { texturesPartNames: ["3D/Textures/missing.png"] },
+        });
+        const loader = new Fast3MFLoader();
+
+        await expect(loader.parse(await readFixture("multipletextures.3mf"))).rejects.toThrow(
+            "Fast3MFLoader: Failed to read texture part `3D/Textures/missing.png` from 3MF archive.",
+        );
+    });
+
+    test("rejects malformed relationship entries with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader();
+        const loader = new Fast3MFLoader();
+
+        await expect(
+            loader.parse(
+                createArchive({
+                    rels: `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
+</Relationships>`,
+                    model: `<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
+    <resources />
+    <build />
+</model>`,
+                }),
+            ),
+        ).rejects.toThrow("Fast3MFLoader: Invalid relationship entry in relationship file `_rels/.rels`: missing Target.");
+    });
+
+    test("rejects malformed model relationship entries with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader();
+        const loader = new Fast3MFLoader();
+
+        await expect(
+            loader.parse(
+                createArchive({
+                    rels: `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
+</Relationships>`,
+                    model: `<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
+    <resources />
+    <build />
+</model>`,
+                    modelRels: `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Target="/3D/Textures/atlas.png" Type="texture" />
+</Relationships>`,
+                }),
+            ),
+        ).rejects.toThrow(
+            "Fast3MFLoader: Invalid relationship entry in model relationship file `3D/_rels/3dmodel.model.rels`: missing Id.",
         );
     });
 
