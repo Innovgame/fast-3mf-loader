@@ -17,6 +17,13 @@ describe("stable 1.0 release gates", () => {
         expect(packageJson.scripts["release:check"]).toBe("npm run verify && npm run benchmark:release && npm pack --dry-run");
     });
 
+    test("package.json includes jsdom type declarations for TypeScript test coverage", async () => {
+        const packageJson = JSON.parse(await readText("package.json"));
+
+        expect(packageJson.devDependencies.jsdom).toBeDefined();
+        expect(packageJson.devDependencies["@types/jsdom"]).toBeDefined();
+    });
+
     test("CI uses the shared verify entrypoint", async () => {
         const ci = await readText(".github/workflows/ci.yml");
 

@@ -81,6 +81,10 @@
   - 当前运行时只保留 `jsdom` 作为 benchmark adapter 的 XML `DOMParser` 实现
   - `linkedom` 与 `@xmldom/xmldom` 已从当前依赖中移除，不再作为测试或运行时前提
   - `test/benchmark-threejs-adapter.test.ts` 已收敛为 `jsdom-only` 路径，不再保留历史 parser capability gate 的直接依赖
+- 2026-03-29 已修复 CI / `check:test` 的 `jsdom` 类型声明回归：
+  - `package.json` 已补 `@types/jsdom`，`test/benchmark-threejs-adapter.test.ts` 不再因 `TS7016` 阻断 TypeScript test typecheck
+  - `test/release-gates.test.ts` 已新增 manifest 回归测试，锁定 `jsdom` 运行时依赖与类型依赖必须一起存在
+  - 已重新执行 `npm run verify`，当前 `check:demo`、`check:test`、`vitest` 与 `build` 均通过
 
 ## In Progress
 
