@@ -313,7 +313,7 @@ function buildBasematerialsMeshes(
     for (let i = 0; i < triangleProperties.length; i++) {
         const triangleProperty = triangleProperties[i];
         const pindex = triangleProperty.p1 ?? objectPindex;
-        if (pindex === undefined || pindex !== pindex) continue; // pindex !== pindex is faster NaN check
+        if (pindex === undefined || Number.isNaN(pindex)) continue;
 
         let bucket = materialMap.get(pindex);
         if (bucket === undefined) {

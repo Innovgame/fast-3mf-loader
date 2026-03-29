@@ -66,10 +66,11 @@ describe("hexToRgbaArray", () => {
     });
 
     test("parses short hex via fallback", () => {
-        // 4-char short hex like #F00F triggers the expand path
+        // #F00F has length 5, so it falls to the fallback path.
+        // After slice(1) = "F00F", padEnd(8, "F") = "F00FFFFF" (length 8),
+        // which is > 4 so no short-hex expansion runs.
+        // Parsed byte pairs: F0, 0F, FF, FF.
         const [r, g, b, a] = hexToRgbaArray("#F00F");
-        // After slice(1) = "F00F", padEnd(8, "F") = "F00FFFFF"
-        // No expand since length > 4, so parsed as F0/0F/FF/FF
         expect(r).toBeCloseTo(0xF0 / 255);
         expect(g).toBeCloseTo(0x0F / 255);
         expect(b).toBeCloseTo(1.0);
