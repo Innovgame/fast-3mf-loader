@@ -47,18 +47,30 @@ function build(objectCache: BuildObjectCache, data3mf: ParseResult) {
     const group = new THREE.Group();
     const relationship = fetch3DModelPart(data3mf.rels);
     const rootModelKey = relationship.target!.substring(1);
-    const buildData = data3mf.model[rootModelKey].build;
+    const rootModel = data3mf.model[rootModelKey];
+
+    if (!rootModel) {
+        throw new Error(`fast3mfBuilder: Cannot find root model \`${rootModelKey}\` in parsed model data.`);
+    }
+
+    const buildData = rootModel.build;
 
     for (let i = 0; i < buildData.length; i++) {
         const buildItem = buildData[i] as BuildItemType;
-        const object3D = objectCache.get(getObjectCacheKey(rootModelKey, buildItem.objectId))!.clone();
+        const object3D = objectCache.get(getObjectCacheKey(rootModelKey, buildItem.objectId));
+
+        if (!object3D) {
+            throw new Error(`fast3mfBuilder: Cannot find build object \`${buildItem.objectId}\` in model \`${rootModelKey}\`.`);
+        }
+
+        const builtObject = object3D.clone();
 
         const transform = buildItem.transform;
         if (transform) {
-            object3D.applyMatrix4(parseTransform(transform));
+            builtObject.applyMatrix4(parseTransform(transform));
         }
 
-        group.add(object3D);
+        group.add(builtObject);
     }
 
     return group;
@@ -648,13 +660,21 @@ function buildComposite(modelKey: string, compositeData: ComponentType[], modelD
 
     for (let i = 0; i < compositeData.length; i++) {
         const component = compositeData[i];
+        if (!modelData.resources.object[component.objectId]) {
+            throw new Error(`fast3mfBuilder: Cannot find component object \`${component.objectId}\` in model \`${modelKey}\`.`);
+        }
+
         let build = context.objectCache.get(getObjectCacheKey(modelKey, component.objectId));
 
         if (build === undefined) {
             build = buildObject(modelKey, component.objectId, modelData, context);
         }
 
-        const object3D = build!.clone();
+        if (!build) {
+            throw new Error(`fast3mfBuilder: Cannot find component object \`${component.objectId}\` in model \`${modelKey}\`.`);
+        }
+
+        const object3D = build.clone();
         const transform = component.transform;
         if (transform) {
             object3D.applyMatrix4(parseTransform(transform));

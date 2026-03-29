@@ -55,6 +55,76 @@ describe("fast3mfBuilder", () => {
         ).toThrow("fast3mfBuilder: Cannot find 3D model relationship in 3MF archive.");
     });
 
+    test("throws a builder-facing error when the root model relationship points to missing parsed data", () => {
+        expect(() =>
+            fast3mfBuilder({
+                rels: [{ target: "/3D/missing.model" }],
+                modelRels: [],
+                model: {},
+                printTicket: {},
+                texture: {},
+            } as any),
+        ).toThrow("fast3mfBuilder: Cannot find root model `3D/missing.model` in parsed model data.");
+    });
+
+    test("throws a builder-facing error when a build item references a missing object", () => {
+        expect(() =>
+            fast3mfBuilder({
+                rels: [{ target: "/3D/3dmodel.model" }],
+                modelRels: [],
+                model: {
+                    "3D/3dmodel.model": {
+                        resources: {
+                            object: {},
+                            basematerials: {},
+                            texture2d: {},
+                            colorgroup: {},
+                            texture2dgroup: {},
+                            pbmetallicdisplayproperties: {},
+                        },
+                        build: [{ objectId: "missing-object" }],
+                    },
+                },
+                printTicket: {},
+                texture: {},
+            } as any),
+        ).toThrow("fast3mfBuilder: Cannot find build object `missing-object` in model `3D/3dmodel.model`.");
+    });
+
+    test("throws a builder-facing error when a component references a missing object", () => {
+        expect(() =>
+            fast3mfBuilder({
+                rels: [{ target: "/3D/3dmodel.model" }],
+                modelRels: [],
+                model: {
+                    "3D/3dmodel.model": {
+                        resources: {
+                            object: {
+                                "1": {
+                                    id: "1",
+                                    mesh: {
+                                        vertices: [],
+                                        triangles: [],
+                                        triangleProperties: [],
+                                    },
+                                    components: [{ objectId: "missing-component" }],
+                                },
+                            },
+                            basematerials: {},
+                            texture2d: {},
+                            colorgroup: {},
+                            texture2dgroup: {},
+                            pbmetallicdisplayproperties: {},
+                        },
+                        build: [{ objectId: "1" }],
+                    },
+                },
+                printTicket: {},
+                texture: {},
+            } as any),
+        ).toThrow("fast3mfBuilder: Cannot find component object `missing-component` in model `3D/3dmodel.model`.");
+    });
+
     test("warns with a builder-facing message for unsupported resource ids", () => {
         const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
         const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
