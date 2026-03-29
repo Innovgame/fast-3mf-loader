@@ -71,6 +71,8 @@
   - 先把 `benchmark-threejs-adapter` 的 XML parser 从 `linkedom` 切到 `@xmldom/xmldom`
   - 目标是验证 three.js 对照失败是否主要来自当前 Node XML namespace 兼容性
   - 如果 `@xmldom/xmldom` 仍然不够，再升级到 `jsdom`
+- 2026-03-29 已新增 `docs/superpowers/plans/2026-03-29-threejs-benchmark-dom-fallback.md`
+  作为 DOM fallback 实现接力入口
 
 ## In Progress
 
@@ -93,7 +95,7 @@
   - 下一步等待确认执行方式后，按 plan 落地 adapter、comparison table 和文档刷新
 - 2026-03-29 当前新动作：
   - 已定位 three.js 对照失败与 `linkedom` XML namespace 查询兼容性相关
-  - 正在先写一份小 spec，限定“先试 `@xmldom/xmldom`，不行再试 `jsdom`”的实现边界
+  - spec 已确认，当前进入实现计划阶段
 
 ## Next Up
 
