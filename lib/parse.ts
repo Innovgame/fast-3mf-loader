@@ -7,9 +7,12 @@ export function parse(easysaxParser: EasySAXParser, start: () => Promise<void>) 
     return new Promise<StateType>(async (resolve, reject) => {
         const state = Object.assign({}, makeModelsStateExtras());
         const runtime = createParseEventRuntime();
+        let parserError: Error | undefined;
 
-        easysaxParser.on("error", function () {
-            // console.log('error - ' + msg);
+        easysaxParser.on("error", function (message) {
+            if (!parserError) {
+                parserError = message instanceof Error ? message : new Error(String(message));
+            }
         });
 
         easysaxParser.on("startNode", function (elementName, getAttr, isTagEnd, getStringNode) {
@@ -29,6 +32,11 @@ export function parse(easysaxParser: EasySAXParser, start: () => Promise<void>) 
 
         try {
             await start();
+            if (parserError) {
+                reject(parserError);
+                return;
+            }
+
             resolve(state);
         } catch (error) {
             reject(error);
