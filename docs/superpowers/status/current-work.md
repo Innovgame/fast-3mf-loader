@@ -22,6 +22,9 @@
   - `.github/workflows/ci.yml` 与 `.github/workflows/npm-publish.yml` 改为复用 shared verification entrypoint
   - `docs/benchmarking.md` 新增 stable `1.0` benchmark gate
   - `docs/releases/1.0.0-draft.md` 与 `test/release-gates.test.ts` 已落地
+- 2026-03-29 已继续收敛 publish workflow 的 release gate 接线：
+  - `.github/workflows/npm-publish.yml` 现在直接执行 `npm run release:check`，不再分别维护 `verify` 与 `npm pack --dry-run`
+  - `test/release-gates.test.ts` 已新增 workflow regression coverage，锁定 publish job 必须复用共享 `release:check` 入口
 - 新增治理设计与实施文档：
   - `docs/superpowers/specs/2026-03-28-superpowers-governance-bootstrap-design.md`
   - `docs/superpowers/plans/2026-03-28-superpowers-governance-bootstrap.md`
@@ -102,6 +105,7 @@
   - 已从 Phase 2 切入 Phase 3，先处理 `workerCount` 非法值原本会静默回退、以及非 `ArrayBuffer` 输入原本会落入底层错误的问题
   - 下一步继续检查 warning / error 语义里是否还存在类似的“静默回退但缺少诊断信息”缺口，目前已覆盖非法参数、错误输入类型、worker runtime prerequisite，以及 builder 侧缺失引用 / 旧错误前缀 / 资源 warning 残留
 - 2026-03-29 当前 benchmark 相关收口点已从“让 three.js 对照跑起来”切到“保留稳定证据并继续推进 1.0 其余 blocker”
+- 2026-03-29 当前 release readiness 的剩余动作已进一步收敛到“在真正发布前于目标 release machine 刷新一次 benchmark evidence”，而不是继续拆散 workflow 前置检查入口
 
 ## Next Up
 

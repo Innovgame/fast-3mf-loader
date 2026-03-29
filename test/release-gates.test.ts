@@ -30,6 +30,14 @@ describe("stable 1.0 release gates", () => {
         expect(ci).toContain("run: npm run verify");
     });
 
+    test("npm publish workflow uses the shared release:check entrypoint", async () => {
+        const publishWorkflow = await readText(".github/workflows/npm-publish.yml");
+
+        expect(publishWorkflow).toContain("run: npm run release:check");
+        expect(publishWorkflow).not.toContain("run: npm run verify");
+        expect(publishWorkflow).not.toContain("run: npm pack --dry-run");
+    });
+
     test("draft release notes call out supported and unsupported boundaries", async () => {
         const notes = await readText("docs/releases/1.0.0-draft.md");
 
