@@ -8,16 +8,29 @@ import { collectArchiveManifest, createProgressTracker } from "./archive-manifes
 type UnzipWorkerMessage = { type: "done"; zip: Unzipped } | { type: "error"; message: string };
 const DEFAULT_WORKER_COUNT = 4;
 const MAX_DEFAULT_WORKER_COUNT = 15;
+const GENERIC_WORKER_EXECUTION_ERROR = "Worker execution failed.";
+
+function getErrorMessage(error: unknown): string | undefined {
+    const raw = error instanceof Error ? error.message : String(error);
+    if (!raw || raw === "undefined" || raw === GENERIC_WORKER_EXECUTION_ERROR) {
+        return undefined;
+    }
+
+    return raw;
+}
 
 function toLoaderError(error: unknown, fallback: string): Error {
-    const raw = error instanceof Error ? error.message : String(error);
-    const message = raw && raw !== "undefined" ? raw : fallback;
+    const message = getErrorMessage(error) ?? fallback;
 
     if (message.startsWith("Fast3MFLoader:")) {
         return new Error(message);
     }
 
     return new Error(`Fast3MFLoader: ${message}`);
+}
+
+function toModelPartParseError(modelPart: string, error: unknown): Error {
+    return new Error(getErrorMessage(error) ?? `Failed to parse model part \`${modelPart}\`.`);
 }
 
 function toWorkerRuntimeError(): Error {
@@ -139,9 +152,18 @@ export class Fast3MFLoader {
 
             const prommies = modelPartNames.map(async (modelPart) => {
                 const view = zip[modelPart];
-                const data = await parseModelWorkerPool.postMessage<MessageEvent<MessageParseModel>>(view, { transfer: [view.buffer] });
-                reportProgress(100);
-                return data;
+
+                if (!view) {
+                    throw new Error(`Failed to read model part \`${modelPart}\` from 3MF archive.`);
+                }
+
+                try {
+                    const data = await parseModelWorkerPool.postMessage<MessageEvent<MessageParseModel>>(view, { transfer: [view.buffer] });
+                    reportProgress(100);
+                    return data;
+                } catch (error) {
+                    throw toModelPartParseError(modelPart, error);
+                }
             });
 
             // modelParts
@@ -155,7 +177,7 @@ export class Fast3MFLoader {
                     const modelData = data.state;
                     modelParts[modelPart] = modelData;
                 } else {
-                    throw new Error(data.message);
+                    throw toModelPartParseError(modelPart, data.message);
                 }
             }
 

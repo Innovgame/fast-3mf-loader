@@ -3,16 +3,36 @@ import { dispatchParseEvent } from "./parse-dispatch";
 import { createParseEventRuntime, toEndEvent, toStartEvent, toTextEvent } from "./parse-events";
 import { makeModelsStateExtras, StateType } from "./util";
 
+function toParserError(message: unknown): Error {
+    return message instanceof Error ? message : new Error(String(message));
+}
+
 export function parse(easysaxParser: EasySAXParser, start: () => Promise<void>) {
-    return new Promise<StateType>(async (resolve, reject) => {
+    return new Promise<StateType>((resolve, reject) => {
         const state = Object.assign({}, makeModelsStateExtras());
         const runtime = createParseEventRuntime();
-        let parserError: Error | undefined;
+        let settled = false;
+
+        const rejectOnce = (error: unknown) => {
+            if (settled) {
+                return;
+            }
+
+            settled = true;
+            reject(toParserError(error));
+        };
+
+        const resolveOnce = () => {
+            if (settled) {
+                return;
+            }
+
+            settled = true;
+            resolve(state);
+        };
 
         easysaxParser.on("error", function (message) {
-            if (!parserError) {
-                parserError = message instanceof Error ? message : new Error(String(message));
-            }
+            rejectOnce(message);
         });
 
         easysaxParser.on("startNode", function (elementName, getAttr, isTagEnd, getStringNode) {
@@ -30,16 +50,14 @@ export function parse(easysaxParser: EasySAXParser, start: () => Promise<void>) 
             }
         });
 
-        try {
-            await start();
-            if (parserError) {
-                reject(parserError);
-                return;
+        void (async () => {
+            try {
+                await start();
+                resolveOnce();
+            } catch (error) {
+                rejectOnce(error);
             }
 
-            resolve(state);
-        } catch (error) {
-            reject(error);
-        }
+        })();
     });
 }

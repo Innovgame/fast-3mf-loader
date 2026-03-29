@@ -70,6 +70,19 @@
 - 2026-03-29 已继续稳定 parse 编排层失败语义：
   - `lib/parse.ts` 现在会把 SAX parser 的 `error` 事件转成 promise rejection，而不是在 `start()` 正常结束后静默 resolve
   - `test/parse.test.ts` 已新增 focused coverage，锁定 parser error event 不得被吞掉
+- 2026-03-29 已继续收紧 parse 编排层错误收口：
+  - `lib/parse.ts` 现在会在 SAX parser 的 `error` 事件先于 `start()` 完成时立即 rejection，而不是继续等待 `start()` 返回导致 promise 可能悬挂
+  - `test/parse.test.ts` 已新增 focused coverage，锁定 parser error event 不得导致 parse promise 悬挂
+- 2026-03-29 已在本轮 Phase 3 错误语义收口后重新执行 `pnpm verify`：
+  - `check:demo`、`check:test`、全量 `vitest` 与 `build` 当前全部通过
+  - 当前回归覆盖包含 19 个测试文件、74 个测试用例，未发现由本轮 parse / parse worker / WorkerPool 诊断收口引入的新失败
+- 2026-03-29 已继续收敛 parse worker 失败诊断：
+  - `Fast3MFLoader#parse()` 现在会为 parse worker 的空消息或不可读失败补上带 model part 路径的 loader-facing error，而不是退化成宽泛的 archive 级错误
+  - `lib/parse-model.worker.ts` 已移除错位的旧 fallback 文案，统一改为 parse model part 语义
+  - `test/error-handling.test.ts` 已新增 focused coverage，锁定 parse worker 空消息与空 error event 的回退文案
+- 2026-03-29 已继续收敛 WorkerPool 队列失败语义：
+  - `lib/WorkerPool.ts` 现在会在 worker `postMessage()` 同步抛错时立即 reject 当前任务、清理坏 worker，并继续派发后续队列任务，而不是让队列悬挂
+  - `test/worker-pool.test.ts` 已新增 focused regression coverage，锁定“队列中的坏任务失败后，后续任务仍能继续完成”
 - 2026-03-29 已确认 `docs/superpowers/specs/2026-03-29-benchmark-threejs-comparison-design.md`，
   并新增 `docs/superpowers/plans/2026-03-29-benchmark-threejs-comparison.md`
   作为实现接力入口

@@ -58,13 +58,30 @@ export class WorkerPool {
         this._dispatchNext(workerId);
     }
 
-    _dispatchNext(workerId: number) {
-        if (this.queue.length) {
-            const { resolve, reject, msg, transfer } = this.queue.shift();
+    _toError(error: unknown) {
+        return error instanceof Error ? error : new Error(String(error));
+    }
+
+    _assignTask(workerId: number, resolve: (value: any) => void, reject: (reason?: any) => void, msg: any, transfer: StructuredSerializeOptions) {
+        try {
             this._initWorker(workerId);
+            this.workerStatus |= 1 << workerId;
             this.workersResolve[workerId] = resolve;
             this.workersReject[workerId] = reject;
             this.workers[workerId].postMessage(msg, transfer);
+        } catch (error) {
+            this.workersResolve[workerId] = undefined;
+            this.workersReject[workerId] = undefined;
+            this._disposeWorker(workerId);
+            reject(this._toError(error));
+            this._dispatchNext(workerId);
+        }
+    }
+
+    _dispatchNext(workerId: number) {
+        if (this.queue.length) {
+            const { resolve, reject, msg, transfer } = this.queue.shift();
+            this._assignTask(workerId, resolve, reject, msg, transfer);
         } else {
             this.workerStatus &= ~(1 << workerId);
         }
@@ -89,11 +106,7 @@ export class WorkerPool {
             const workerId = this._getIdleWorker();
 
             if (workerId !== -1) {
-                this._initWorker(workerId);
-                this.workerStatus |= 1 << workerId;
-                this.workersResolve[workerId] = resolve;
-                this.workersReject[workerId] = reject;
-                this.workers[workerId].postMessage(msg, transfer);
+                this._assignTask(workerId, resolve, reject, msg, transfer);
             } else {
                 this.queue.push({ resolve, reject, msg, transfer });
             }
