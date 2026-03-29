@@ -17,9 +17,19 @@ export type ThreeBenchmarkAdapterRow =
           detail: string;
       };
 
-export function installThreeBenchmarkAdapter(): {
+export function installThreeBenchmarkAdapter(options?: {
+    DOMParserClass?: new () => unknown;
+}): {
     ThreeMFLoader: new () => {
         parse(input: ArrayBuffer): unknown;
+    };
+    createDomParserProvider(): {
+        DOMParserClass: new () => {
+            parseFromString(input: string, mimeType: string): {
+                querySelectorAll?: (selector: string) => ArrayLike<unknown>;
+            };
+        };
+        dispose(): void;
     };
     restore(): void;
 };
@@ -29,11 +39,20 @@ export function measureThreeFixture({
     fixtureBytes,
     now,
     ThreeMFLoaderClass,
+    createDomParserProvider,
 }: {
     fixtureName: string;
     fixtureBytes: Uint8Array;
     now?: () => number;
     ThreeMFLoaderClass?: new () => {
         parse(input: ArrayBuffer): unknown;
+    };
+    createDomParserProvider?: () => {
+        DOMParserClass: new () => {
+            parseFromString(input: string, mimeType: string): {
+                querySelectorAll?: (selector: string) => ArrayLike<unknown>;
+            };
+        };
+        dispose(): void;
     };
 }): ThreeBenchmarkAdapterRow;

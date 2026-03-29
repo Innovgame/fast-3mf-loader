@@ -1,11 +1,12 @@
 import { performance } from "node:perf_hooks";
-import { DOMParser } from "linkedom";
 import * as THREE from "three";
 import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader.js";
 import { classifyThreeBenchmarkError, installNodeTextureLoaderFallback } from "./benchmark-core.mjs";
+import { createJsdomDomParserProvider, installDomParserPolyfill } from "./benchmark-threejs-dom.mjs";
 
-export function installThreeBenchmarkAdapter() {
-    const restoreDomParser = installDomParserPolyfill();
+export function installThreeBenchmarkAdapter({
+    DOMParserClass,
+} = {}) {
     const restoreTextureLoader = installNodeTextureLoaderFallback({
         TextureLoader: THREE.TextureLoader,
         Texture: THREE.Texture,
@@ -13,9 +14,18 @@ export function installThreeBenchmarkAdapter() {
 
     return {
         ThreeMFLoader,
+        createDomParserProvider() {
+            if (DOMParserClass) {
+                return {
+                    DOMParserClass,
+                    dispose() {},
+                };
+            }
+
+            return createJsdomDomParserProvider();
+        },
         restore() {
             restoreTextureLoader();
-            restoreDomParser();
         },
     };
 }
@@ -25,7 +35,14 @@ export function measureThreeFixture({
     fixtureBytes,
     now = () => performance.now(),
     ThreeMFLoaderClass = ThreeMFLoader,
+    createDomParserProvider,
 }) {
+    const domParserProvider = createDomParserProvider
+        ? createDomParserProvider()
+        : createJsdomDomParserProvider();
+    const restoreDomParser = installDomParserPolyfill({
+        DOMParserClass: domParserProvider.DOMParserClass,
+    });
     const loader = new ThreeMFLoaderClass();
     const input = fixtureBytes.slice().buffer;
     const messages = [];
@@ -64,21 +81,9 @@ export function measureThreeFixture({
         };
     } finally {
         restoreConsole();
+        restoreDomParser();
+        domParserProvider.dispose();
     }
-}
-
-function installDomParserPolyfill() {
-    const originalDomParser = globalThis.DOMParser;
-    globalThis.DOMParser = DOMParser;
-
-    return () => {
-        if (typeof originalDomParser === "undefined") {
-            delete globalThis.DOMParser;
-            return;
-        }
-
-        globalThis.DOMParser = originalDomParser;
-    };
 }
 
 function installThreeConsoleCapture(messages) {

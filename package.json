@@ -42,6 +42,8 @@
     "devDependencies": {
         "@types/node": "^25.5.0",
         "@types/three": "^0.183.1",
+        "@xmldom/xmldom": "^0.8.11",
+        "jsdom": "^29.0.1",
         "linkedom": "^0.18.12",
         "three": "^0.183.2",
         "typescript": "~6.0.2",

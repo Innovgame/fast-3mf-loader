@@ -56,6 +56,7 @@ try {
                 fixtureName,
                 fixtureBytes,
                 ThreeMFLoaderClass: threeAdapter.ThreeMFLoader,
+                createDomParserProvider: threeAdapter.createDomParserProvider,
             });
         }
 
@@ -73,6 +74,7 @@ try {
                 fixtureName,
                 fixtureBytes,
                 ThreeMFLoaderClass: threeAdapter.ThreeMFLoader,
+                createDomParserProvider: threeAdapter.createDomParserProvider,
             }),
         });
 

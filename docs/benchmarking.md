@@ -30,7 +30,7 @@ npm run benchmark
 ## Methodology
 
 - Runtime: Node 22 with a small Worker compatibility shim backed by `node:worker_threads`
-- Comparison runtime: `three.js` `ThreeMFLoader` with a `linkedom` `DOMParser` polyfill inside the benchmark harness
+- Comparison runtime: `three.js` `ThreeMFLoader` with a per-measurement `jsdom`-backed `DOMParser` provider inside the benchmark harness
 - Fixtures: `multipletextures.3mf`, `truck.3mf`
 - Warmup: 1 parse per fixture before measurements
 - Measured runs: 5 parse/build passes per fixture
@@ -54,22 +54,17 @@ Release preset sample run collected on 2026-03-29:
 - Sampling preset: warmup `2`, measured runs `7`
 - Table values below are medians across the measured runs, not single-run point estimates
 - Parse-heavy fixtures can still move materially across same-machine reruns, so treat these numbers as sample evidence instead of pass/fail thresholds
-- `three unsupported` below means the default `three.js` loader did not complete that fixture in this Node benchmark harness; it is not a blanket statement about every runtime or integration
+- In the current Node harness, the `three.js` comparison now completes for both large fixtures; if a future fixture still fails, the row will fall back to `unsupported/failed` without gating the fast-loader release check
 
 | Fixture | Size (KiB) | fast Parse | fast Build | fast Total | three Parse | three Build | three Total | Status |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `multipletextures.3mf` | 3020.7 | 383.6 | 3.7 | 387.0 | `unsupported/failed` | `unsupported/failed` | `unsupported/failed` | `three unsupported` |
-| `truck.3mf` | 2587.2 | 544.8 | 16.3 | 561.2 | `unsupported/failed` | `unsupported/failed` | `unsupported/failed` | `three unsupported` |
+| `multipletextures.3mf` | 3020.7 | 391.4 | 3.4 | 397.6 | 5925.2 | 0.0 | 5925.2 | `ok (fused parse+build)` |
+| `truck.3mf` | 2587.2 | 551.7 | 18.6 | 571.7 | 9329.1 | 0.0 | 9329.1 | `ok (fused parse+build)` |
 
 Run spread from the same sample:
 
-- `multipletextures.3mf`: fast parse `370.2-424.8ms`, fast build `3.2-6.8ms`, fast total `373.8-429.0ms`
-- `truck.3mf`: fast parse `502.8-622.4ms`, fast build `8.9-22.5ms`, fast total `520.0-638.7ms`
-
-three.js fixture notes from the same sample:
-
-- `multipletextures.3mf`: `THREE.3MFLoader: Unsupported resource type.`
-- `truck.3mf`: `THREE.3MFLoader: Unsupported resource type.`
+- `multipletextures.3mf`: fast parse `374.1-414.6ms`, fast build `3.2-6.2ms`, fast total `377.4-418.3ms`
+- `truck.3mf`: fast parse `532.1-559.8ms`, fast build `12.9-31.7ms`, fast total `545.0-588.3ms`
 
 ## Historical Large Fixture Comparison
 

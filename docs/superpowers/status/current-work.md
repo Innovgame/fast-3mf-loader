@@ -59,20 +59,24 @@
 - 2026-03-29 已完成 `three.js` 默认 `ThreeMFLoader` benchmark 对照接线：
   - `npm run benchmark` 现在同时输出 `fast-3mf-loader` 与 `three.js` 的同机对照表
   - `three.js` 默认 loader 在 benchmark 中采用 fused parse+build 口径：`three Parse` 记录总耗时，`three Build` 固定为 `0.0ms`
-  - 当前 Node + `linkedom` benchmark harness 下，`multipletextures.3mf` 与 `truck.3mf` 都显示 `three unsupported`
   - `three.js` 对照失败不会截断 fast 一侧的 measured runs，也不会让 benchmark / `release:check` 因对照项直接失败
   - `test/benchmark-core.test.ts`、`test/benchmark-threejs-adapter.test.ts` 与 `docs/benchmarking.md` 已同步到这条口径
-  - `npm run verify`、`npm run benchmark` 与 `npm run release:check` 已验证通过
 - 2026-03-29 已用固定 release preset 刷新 benchmark sample：
   - 执行命令为 `npm run benchmark:release`
   - 文档样本已改为 `warmupRuns=2`、`measuredRuns=7`、`workerCount=6`
-  - 当前样本下 `multipletextures.3mf` 为 `383.6 / 3.7 / 387.0ms`，`truck.3mf` 为 `544.8 / 16.3 / 561.2ms`
+  - 当前样本下 `multipletextures.3mf` 为 `391.4 / 3.4 / 397.6ms`，`truck.3mf` 为 `551.7 / 18.6 / 571.7ms`
 - 2026-03-29 已确认 three.js benchmark DOM fallback 方向：
   - 先把 `benchmark-threejs-adapter` 的 XML parser 从 `linkedom` 切到 `@xmldom/xmldom`
   - 目标是验证 three.js 对照失败是否主要来自当前 Node XML namespace 兼容性
   - 如果 `@xmldom/xmldom` 仍然不够，再升级到 `jsdom`
 - 2026-03-29 已新增 `docs/superpowers/plans/2026-03-29-threejs-benchmark-dom-fallback.md`
   作为 DOM fallback 实现接力入口
+- 2026-03-29 已完成 three.js benchmark DOM fallback：
+  - 已确认根因不是 `ThreeMFLoader` 本身无法处理 `multipletextures.3mf` / `truck.3mf`，而是 `linkedom` 无法满足 namespaced XML selector 语义
+  - `@xmldom/xmldom` 已被验证为能力不足，因为它在这条路径下不提供 three.js 需要的 `querySelectorAll`
+  - benchmark harness 现已改为每次 `measureThreeFixture()` 调用单独创建并释放 `jsdom` `DOMParser` provider，避免跨 fixture 复用 window 导致的 Node heap OOM
+  - `npm run benchmark` 与 `npm run benchmark:release` 现在都能稳定完成，且 `three.js` 对照在两个大 fixture 上都返回 `ok (fused parse+build)`
+  - `test/benchmark-threejs-adapter.test.ts` 已锁定 per-parse DOM provider 生命周期回归
 
 ## In Progress
 
@@ -85,22 +89,11 @@
 - 2026-03-29 当前继续动作：
   - 已从 Phase 2 切入 Phase 3，先处理 `workerCount` 非法值原本会静默回退、以及非 `ArrayBuffer` 输入原本会落入底层错误的问题
   - 下一步继续检查 warning / error 语义里是否还存在类似的“静默回退但缺少诊断信息”缺口，目前已覆盖非法参数、错误输入类型、worker runtime prerequisite，以及 builder 侧的旧错误前缀 / 资源 warning 残留
-- 2026-03-29 新的 benchmark 设计入口已确认：
-  - 计划把 `three.js` 默认 `3MFLoader` 并入现有 `npm run benchmark`
-  - 对照口径为 `parse + build + total`
-  - `three.js` 在单个 fixture 上失败时显示为 `unsupported/failed`，不让整个 benchmark 命令退出
-- 2026-03-29 当前已进入 benchmark three.js 对照的 implementation-planning 节点：
-  - 已接受 spec
-  - 已把 three.js 默认 loader 只有 `parse(data) -> Group` 的接口现实写进计划
-  - 下一步等待确认执行方式后，按 plan 落地 adapter、comparison table 和文档刷新
-- 2026-03-29 当前新动作：
-  - 已定位 three.js 对照失败与 `linkedom` XML namespace 查询兼容性相关
-  - spec 已确认，当前进入实现计划阶段
+- 2026-03-29 当前 benchmark 相关收口点已从“让 three.js 对照跑起来”切到“保留稳定证据并继续推进 1.0 其余 blocker”
 
 ## Next Up
 
 - 优先继续 Phase 3：围绕公开 API、warning/error 语义、浏览器运行前提继续稳定 `1.0` first-use ergonomics。
-- 执行 three.js benchmark DOM fallback 的小设计/计划链路，先验证 `@xmldom/xmldom` 是否能替代当前 `linkedom` parser。
 - 发布前在目标 release machine 上执行一次 `npm run release:check`，并用 `benchmark:release` 的输出刷新 benchmark 样本。
 - 在真正发布 `1.0` 前，用 `npm run release:check` 作为固定收口命令。
 
