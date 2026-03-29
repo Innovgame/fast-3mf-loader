@@ -1,6 +1,15 @@
 import { describe, expect, test } from "vitest";
 
-const { installNodeTextureLoaderFallback, measureFixture, resolveBenchmarkConfig, summarizeFixtureMeasurements } = await import("../scripts/benchmark-core.mjs");
+const {
+    classifyThreeBenchmarkError,
+    installNodeTextureLoaderFallback,
+    measureComparisonFixture,
+    measureFixture,
+    resolveBenchmarkConfig,
+    summarizeComparisonRows,
+    summarizeFixtureMeasurements,
+    summarizeThreeMeasurements,
+} = await import("../scripts/benchmark-core.mjs");
 
 function createNow(values: number[]) {
     let index = 0;
@@ -54,6 +63,41 @@ describe("measureFixture", () => {
         expect(row.buildMs).toBe(33);
         expect(row.totalMs).toBe(49);
         expect(row.children).toBe(2);
+    });
+});
+
+describe("measureComparisonFixture", () => {
+    test("keeps all fast measurements even after three.js fails early", async () => {
+        const calls: string[] = [];
+        const result = await measureComparisonFixture({
+            fixtureName: "truck.3mf",
+            measuredRuns: 3,
+            measureFastFixture: async () => {
+                const call = calls.filter((value) => value === "fast").length + 1;
+                calls.push("fast");
+                return { fixture: "truck.3mf", parseMs: call };
+            },
+            measureThreeFixture: () => {
+                const call = calls.filter((value) => value === "three").length + 1;
+                calls.push("three");
+
+                if (call === 1) {
+                    return { fixture: "truck.3mf", status: "unsupported", detail: "unsupported" };
+                }
+
+                return { fixture: "truck.3mf", status: "ok", parseMs: 1 };
+            },
+        });
+
+        expect(result.fastMeasurements).toEqual([
+            { fixture: "truck.3mf", parseMs: 1 },
+            { fixture: "truck.3mf", parseMs: 2 },
+            { fixture: "truck.3mf", parseMs: 3 },
+        ]);
+        expect(result.threeMeasurements).toEqual([
+            { fixture: "truck.3mf", status: "unsupported", detail: "unsupported" },
+        ]);
+        expect(calls).toEqual(["fast", "three", "fast", "fast"]);
     });
 });
 
@@ -115,6 +159,147 @@ describe("summarizeFixtureMeasurements", () => {
         expect(summary.buildRangeMs).toEqual([8, 30]);
         expect(summary.totalRangeMs).toEqual([110, 290]);
         expect(summary.runs).toBe(5);
+    });
+});
+
+describe("summarizeComparisonRows", () => {
+    test("renders fast and three columns together when three succeeds", () => {
+        const rows = summarizeComparisonRows([
+            {
+                fixture: "truck.3mf",
+                sizeKiB: 2587.2,
+                fast: {
+                    fixture: "truck.3mf",
+                    sizeKiB: 2587.2,
+                    parseMs: 120,
+                    buildMs: 11,
+                    totalMs: 131,
+                    models: 1,
+                    children: 2,
+                    parseRangeMs: [100, 130],
+                    buildRangeMs: [8, 12],
+                    totalRangeMs: [110, 142],
+                    runs: 5,
+                },
+                three: {
+                    fixture: "truck.3mf",
+                    sizeKiB: 2587.2,
+                    parseMs: 210,
+                    buildMs: 0,
+                    totalMs: 210,
+                    children: 2,
+                    parseRangeMs: [205, 215],
+                    buildRangeMs: [0, 0],
+                    totalRangeMs: [205, 215],
+                    runs: 5,
+                    status: "ok",
+                },
+            },
+        ]);
+
+        expect(rows).toEqual([
+            {
+                Fixture: "truck.3mf",
+                "Size (KiB)": "2587.2",
+                "fast Parse": "120.0",
+                "fast Build": "11.0",
+                "fast Total": "131.0",
+                "three Parse": "210.0",
+                "three Build": "0.0",
+                "three Total": "210.0",
+                Status: "ok (fused parse+build)",
+            },
+        ]);
+    });
+
+    test("prints unsupported/failed when three cannot complete a fixture", () => {
+        const rows = summarizeComparisonRows([
+            {
+                fixture: "multipletextures.3mf",
+                sizeKiB: 3020.7,
+                fast: {
+                    fixture: "multipletextures.3mf",
+                    sizeKiB: 3020.7,
+                    parseMs: 414.7,
+                    buildMs: 3.8,
+                    totalMs: 424.2,
+                    models: 1,
+                    children: 1,
+                    parseRangeMs: [389.9, 423.1],
+                    buildRangeMs: [3.4, 19.9],
+                    totalRangeMs: [393.8, 434.7],
+                    runs: 5,
+                },
+                three: {
+                    fixture: "multipletextures.3mf",
+                    sizeKiB: 3020.7,
+                    status: "unsupported",
+                    detail: "THREE.3MFLoader: Unsupported resource type.",
+                },
+            },
+        ]);
+
+        expect(rows[0]["three Parse"]).toBe("unsupported/failed");
+        expect(rows[0]["three Build"]).toBe("unsupported/failed");
+        expect(rows[0]["three Total"]).toBe("unsupported/failed");
+        expect(rows[0].Status).toBe("three unsupported");
+    });
+});
+
+describe("classifyThreeBenchmarkError", () => {
+    test("maps known three.js support-boundary errors to unsupported", () => {
+        expect(classifyThreeBenchmarkError(new Error("THREE.3MFLoader: Unsupported resource type."))).toEqual({
+            status: "unsupported",
+            detail: "THREE.3MFLoader: Unsupported resource type.",
+        });
+    });
+});
+
+describe("summarizeThreeMeasurements", () => {
+    test("uses medians for successful fused three.js runs", () => {
+        const summary = summarizeThreeMeasurements([
+            {
+                fixture: "truck.3mf",
+                sizeKiB: 2587.2,
+                parseMs: 220,
+                buildMs: 0,
+                totalMs: 220,
+                children: 2,
+                status: "ok",
+            },
+            {
+                fixture: "truck.3mf",
+                sizeKiB: 2587.2,
+                parseMs: 210,
+                buildMs: 0,
+                totalMs: 210,
+                children: 2,
+                status: "ok",
+            },
+            {
+                fixture: "truck.3mf",
+                sizeKiB: 2587.2,
+                parseMs: 240,
+                buildMs: 0,
+                totalMs: 240,
+                children: 2,
+                status: "ok",
+            },
+        ]);
+
+        expect(summary).toEqual({
+            fixture: "truck.3mf",
+            sizeKiB: 2587.2,
+            parseMs: 220,
+            buildMs: 0,
+            totalMs: 220,
+            children: 2,
+            parseRangeMs: [210, 240],
+            buildRangeMs: [0, 0],
+            totalRangeMs: [210, 240],
+            runs: 3,
+            status: "ok",
+        });
     });
 });
 

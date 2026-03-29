@@ -10,6 +10,7 @@ npm run benchmark
 ```
 
 The benchmark imports the built `dist/fast-3mf-loader.js` bundle, runs end-to-end parse/build measurements against the large supported fixtures in `3mf/`, and reports median parse, build, and total times alongside the min/max spread from the measured runs.
+It also runs the same fixtures through the default `three.js` `ThreeMFLoader` so the benchmark output includes a same-machine comparison baseline instead of only a single-library sample.
 
 For the stable `1.0` release gate, use the fixed release preset instead of retyping environment variables:
 
@@ -29,10 +30,15 @@ npm run benchmark
 ## Methodology
 
 - Runtime: Node 22 with a small Worker compatibility shim backed by `node:worker_threads`
+- Comparison runtime: `three.js` `ThreeMFLoader` with a `linkedom` `DOMParser` polyfill inside the benchmark harness
 - Fixtures: `multipletextures.3mf`, `truck.3mf`
 - Warmup: 1 parse per fixture before measurements
 - Measured runs: 5 parse/build passes per fixture
 - Worker count: `min(hardwareConcurrency - 1, 15)` to mirror the loader default
+- Phase semantics:
+  - `fast Parse`, `fast Build`, `fast Total` keep the existing parse/build split from `Fast3MFLoader` + `fast3mfBuilder`
+  - `three.js` does not expose a separate public build step; in this harness `three Parse` is the full `ThreeMFLoader.parse(data)` wall-clock time, `three Build` is fixed at `0.0ms`, and `three Total` repeats the same fused total when parsing succeeds
+  - If `three.js` cannot finish a fixture in this harness, its timing cells render as `unsupported/failed` and the short reason is printed below the main table
 - Environment overrides:
   - `FAST3MF_BENCHMARK_WARMUP_RUNS`
   - `FAST3MF_BENCHMARK_MEASURED_RUNS`
@@ -40,23 +46,29 @@ npm run benchmark
 
 ## Sample Results
 
-Optimized sample run collected on 2026-03-28:
+Comparison sample run collected on 2026-03-29:
 
 - Environment: Node `v22.13.1` on `darwin arm64`
 - Worker count: `9`
 - Command: `node scripts/benchmark.mjs`
 - Table values below are medians across the measured runs, not single-run point estimates
 - Parse-heavy fixtures can still move materially across same-machine reruns, so treat these numbers as sample evidence instead of pass/fail thresholds
+- `three unsupported` below means the default `three.js` loader did not complete that fixture in this Node benchmark harness; it is not a blanket statement about every runtime or integration
 
-| Fixture | Size (KiB) | Parse (ms) | Build (ms) | Total (ms) | Models | Children |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `multipletextures.3mf` | 3020.7 | 414.7 | 3.8 | 424.2 | 1 | 1 |
-| `truck.3mf` | 2587.2 | 602.1 | 11.5 | 612.9 | 1 | 2 |
+| Fixture | Size (KiB) | fast Parse | fast Build | fast Total | three Parse | three Build | three Total | Status |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| `multipletextures.3mf` | 3020.7 | 418.5 | 4.4 | 422.7 | `unsupported/failed` | `unsupported/failed` | `unsupported/failed` | `three unsupported` |
+| `truck.3mf` | 2587.2 | 630.1 | 11.6 | 641.7 | `unsupported/failed` | `unsupported/failed` | `unsupported/failed` | `three unsupported` |
 
 Run spread from the same sample:
 
-- `multipletextures.3mf`: parse `389.9-423.1ms`, build `3.4-19.9ms`, total `393.8-434.7ms`
-- `truck.3mf`: parse `549.8-841.7ms`, build `10.6-37.1ms`, total `560.4-878.8ms`
+- `multipletextures.3mf`: fast parse `392.6-468.0ms`, fast build `4.2-16.7ms`, fast total `403.9-472.4ms`
+- `truck.3mf`: fast parse `567.5-668.3ms`, fast build `10.5-32.8ms`, fast total `586.7-679.3ms`
+
+three.js fixture notes from the same sample:
+
+- `multipletextures.3mf`: `THREE.3MFLoader: Unsupported resource type.`
+- `truck.3mf`: `THREE.3MFLoader: Unsupported resource type.`
 
 ## Historical Large Fixture Comparison
 
@@ -74,5 +86,7 @@ The builder-side wins are the clearest signal here: `multipletextures.3mf` dropp
 Before publishing `1.0`, run `npm run release:check` on the release machine and refresh the large-fixture benchmark sample if the medians or spread moved materially. If the release machine is noisy, re-run with explicit sampling overrides instead of silently replacing the sample with a single quick local run.
 
 `npm run release:check` now delegates benchmark evidence collection to `npm run benchmark:release`, which fixes `warmupRuns=2`, `measuredRuns=7`, and `workerCount=6` for the release-machine sample.
+
+The release gate still belongs to `fast-3mf-loader` itself. A `three unsupported` or `three failed` comparison row does not make `release:check` fail on its own.
 
 Run `node scripts/benchmark.mjs` after `npm run build` to refresh this section with current medians and spread for your machine.

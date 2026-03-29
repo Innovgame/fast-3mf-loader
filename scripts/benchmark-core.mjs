@@ -70,6 +70,43 @@ export async function measureFixture({
     };
 }
 
+export async function measureComparisonFixture({
+    fixtureName,
+    measuredRuns,
+    measureFastFixture,
+    measureThreeFixture,
+}) {
+    const fastMeasurements = [];
+    const threeMeasurements = [];
+    let threeStopped = false;
+
+    for (let i = 0; i < measuredRuns; i++) {
+        fastMeasurements.push(await measureFastFixture({
+            fixtureName,
+            runIndex: i,
+        }));
+
+        if (threeStopped) {
+            continue;
+        }
+
+        const threeMeasurement = measureThreeFixture({
+            fixtureName,
+            runIndex: i,
+        });
+        threeMeasurements.push(threeMeasurement);
+
+        if (threeMeasurement.status !== "ok") {
+            threeStopped = true;
+        }
+    }
+
+    return {
+        fastMeasurements,
+        threeMeasurements,
+    };
+}
+
 export function summarizeFixtureMeasurements(rows) {
     if (rows.length === 0) {
         throw new Error("Cannot summarize an empty benchmark run.");
@@ -92,6 +129,66 @@ export function summarizeFixtureMeasurements(rows) {
     };
 }
 
+export function classifyThreeBenchmarkError(error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    const unsupportedPatterns = [
+        /THREE\.3MFLoader: Unsupported resource type\./i,
+        /THREE\.ThreeMFLoader: Cannot find relationship file `rels` in 3MF archive\./i,
+        /THREE\.3MFLoader: Error loading 3MF - no 3MF document found/i,
+    ];
+
+    return {
+        status: unsupportedPatterns.some((pattern) => pattern.test(detail)) ? "unsupported" : "failed",
+        detail,
+    };
+}
+
+export function summarizeThreeMeasurements(rows) {
+    if (rows.length === 0) {
+        throw new Error("Cannot summarize an empty three.js benchmark run.");
+    }
+
+    const firstFailure = rows.find((row) => row.status !== "ok");
+    if (firstFailure) {
+        return {
+            fixture: firstFailure.fixture,
+            sizeKiB: firstFailure.sizeKiB,
+            status: firstFailure.status,
+            detail: firstFailure.detail,
+        };
+    }
+
+    const first = rows[0];
+
+    return {
+        fixture: first.fixture,
+        sizeKiB: first.sizeKiB,
+        parseMs: median(rows.map((row) => row.parseMs)),
+        buildMs: median(rows.map((row) => row.buildMs)),
+        totalMs: median(rows.map((row) => row.totalMs)),
+        children: first.children,
+        parseRangeMs: range(rows.map((row) => row.parseMs)),
+        buildRangeMs: range(rows.map((row) => row.buildMs)),
+        totalRangeMs: range(rows.map((row) => row.totalMs)),
+        runs: rows.length,
+        status: "ok",
+    };
+}
+
+export function summarizeComparisonRows(rows) {
+    return rows.map((row) => ({
+        Fixture: row.fixture,
+        "Size (KiB)": row.sizeKiB.toFixed(1),
+        "fast Parse": row.fast.parseMs.toFixed(1),
+        "fast Build": row.fast.buildMs.toFixed(1),
+        "fast Total": row.fast.totalMs.toFixed(1),
+        "three Parse": formatComparisonTiming(row.three, "parseMs"),
+        "three Build": formatComparisonTiming(row.three, "buildMs"),
+        "three Total": formatComparisonTiming(row.three, "totalMs"),
+        Status: row.three.status === "ok" ? "ok (fused parse+build)" : `three ${row.three.status}`,
+    }));
+}
+
 export function summarizeRows(rows) {
     return rows.map((row) => ({
         Fixture: row.fixture,
@@ -102,6 +199,10 @@ export function summarizeRows(rows) {
         Models: String(row.models),
         Children: String(row.children),
     }));
+}
+
+function formatComparisonTiming(row, key) {
+    return row.status === "ok" ? row[key].toFixed(1) : "unsupported/failed";
 }
 
 function median(values) {

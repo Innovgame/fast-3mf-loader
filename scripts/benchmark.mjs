@@ -4,8 +4,8 @@ import { resolve } from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
 import { Worker as NodeWorker } from "node:worker_threads";
-import * as THREE from "three";
-import { installNodeTextureLoaderFallback, measureFixture, resolveBenchmarkConfig, summarizeFixtureMeasurements, summarizeRows } from "./benchmark-core.mjs";
+import { measureComparisonFixture, measureFixture, resolveBenchmarkConfig, summarizeComparisonRows, summarizeFixtureMeasurements, summarizeThreeMeasurements } from "./benchmark-core.mjs";
+import { installThreeBenchmarkAdapter, measureThreeFixture } from "./benchmark-threejs-adapter.mjs";
 
 const fixtureNames = [
     "multipletextures.3mf",
@@ -20,10 +20,7 @@ const distEntry = resolve(process.cwd(), "dist/fast-3mf-loader.js");
 
 installNavigatorPolyfill(hardwareConcurrency);
 installWorkerPolyfill();
-const restoreTextureLoader = installNodeTextureLoaderFallback({
-    TextureLoader: THREE.TextureLoader,
-    Texture: THREE.Texture,
-});
+const threeAdapter = installThreeBenchmarkAdapter();
 
 let Fast3MFLoader;
 let fast3mfBuilder;
@@ -41,6 +38,7 @@ console.timeEnd = () => {};
 
 try {
     const rows = [];
+    const failureNotes = [];
     for (const fixtureName of fixtureNames) {
         const file = await readFile(resolve(process.cwd(), "3mf", fixtureName));
         const fixtureBytes = Uint8Array.from(file);
@@ -53,33 +51,56 @@ try {
                 Fast3MFLoader,
                 fast3mfBuilder,
             });
+
+            measureThreeFixture({
+                fixtureName,
+                fixtureBytes,
+                ThreeMFLoaderClass: threeAdapter.ThreeMFLoader,
+            });
         }
 
-        const measurements = [];
-        for (let i = 0; i < measuredRuns; i++) {
-            measurements.push(
-                await measureFixture({
-                    fixtureName,
-                    fixtureBytes,
-                    workerCount,
-                    Fast3MFLoader,
-                    fast3mfBuilder,
-                }),
-            );
-        }
+        const { fastMeasurements, threeMeasurements } = await measureComparisonFixture({
+            fixtureName,
+            measuredRuns,
+            measureFastFixture: () => measureFixture({
+                fixtureName,
+                fixtureBytes,
+                workerCount,
+                Fast3MFLoader,
+                fast3mfBuilder,
+            }),
+            measureThreeFixture: () => measureThreeFixture({
+                fixtureName,
+                fixtureBytes,
+                ThreeMFLoaderClass: threeAdapter.ThreeMFLoader,
+            }),
+        });
 
-        rows.push(summarizeFixtureMeasurements(measurements));
+        const fast = summarizeFixtureMeasurements(fastMeasurements);
+        const three = summarizeThreeMeasurements(threeMeasurements);
+
+        rows.push({
+            fixture: fixtureName,
+            sizeKiB: fast.sizeKiB,
+            fast,
+            three,
+        });
+
+        if (three.status !== "ok") {
+            failureNotes.push(`${fixtureName} | three ${three.status} | ${three.detail}`);
+        }
     }
 
-    console.log(`fast-3mf-loader benchmark`);
+    console.log(`fast-3mf-loader benchmark vs three.js ThreeMFLoader`);
     console.log(`Node ${process.version} | ${process.platform} ${process.arch} | workers=${workerCount}`);
     console.log(`Warmup runs: ${warmupRuns} | Measured runs: ${measuredRuns}`);
     console.log("");
     printTable(rows);
     console.log("");
-    printSpread(rows);
+    printSpread(rows.map((row) => row.fast));
+    printFailureNotes(failureNotes);
 } finally {
-    restoreTextureLoader();
+    threeAdapter.restore();
     console.time = originalConsoleTime;
     console.timeEnd = originalConsoleTimeEnd;
 }
@@ -187,7 +208,7 @@ ${source}
 }
 
 function printTable(rows) {
-    const formattedRows = summarizeRows(rows);
+    const formattedRows = summarizeComparisonRows(rows);
     const columns = Object.keys(formattedRows[0]);
     const widths = Object.fromEntries(
         columns.map((column) => [
@@ -210,6 +231,18 @@ function printSpread(rows) {
         console.log(
             `${row.fixture} spread | parse ${formatRange(row.parseRangeMs)} | build ${formatRange(row.buildRangeMs)} | total ${formatRange(row.totalRangeMs)} | n=${row.runs}`,
         );
+    }
+}
+
+function printFailureNotes(notes) {
+    if (notes.length === 0) {
+        return;
+    }
+
+    console.log("");
+    console.log("three.js fixture notes");
+    for (const note of notes) {
+        console.log(note);
     }
 }
 

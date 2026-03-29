@@ -56,6 +56,13 @@
 - 2026-03-29 已确认 `docs/superpowers/specs/2026-03-29-benchmark-threejs-comparison-design.md`，
   并新增 `docs/superpowers/plans/2026-03-29-benchmark-threejs-comparison.md`
   作为实现接力入口
+- 2026-03-29 已完成 `three.js` 默认 `ThreeMFLoader` benchmark 对照接线：
+  - `npm run benchmark` 现在同时输出 `fast-3mf-loader` 与 `three.js` 的同机对照表
+  - `three.js` 默认 loader 在 benchmark 中采用 fused parse+build 口径：`three Parse` 记录总耗时，`three Build` 固定为 `0.0ms`
+  - 当前 Node + `linkedom` benchmark harness 下，`multipletextures.3mf` 与 `truck.3mf` 都显示 `three unsupported`
+  - `three.js` 对照失败不会截断 fast 一侧的 measured runs，也不会让 benchmark / `release:check` 因对照项直接失败
+  - `test/benchmark-core.test.ts`、`test/benchmark-threejs-adapter.test.ts` 与 `docs/benchmarking.md` 已同步到这条口径
+  - `npm run verify`、`npm run benchmark` 与 `npm run release:check` 已验证通过
 
 ## In Progress
 
@@ -80,7 +87,7 @@
 ## Next Up
 
 - 优先继续 Phase 3：围绕公开 API、warning/error 语义、浏览器运行前提继续稳定 `1.0` first-use ergonomics。
-- 执行 `docs/superpowers/plans/2026-03-29-benchmark-threejs-comparison.md`，把 `three.js` 默认 `3MFLoader` benchmark 对照接入现有 `npm run benchmark`。
+- 在目标 release machine 上重新执行 `npm run benchmark:release`，并用 release-machine 对照输出刷新 `docs/benchmarking.md` 的 sample results。
 - 发布前在目标 release machine 上执行一次 `npm run release:check`，并用 `benchmark:release` 的输出刷新 benchmark 样本。
 - 在真正发布 `1.0` 前，用 `npm run release:check` 作为固定收口命令。
 
