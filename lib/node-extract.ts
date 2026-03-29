@@ -54,10 +54,8 @@ export function extractModelData(input: ExtractableEvent) {
     const extensions: { [key: string]: string } = {};
     for (const key in attributes) {
         if (!Object.hasOwn(attributes, key)) continue;
-        const value = attributes[key] as string;
-        if (/^xmlns:(?<ns>.+)$/.test(key)) {
-            // const { ns } = key.match(/^xmlns:(?<ns>.+)$/)!.groups || {};
-            if (key) extensions[key] = value;
+        if (key.startsWith("xmlns:")) {
+            extensions[key] = attributes[key] as string;
         }
     }
 
@@ -89,7 +87,7 @@ export function extractObjectStart(input: ExtractableEvent) {
     } as ObjectType;
 
     for (const key of ["type", "pid", "pindex", "thumbnail", "partnumber", "name"] as const) {
-        if (key in attributes) data[key] = attributes[key];
+        if (attributes[key] !== undefined) data[key] = attributes[key];
     }
     return data;
 }
@@ -156,15 +154,9 @@ export function extractBuildItemData(input: ExtractableEvent) {
     const data = {
         objectId: attributes["objectid"],
     } as BuildItemType;
-    for (const key of ["transform", "partnumber", "path"] as const) {
-        if (key in attributes) {
-            if (key === "transform") {
-                data["transform"] = matrixFromTransformString(attributes[key]);
-            } else {
-                data[key] = attributes[key];
-            }
-        }
-    }
+    if (attributes["transform"] !== undefined) data["transform"] = matrixFromTransformString(attributes["transform"]);
+    if (attributes["partnumber"] !== undefined) data["partnumber"] = attributes["partnumber"];
+    if (attributes["path"] !== undefined) data["path"] = attributes["path"];
     return data;
 }
 
@@ -178,15 +170,9 @@ export function extractComponentData(input: ExtractableEvent) {
         objectId: attributes["objectid"],
     } as ComponentType;
 
-    for (const key of ["id", "transform", "path"] as const) {
-        if (key in attributes) {
-            if (key === "transform") {
-                data["transform"] = matrixFromTransformString(attributes[key]);
-            } else {
-                data[key] = attributes[key];
-            }
-        }
-    }
+    if (attributes["id"] !== undefined) data["id"] = attributes["id"];
+    if (attributes["transform"] !== undefined) data["transform"] = matrixFromTransformString(attributes["transform"]);
+    if (attributes["path"] !== undefined) data["path"] = attributes["path"];
     return data;
 }
 
@@ -208,9 +194,9 @@ export function extractBasematerialData(input: ExtractableEvent) {
     const attributes = getAttr?.();
     if (!attributes) return;
     const data = {} as BasematerialType;
-    for (const key of ["name", "displaycolor", "displaypropertiesid"] as const) {
-        if (key in attributes) data[key] = attributes[key];
-    }
+    if (attributes["name"] !== undefined) data["name"] = attributes["name"];
+    if (attributes["displaycolor"] !== undefined) data["displaycolor"] = attributes["displaycolor"];
+    if (attributes["displaypropertiesid"] !== undefined) data["displaypropertiesid"] = attributes["displaypropertiesid"];
     return data;
 }
 
@@ -221,9 +207,12 @@ export function extractTexture2dData(input: ExtractableEvent) {
     if (!attributes) return;
 
     const data = {} as Texture2dType;
-    for (const key of ["id", "path", "contenttype", "tilestyleu", "tilestylev", "filter"] as const) {
-        if (key in attributes) data[key] = attributes[key];
-    }
+    if (attributes["id"] !== undefined) data["id"] = attributes["id"];
+    if (attributes["path"] !== undefined) data["path"] = attributes["path"];
+    if (attributes["contenttype"] !== undefined) data["contenttype"] = attributes["contenttype"];
+    if (attributes["tilestyleu"] !== undefined) data["tilestyleu"] = attributes["tilestyleu"];
+    if (attributes["tilestylev"] !== undefined) data["tilestylev"] = attributes["tilestylev"];
+    if (attributes["filter"] !== undefined) data["filter"] = attributes["filter"];
     return data;
 }
 

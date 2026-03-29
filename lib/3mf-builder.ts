@@ -307,26 +307,25 @@ function buildBasematerialsMeshes(
     context: BuilderContext,
     objectData: BuilderObjectType,
 ) {
-    const objectPindex = objectData.pindex;
-    const materialMap: Record<string, TriangleProperty[]> = {};
+    const objectPindex = objectData.pindex !== undefined ? Number(objectData.pindex) : undefined;
+    const materialMap = new Map<number, TriangleProperty[]>();
 
     for (let i = 0; i < triangleProperties.length; i++) {
         const triangleProperty = triangleProperties[i];
-        const pindex = triangleProperty.p1 ?? (objectPindex !== undefined ? Number(objectPindex) : undefined);
-        if (pindex === undefined || Number.isNaN(pindex)) continue;
+        const pindex = triangleProperty.p1 ?? objectPindex;
+        if (pindex === undefined || pindex !== pindex) continue; // pindex !== pindex is faster NaN check
 
-        const materialKey = String(pindex);
-        if (materialMap[materialKey] === undefined) materialMap[materialKey] = [];
-        materialMap[materialKey].push(triangleProperty);
+        let bucket = materialMap.get(pindex);
+        if (bucket === undefined) {
+            bucket = [];
+            materialMap.set(pindex, bucket);
+        }
+        bucket.push(triangleProperty);
     }
 
-    const keys = Object.keys(materialMap);
     const meshes: THREE.Mesh[] = [];
 
-    for (let i = 0; i < keys.length; i++) {
-        const materialKey = keys[i];
-        const materialIndex = Number(materialKey);
-        const trianglePropertiesProps = materialMap[materialKey];
+    for (const [materialIndex, trianglePropertiesProps] of materialMap) {
         const basematerialData = basematerials.basematerials[materialIndex];
 
         if (!basematerialData) {
@@ -414,10 +413,28 @@ function buildTexturedMesh(
     geometry.setAttribute("position", new THREE.BufferAttribute(positionData, 3));
     geometry.setAttribute("uv", new THREE.BufferAttribute(uvData, 2));
 
-    const texture = getCachedTexture(modelKey, texture2dgroupId, texture2dgroup, modelData, context.textureData, context.resourceCache);
-    const material = new THREE.MeshPhongMaterial({ map: texture, flatShading: true });
+    const material = getCachedTexturedMaterial(modelKey, texture2dgroupId, texture2dgroup, modelData, context);
 
     return new THREE.Mesh(geometry, material);
+}
+
+function getCachedTexturedMaterial(
+    modelKey: string,
+    texture2dgroupId: string,
+    texture2dgroup: BuilderTexture2dGroupType,
+    modelData: BuilderModelData,
+    context: BuilderContext,
+) {
+    const materialCacheKey = `texmat:${modelKey}:${texture2dgroupId}`;
+
+    if (context.resourceCache.has(materialCacheKey)) {
+        return context.resourceCache.get(materialCacheKey) as THREE.Material;
+    }
+
+    const texture = getCachedTexture(modelKey, texture2dgroupId, texture2dgroup, modelData, context.textureData, context.resourceCache);
+    const material = new THREE.MeshPhongMaterial({ map: texture, flatShading: true });
+    context.resourceCache.set(materialCacheKey, material);
+    return material;
 }
 
 function getCachedTexture(

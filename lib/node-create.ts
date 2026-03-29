@@ -57,10 +57,7 @@ export function createTriangle(state: StateType, input?: ReturnType<typeof extra
     const current = state.resources.object[currentObjectId];
     if (!current) return;
     current.mesh.triangles.push(input.v1, input.v2, input.v3);
-    if (0 < Object.keys(input).length) {
-        // TODO: 这里后续优化
-        current.mesh.triangleProperties.push(input);
-    }
+    current.mesh.triangleProperties.push(input);
     return state;
 }
 

@@ -208,21 +208,39 @@ export function makeModelsStateExtras() {
 }
 
 export function hexToRgbaArray(hex: string /** #FF0000FF */) {
-    // 移除 # 并确保长度为 8（填充缺失的 Alpha）
-    let hexStr = hex.slice(1).padEnd(8, "F");
+    // Fast path for common 7-char (#RRGGBB) and 9-char (#RRGGBBAA) formats
+    const len = hex.length;
+    if (len >= 7) {
+        const r = parseHexByte(hex, 1) / 255;
+        const g = parseHexByte(hex, 3) / 255;
+        const b = parseHexByte(hex, 5) / 255;
+        const a = len >= 9 ? parseHexByte(hex, 7) / 255 : 1;
+        return [r, g, b, a];
+    }
 
-    // 如果是 3/4 位 HEX，扩展成 6/8 位
+    // Fallback for short hex formats
+    let hexStr = hex.slice(1).padEnd(8, "F");
     if (hexStr.length <= 4) {
         hexStr = hexStr.replace(/./g, "$&$&");
     }
 
-    // 解析为 [R, G, B, A]
     return [
         parseInt(hexStr.substring(0, 2), 16) / 255,
         parseInt(hexStr.substring(2, 4), 16) / 255,
         parseInt(hexStr.substring(4, 6), 16) / 255,
         parseInt(hexStr.substring(6, 8), 16) / 255,
     ];
+}
+
+function parseHexByte(hex: string, offset: number): number {
+    return (hexCharToNibble(hex.charCodeAt(offset)) << 4) | hexCharToNibble(hex.charCodeAt(offset + 1));
+}
+
+function hexCharToNibble(code: number): number {
+    // '0'-'9' = 48-57, 'A'-'F' = 65-70, 'a'-'f' = 97-102
+    if (code >= 48 && code <= 57) return code - 48;
+    if (code >= 65 && code <= 70) return code - 55;
+    return code - 87; // a-f
 }
 
 export function matrixFromTransformString(transform: string) {
