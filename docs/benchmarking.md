@@ -46,24 +46,25 @@ npm run benchmark
 
 ## Sample Results
 
-Comparison sample run collected on 2026-03-29:
+Release preset sample run collected on 2026-03-29:
 
 - Environment: Node `v22.13.1` on `darwin arm64`
-- Worker count: `9`
-- Command: `node scripts/benchmark.mjs`
+- Worker count: `6`
+- Command: `npm run benchmark:release`
+- Sampling preset: warmup `2`, measured runs `7`
 - Table values below are medians across the measured runs, not single-run point estimates
 - Parse-heavy fixtures can still move materially across same-machine reruns, so treat these numbers as sample evidence instead of pass/fail thresholds
 - `three unsupported` below means the default `three.js` loader did not complete that fixture in this Node benchmark harness; it is not a blanket statement about every runtime or integration
 
 | Fixture | Size (KiB) | fast Parse | fast Build | fast Total | three Parse | three Build | three Total | Status |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `multipletextures.3mf` | 3020.7 | 418.5 | 4.4 | 422.7 | `unsupported/failed` | `unsupported/failed` | `unsupported/failed` | `three unsupported` |
-| `truck.3mf` | 2587.2 | 630.1 | 11.6 | 641.7 | `unsupported/failed` | `unsupported/failed` | `unsupported/failed` | `three unsupported` |
+| `multipletextures.3mf` | 3020.7 | 383.6 | 3.7 | 387.0 | `unsupported/failed` | `unsupported/failed` | `unsupported/failed` | `three unsupported` |
+| `truck.3mf` | 2587.2 | 544.8 | 16.3 | 561.2 | `unsupported/failed` | `unsupported/failed` | `unsupported/failed` | `three unsupported` |
 
 Run spread from the same sample:
 
-- `multipletextures.3mf`: fast parse `392.6-468.0ms`, fast build `4.2-16.7ms`, fast total `403.9-472.4ms`
-- `truck.3mf`: fast parse `567.5-668.3ms`, fast build `10.5-32.8ms`, fast total `586.7-679.3ms`
+- `multipletextures.3mf`: fast parse `370.2-424.8ms`, fast build `3.2-6.8ms`, fast total `373.8-429.0ms`
+- `truck.3mf`: fast parse `502.8-622.4ms`, fast build `8.9-22.5ms`, fast total `520.0-638.7ms`
 
 three.js fixture notes from the same sample:
 

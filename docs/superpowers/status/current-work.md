@@ -63,6 +63,10 @@
   - `three.js` 对照失败不会截断 fast 一侧的 measured runs，也不会让 benchmark / `release:check` 因对照项直接失败
   - `test/benchmark-core.test.ts`、`test/benchmark-threejs-adapter.test.ts` 与 `docs/benchmarking.md` 已同步到这条口径
   - `npm run verify`、`npm run benchmark` 与 `npm run release:check` 已验证通过
+- 2026-03-29 已用固定 release preset 刷新 benchmark sample：
+  - 执行命令为 `npm run benchmark:release`
+  - 文档样本已改为 `warmupRuns=2`、`measuredRuns=7`、`workerCount=6`
+  - 当前样本下 `multipletextures.3mf` 为 `383.6 / 3.7 / 387.0ms`，`truck.3mf` 为 `544.8 / 16.3 / 561.2ms`
 
 ## In Progress
 
@@ -87,7 +91,6 @@
 ## Next Up
 
 - 优先继续 Phase 3：围绕公开 API、warning/error 语义、浏览器运行前提继续稳定 `1.0` first-use ergonomics。
-- 在目标 release machine 上重新执行 `npm run benchmark:release`，并用 release-machine 对照输出刷新 `docs/benchmarking.md` 的 sample results。
 - 发布前在目标 release machine 上执行一次 `npm run release:check`，并用 `benchmark:release` 的输出刷新 benchmark 样本。
 - 在真正发布 `1.0` 前，用 `npm run release:check` 作为固定收口命令。
 
