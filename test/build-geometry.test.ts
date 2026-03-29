@@ -4,6 +4,7 @@ import {
     createTrianglePositionBuffer,
     createTriangleUvBuffer,
 } from "../lib/build-geometry";
+import { hexToRgbaArray } from "../lib/util";
 
 describe("build-geometry helpers", () => {
     test("writes triangle positions into a packed Float32Array", () => {
@@ -36,5 +37,42 @@ describe("build-geometry helpers", () => {
 
         expect(Array.from(uvs)).toEqual([0, 0, 1, 0, 0, 1]);
         expect(Array.from(colors)).toEqual([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    });
+});
+
+describe("hexToRgbaArray", () => {
+    test("parses 7-char hex (#RRGGBB) with fast path", () => {
+        const [r, g, b, a] = hexToRgbaArray("#FF0000");
+        expect(r).toBeCloseTo(1.0);
+        expect(g).toBeCloseTo(0.0);
+        expect(b).toBeCloseTo(0.0);
+        expect(a).toBeCloseTo(1.0);
+    });
+
+    test("parses 9-char hex (#RRGGBBAA) with fast path", () => {
+        const [r, g, b, a] = hexToRgbaArray("#00FF0080");
+        expect(r).toBeCloseTo(0.0);
+        expect(g).toBeCloseTo(1.0);
+        expect(b).toBeCloseTo(0.0);
+        expect(a).toBeCloseTo(128 / 255);
+    });
+
+    test("parses lowercase hex correctly", () => {
+        const [r, g, b, a] = hexToRgbaArray("#ff8000ff");
+        expect(r).toBeCloseTo(1.0);
+        expect(g).toBeCloseTo(128 / 255);
+        expect(b).toBeCloseTo(0.0);
+        expect(a).toBeCloseTo(1.0);
+    });
+
+    test("parses short hex via fallback", () => {
+        // 4-char short hex like #F00F triggers the expand path
+        const [r, g, b, a] = hexToRgbaArray("#F00F");
+        // After slice(1) = "F00F", padEnd(8, "F") = "F00FFFFF"
+        // No expand since length > 4, so parsed as F0/0F/FF/FF
+        expect(r).toBeCloseTo(0xF0 / 255);
+        expect(g).toBeCloseTo(0x0F / 255);
+        expect(b).toBeCloseTo(1.0);
+        expect(a).toBeCloseTo(1.0);
     });
 });

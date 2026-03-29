@@ -51,4 +51,49 @@ describe("parse-dispatch", () => {
         expect(warnSpy).toHaveBeenCalledWith("Fast3MFLoader: Unrecognised model unit `parsec`. Assuming millimeter.");
         expect(state.transform?.scale).toEqual([1, 1, 1]);
     });
+
+    test("namespaced tags are dispatched correctly via local name extraction", () => {
+        const state = makeModelsStateExtras();
+        state.current.currentObjectId = "1";
+        state.resources.object["1"] = {
+            id: "1",
+            components: [],
+            mesh: { vertices: [], triangles: [], triangleProperties: [] },
+        };
+
+        dispatchParseEvent(state, {
+            kind: "start",
+            tagName: "m:vertex",
+            empty: true,
+            getAttr: () => ({ x: "1", y: "2", z: "3" }),
+        });
+
+        expect(state.resources.object["1"].mesh.vertices).toEqual([1, 2, 3]);
+    });
+
+    test("namespaced colorgroup end event clears current state", () => {
+        const state = makeModelsStateExtras();
+        state.current.currentColorGroupId = "5";
+
+        dispatchParseEvent(state, {
+            kind: "end",
+            tagName: "m:colorgroup",
+            empty: false,
+        });
+
+        expect(state.current.currentColorGroupId).toBeUndefined();
+    });
+
+    test("namespaced texture2dgroup end event clears current state", () => {
+        const state = makeModelsStateExtras();
+        state.current.currentTexture2dGroupId = "7";
+
+        dispatchParseEvent(state, {
+            kind: "end",
+            tagName: "m:texture2dgroup",
+            empty: false,
+        });
+
+        expect(state.current.currentTexture2dGroupId).toBeUndefined();
+    });
 });
