@@ -38,6 +38,16 @@ type BuilderContext = {
 
 const COLOR_SPACE_3MF = THREE.SRGBColorSpace;
 
+function toArchivePartKey(path: string, referenceType: string) {
+    const normalized = path.startsWith("/") ? path.slice(1) : path;
+
+    if (!normalized) {
+        throw new Error(`fast3mfBuilder: Invalid ${referenceType} target \`${path}\`.`);
+    }
+
+    return normalized;
+}
+
 export function fast3mfBuilder(data3mf: ParseResult) {
     const objectCache = buildObjects(data3mf);
     return build(objectCache, data3mf);
@@ -46,7 +56,7 @@ export function fast3mfBuilder(data3mf: ParseResult) {
 function build(objectCache: BuildObjectCache, data3mf: ParseResult) {
     const group = new THREE.Group();
     const relationship = fetch3DModelPart(data3mf.rels);
-    const rootModelKey = relationship.target!.substring(1);
+    const rootModelKey = toArchivePartKey(relationship.target!, "3D model relationship");
     const rootModel = data3mf.model[rootModelKey];
 
     if (!rootModel) {
@@ -124,9 +134,9 @@ function collectTextureData(data3mf: ParseResult) {
         const target = modelRel.target;
         if (!target) continue;
 
-        const textureKey = target.substring(1);
+        const textureKey = toArchivePartKey(target, "texture relationship");
         if (data3mf.texture[textureKey]) {
-            textureData[target] = data3mf.texture[textureKey];
+            textureData[textureKey] = data3mf.texture[textureKey];
         }
     }
 
@@ -446,7 +456,8 @@ function buildTexture(
         );
     }
 
-    const data = textureData[texture2d.path];
+    const textureKey = toArchivePartKey(texture2d.path, "texture resource path");
+    const data = textureData[textureKey];
     if (!data) {
         throw new Error(
             `fast3mfBuilder: Cannot find texture binary \`${texture2d.path}\` referenced by texture resource \`${texid}\` in model \`${modelKey}\`.`,

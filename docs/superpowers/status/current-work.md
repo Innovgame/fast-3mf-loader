@@ -79,7 +79,7 @@
   - `test/builder.test.ts` 已新增 focused regression coverage，锁定这三条资源子引用失败路径
 - 2026-03-29 已在本轮 Phase 3 错误语义收口后重新执行 `pnpm verify`：
   - `check:demo`、`check:test`、全量 `vitest` 与 `build` 当前全部通过
-  - 当前回归覆盖包含 19 个测试文件、86 个测试用例，未发现由本轮 parse / builder / parse worker / WorkerPool / archive part / relationship XML 诊断收口引入的新失败
+  - 当前回归覆盖包含 19 个测试文件、88 个测试用例，未发现由本轮 parse / builder / parse worker / WorkerPool / archive part / relationship XML / builder relationship target 诊断收口引入的新失败
 - 2026-03-29 已继续收敛 parse worker 失败诊断：
   - `Fast3MFLoader#parse()` 现在会为 parse worker 的空消息或不可读失败补上带 model part 路径的 loader-facing error，而不是退化成宽泛的 archive 级错误
   - `lib/parse-model.worker.ts` 已移除错位的旧 fallback 文案，统一改为 parse model part 语义
@@ -94,6 +94,9 @@
   - `Fast3MFLoader#parse()` 现在支持 root rels 与 model rels 中使用单引号属性的合法 XML 关系条目，不再因为属性引号风格不同而静默退化成空值关系
   - relationship entry 缺少 `Target`、`Id` 或 `Type` 时，现在会在 loader 阶段抛出带文件路径的明确 error，而不是把损坏关系留到后续 builder 或 texture 收集阶段才暴露
   - `test/loader.parse.test.ts` 与 `test/error-handling.test.ts` 已新增 focused coverage，锁定单引号关系解析与 malformed relationship 诊断
+- 2026-03-30 已继续收敛 builder 侧 relationship target 兼容性：
+  - `fast3mfBuilder()` 现在会归一化 root model relationship、texture relationship 与 texture resource path 的前导斜杠，避免因为 target/path 形态不同而误报缺模型或缺纹理
+  - `test/builder.test.ts` 已新增 focused coverage，锁定 root relationship target 与 texture relationship target 在无前导斜杠时仍可正常构建
 - 2026-03-29 已确认 `docs/superpowers/specs/2026-03-29-benchmark-threejs-comparison-design.md`，
   并新增 `docs/superpowers/plans/2026-03-29-benchmark-threejs-comparison.md`
   作为实现接力入口

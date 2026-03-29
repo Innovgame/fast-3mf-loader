@@ -80,6 +80,37 @@ describe("fast3mfBuilder", () => {
         ).toThrow("fast3mfBuilder: Cannot find root model `3D/missing.model` in parsed model data.");
     });
 
+    test("accepts a root model relationship target without a leading slash", () => {
+        const group = fast3mfBuilder(
+            createParseResult({
+                resources: {
+                    object: {
+                        "1": {
+                            id: "1",
+                            mesh: {
+                                vertices: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]),
+                                triangles: new Uint32Array([0, 1, 2]),
+                                triangleProperties: [],
+                            },
+                            components: [],
+                        },
+                    },
+                    basematerials: {},
+                    texture2d: {},
+                    colorgroup: {},
+                    texture2dgroup: {},
+                    pbmetallicdisplayproperties: {},
+                },
+                build: [{ objectId: "1" }],
+            }, {
+                rels: [{ target: "3D/3dmodel.model" }],
+            }),
+        );
+
+        expect(group).toBeInstanceOf(THREE.Group);
+        expect(group.children.length).toBeGreaterThan(0);
+    });
+
     test("throws a builder-facing error when a build item references a missing object", () => {
         expect(() =>
             fast3mfBuilder({
@@ -256,6 +287,58 @@ describe("fast3mfBuilder", () => {
         ).toThrow(
             "fast3mfBuilder: Cannot find texture binary `/3D/Textures/missing.png` referenced by texture resource `tex1` in model `3D/3dmodel.model`.",
         );
+    });
+
+    test("accepts texture relationship targets without a leading slash", () => {
+        mockTextureLoader();
+
+        const group = fast3mfBuilder(
+            createParseResult(
+                {
+                    resources: {
+                        object: {
+                            "1": {
+                                id: "1",
+                                pid: "tex-group",
+                                mesh: {
+                                    vertices: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]),
+                                    triangles: new Uint32Array([0, 1, 2]),
+                                    triangleProperties: [{ v1: 0, v2: 1, v3: 2, p1: 0, p2: 1, p3: 2 }],
+                                },
+                                components: [],
+                            },
+                        },
+                        basematerials: {},
+                        texture2d: {
+                            tex1: {
+                                id: "tex1",
+                                path: "/3D/Textures/atlas.png",
+                                contenttype: "image/png",
+                            },
+                        },
+                        colorgroup: {},
+                        texture2dgroup: {
+                            "tex-group": {
+                                id: "tex-group",
+                                texid: "tex1",
+                                uvs: new Float32Array([0, 0, 1, 0, 0, 1]),
+                            },
+                        },
+                        pbmetallicdisplayproperties: {},
+                    },
+                    build: [{ objectId: "1" }],
+                },
+                {
+                    modelRels: [{ target: "3D/Textures/atlas.png", id: "rel0", type: "texture" }],
+                    texture: {
+                        "3D/Textures/atlas.png": new Uint8Array([1, 2, 3]).buffer,
+                    },
+                },
+            ),
+        );
+
+        expect(group).toBeInstanceOf(THREE.Group);
+        expect(group.children.length).toBeGreaterThan(0);
     });
 
     test("warns with a builder-facing message for unsupported resource ids", () => {
