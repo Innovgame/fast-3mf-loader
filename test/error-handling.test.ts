@@ -6,10 +6,22 @@ async function loadFast3MFLoader(
         unzipWorkerConstructorError?: string;
         parseWorkerMessage?: { type: "error"; message: string };
         parseWorkerErrorEvent?: string;
+        manifestMissing?: boolean;
     } = {},
 ) {
     vi.resetModules();
     const { unzipBuffer } = await import("../lib/unzip");
+
+    if (options.manifestMissing) {
+        vi.doMock("../lib/archive-manifest", async () => {
+            const actual = await vi.importActual<typeof import("../lib/archive-manifest")>("../lib/archive-manifest");
+
+            return {
+                ...actual,
+                collectArchiveManifest: () => undefined,
+            };
+        });
+    }
 
     vi.doMock("../lib/unzip.worker?worker&inline", () => {
         if (options.unzipWorkerConstructorError) {
@@ -139,6 +151,7 @@ async function loadFast3MFLoader(
 afterEach(() => {
     vi.doUnmock("../lib/unzip.worker?worker&inline");
     vi.doUnmock("../lib/parse-model.worker?worker&inline");
+    vi.doUnmock("../lib/archive-manifest");
 });
 
 describe("Fast3MFLoader.parse error handling", () => {
@@ -167,6 +180,17 @@ describe("Fast3MFLoader.parse error handling", () => {
         const loader = new Fast3MFLoader();
 
         await expect(loader.parse(new ArrayBuffer(8))).rejects.toThrow("Fast3MFLoader:");
+    });
+
+    test("rejects missing archive manifest with a loader-facing message", async () => {
+        const Fast3MFLoader = await loadFast3MFLoader({
+            manifestMissing: true,
+        });
+        const loader = new Fast3MFLoader();
+
+        await expect(loader.parse(await readFixture("cube_gears.3mf"))).rejects.toThrow(
+            "Fast3MFLoader: Failed to inspect 3MF archive contents.",
+        );
     });
 
     test("rejects parse worker failures", async () => {

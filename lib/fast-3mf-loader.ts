@@ -120,8 +120,8 @@ export class Fast3MFLoader {
             throw toLoaderError(error, "Failed to unzip 3MF archive.");
         }
         onProgress?.(30);
-        if (!zip) throw new Error("unzip error");
-        if (!manifest) throw new Error("unzip error");
+        if (!zip) throw new Error("Fast3MFLoader: Failed to unzip 3MF archive.");
+        if (!manifest) throw new Error("Fast3MFLoader: Failed to inspect 3MF archive contents.");
 
         const { relsName, modelRelsName, rootModelFile, modelPartNames, texturesPartNames, printTicketPartNames } = manifest;
         if (!rootModelFile) throw new Error("Fast3MFLoader: Cannot find root model file in 3MF archive.");
