@@ -60,6 +60,10 @@
   - `fast3mfBuilder()` 在 root model relationship 指向缺失 parsed model 时，现在会抛出明确的 builder-facing error，而不是落入 `build` 访问的原生 `TypeError`
   - `fast3mfBuilder()` 在 build item 或 component 引用缺失 object 时，现在也会抛出带 model/object 上下文的 builder-facing error，而不是落入 `clone` / `mesh` 访问失败
   - `test/builder.test.ts` 已新增 focused regression coverage，锁定这三条缺失引用诊断路径
+- 2026-03-29 已继续统一 parser 侧 warning 语义：
+  - 未知 `model unit` 现在会输出 `Fast3MFLoader:` 前缀的 loader-facing warning，而不是继续保留旧的内部风格文案
+  - 未知单位仍然保持回退到 `millimeter` / `[1, 1, 1]` 的现有行为，不扩散到解析语义变更
+  - `test/parse-dispatch.test.ts` 已新增 focused coverage，锁定 warning 文案与回退比例
 - 2026-03-29 已确认 `docs/superpowers/specs/2026-03-29-benchmark-threejs-comparison-design.md`，
   并新增 `docs/superpowers/plans/2026-03-29-benchmark-threejs-comparison.md`
   作为实现接力入口
@@ -103,7 +107,7 @@
   - `benchmark:release` 与 `release:check` 已验证通过，当前 benchmark methodology 的主要收口点已经从“确定命令入口”切到“发布前在 release machine 刷新一次样本”
 - 2026-03-29 当前继续动作：
   - 已从 Phase 2 切入 Phase 3，先处理 `workerCount` 非法值原本会静默回退、以及非 `ArrayBuffer` 输入原本会落入底层错误的问题
-  - 下一步继续检查 warning / error 语义里是否还存在类似的“静默回退但缺少诊断信息”缺口，目前已覆盖非法参数、错误输入类型、worker runtime prerequisite，以及 builder 侧缺失引用 / 旧错误前缀 / 资源 warning 残留
+  - 下一步继续检查 warning / error 语义里是否还存在类似的“静默回退但缺少诊断信息”缺口，目前已覆盖非法参数、错误输入类型、worker runtime prerequisite、未知单位 warning，以及 builder 侧缺失引用 / 旧错误前缀 / 资源 warning 残留
 - 2026-03-29 当前 benchmark 相关收口点已从“让 three.js 对照跑起来”切到“保留稳定证据并继续推进 1.0 其余 blocker”
 - 2026-03-29 当前 release readiness 的剩余动作已进一步收敛到“在真正发布前于目标 release machine 刷新一次 benchmark evidence”，而不是继续拆散 workflow 前置检查入口
 

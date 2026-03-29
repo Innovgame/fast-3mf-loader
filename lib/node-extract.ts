@@ -35,7 +35,7 @@ function getScaleFromUnit(unit: string = "millimeter") {
     };
     let scale = mapping[unit];
     if (scale === undefined) {
-        console.warn("Unrecognised unit " + unit + " used. Assuming mm instead");
+        console.warn(`Fast3MFLoader: Unrecognised model unit \`${unit}\`. Assuming millimeter.`);
         scale = 1;
     }
     return [scale, scale, scale];
