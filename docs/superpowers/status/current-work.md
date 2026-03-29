@@ -73,9 +73,13 @@
 - 2026-03-29 已继续收紧 parse 编排层错误收口：
   - `lib/parse.ts` 现在会在 SAX parser 的 `error` 事件先于 `start()` 完成时立即 rejection，而不是继续等待 `start()` 返回导致 promise 可能悬挂
   - `test/parse.test.ts` 已新增 focused coverage，锁定 parser error event 不得导致 parse promise 悬挂
+- 2026-03-29 已继续收敛 builder 侧资源子引用诊断：
+  - `fast3mfBuilder()` 在 basematerial index 缺失时，现在会抛出明确的 builder-facing error，而不是落入后续 `undefined` 访问
+  - `fast3mfBuilder()` 在 texture group 引用缺失 texture resource 或 texture binary 时，现在也会抛出明确的 builder-facing error，而不是静默构建成无纹理材质
+  - `test/builder.test.ts` 已新增 focused regression coverage，锁定这三条资源子引用失败路径
 - 2026-03-29 已在本轮 Phase 3 错误语义收口后重新执行 `pnpm verify`：
   - `check:demo`、`check:test`、全量 `vitest` 与 `build` 当前全部通过
-  - 当前回归覆盖包含 19 个测试文件、74 个测试用例，未发现由本轮 parse / parse worker / WorkerPool 诊断收口引入的新失败
+  - 当前回归覆盖包含 19 个测试文件、77 个测试用例，未发现由本轮 parse / builder / parse worker / WorkerPool 诊断收口引入的新失败
 - 2026-03-29 已继续收敛 parse worker 失败诊断：
   - `Fast3MFLoader#parse()` 现在会为 parse worker 的空消息或不可读失败补上带 model part 路径的 loader-facing error，而不是退化成宽泛的 archive 级错误
   - `lib/parse-model.worker.ts` 已移除错位的旧 fallback 文案，统一改为 parse model part 语义

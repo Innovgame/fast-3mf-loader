@@ -21,6 +21,19 @@ function mockTextureLoader() {
     });
 }
 
+function createParseResult(modelData: any, overrides: Partial<any> = {}) {
+    return {
+        rels: [{ target: "/3D/3dmodel.model" }],
+        modelRels: [],
+        model: {
+            "3D/3dmodel.model": modelData,
+        },
+        printTicket: {},
+        texture: {},
+        ...overrides,
+    } as any;
+}
+
 describe("fast3mfBuilder", () => {
     afterEach(() => {
         vi.restoreAllMocks();
@@ -123,6 +136,126 @@ describe("fast3mfBuilder", () => {
                 texture: {},
             } as any),
         ).toThrow("fast3mfBuilder: Cannot find component object `missing-component` in model `3D/3dmodel.model`.");
+    });
+
+    test("throws a builder-facing error when a base material index is missing", () => {
+        expect(() =>
+            fast3mfBuilder(
+                createParseResult({
+                    resources: {
+                        object: {
+                            "1": {
+                                id: "1",
+                                pid: "mat1",
+                                pindex: "1",
+                                mesh: {
+                                    vertices: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]),
+                                    triangles: new Uint32Array([0, 1, 2]),
+                                    triangleProperties: [{ v1: 0, v2: 1, v3: 2 }],
+                                },
+                                components: [],
+                            },
+                        },
+                        basematerials: {
+                            mat1: {
+                                id: "mat1",
+                                basematerials: [{ index: 0, name: "base-0", displaycolor: "#ffffff" }],
+                            },
+                        },
+                        texture2d: {},
+                        colorgroup: {},
+                        texture2dgroup: {},
+                        pbmetallicdisplayproperties: {},
+                    },
+                    build: [{ objectId: "1" }],
+                }),
+            ),
+        ).toThrow("fast3mfBuilder: Cannot find base material index `1` in resource `mat1` for model `3D/3dmodel.model`.");
+    });
+
+    test("throws a builder-facing error when a texture group references a missing texture resource", () => {
+        expect(() =>
+            fast3mfBuilder(
+                createParseResult({
+                    resources: {
+                        object: {
+                            "1": {
+                                id: "1",
+                                pid: "tex-group",
+                                mesh: {
+                                    vertices: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]),
+                                    triangles: new Uint32Array([0, 1, 2]),
+                                    triangleProperties: [{ v1: 0, v2: 1, v3: 2, p1: 0, p2: 1, p3: 2 }],
+                                },
+                                components: [],
+                            },
+                        },
+                        basematerials: {},
+                        texture2d: {},
+                        colorgroup: {},
+                        texture2dgroup: {
+                            "tex-group": {
+                                id: "tex-group",
+                                texid: "missing-texture",
+                                uvs: new Float32Array([0, 0, 1, 0, 0, 1]),
+                            },
+                        },
+                        pbmetallicdisplayproperties: {},
+                    },
+                    build: [{ objectId: "1" }],
+                }),
+            ),
+        ).toThrow(
+            "fast3mfBuilder: Cannot find texture resource `missing-texture` referenced by texture group `tex-group` in model `3D/3dmodel.model`.",
+        );
+    });
+
+    test("throws a builder-facing error when a texture binary is missing", () => {
+        expect(() =>
+            fast3mfBuilder(
+                createParseResult(
+                    {
+                        resources: {
+                            object: {
+                                "1": {
+                                    id: "1",
+                                    pid: "tex-group",
+                                    mesh: {
+                                        vertices: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]),
+                                        triangles: new Uint32Array([0, 1, 2]),
+                                        triangleProperties: [{ v1: 0, v2: 1, v3: 2, p1: 0, p2: 1, p3: 2 }],
+                                    },
+                                    components: [],
+                                },
+                            },
+                            basematerials: {},
+                            texture2d: {
+                                tex1: {
+                                    id: "tex1",
+                                    path: "/3D/Textures/missing.png",
+                                    contenttype: "image/png",
+                                },
+                            },
+                            colorgroup: {},
+                            texture2dgroup: {
+                                "tex-group": {
+                                    id: "tex-group",
+                                    texid: "tex1",
+                                    uvs: new Float32Array([0, 0, 1, 0, 0, 1]),
+                                },
+                            },
+                            pbmetallicdisplayproperties: {},
+                        },
+                        build: [{ objectId: "1" }],
+                    },
+                    {
+                        modelRels: [{ target: "/3D/Textures/missing.png", id: "rel0", type: "texture" }],
+                    },
+                ),
+            ),
+        ).toThrow(
+            "fast3mfBuilder: Cannot find texture binary `/3D/Textures/missing.png` referenced by texture resource `tex1` in model `3D/3dmodel.model`.",
+        );
     });
 
     test("warns with a builder-facing message for unsupported resource ids", () => {

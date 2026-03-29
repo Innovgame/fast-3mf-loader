@@ -29,7 +29,7 @@ type BuilderTexture2dGroupType = Omit<Texture2dGroupType, "uvs"> & { uvs: ArrayL
 type BuilderColorGroupType = Omit<ColorGroupType, "colors"> & { colors: ArrayLike<number> };
 
 type BuildObjectCache = Map<string, THREE.Object3D>;
-type ResourceCache = Map<string, THREE.Material | THREE.Texture | null>;
+type ResourceCache = Map<string, THREE.Material | THREE.Texture>;
 type BuilderContext = {
     objectCache: BuildObjectCache;
     resourceCache: ResourceCache;
@@ -318,6 +318,11 @@ function buildBasematerialsMeshes(
         const materialIndex = Number(materialKey);
         const trianglePropertiesProps = materialMap[materialKey];
         const basematerialData = basematerials.basematerials[materialIndex];
+
+        if (!basematerialData) {
+            throw new Error(`fast3mfBuilder: Cannot find base material index \`${materialIndex}\` in resource \`${basematerialsId}\` for model \`${modelKey}\`.`);
+        }
+
         const material = getCachedBasematerial(modelKey, basematerialsId, basematerialData, modelData, context.resourceCache);
 
         const geometry = new THREE.BufferGeometry();
@@ -416,26 +421,36 @@ function getCachedTexture(
     const cacheKey = `texture:${modelKey}:${texture2dgroupId}`;
 
     if (resourceCache.has(cacheKey)) {
-        return resourceCache.get(cacheKey) as THREE.Texture | null;
+        return resourceCache.get(cacheKey) as THREE.Texture;
     }
 
-    const texture = buildTexture(texture2dgroup, modelData, textureData);
+    const texture = buildTexture(modelKey, texture2dgroupId, texture2dgroup, modelData, textureData);
     resourceCache.set(cacheKey, texture);
     return texture;
 }
 
-function buildTexture(texture2dgroup: BuilderTexture2dGroupType, modelData: BuilderModelData, textureData: Record<string, ArrayBuffer>) {
+function buildTexture(
+    modelKey: string,
+    texture2dgroupId: string,
+    texture2dgroup: BuilderTexture2dGroupType,
+    modelData: BuilderModelData,
+    textureData: Record<string, ArrayBuffer>,
+) {
     const textureLoader = new THREE.TextureLoader();
     const texid = texture2dgroup.texid;
     const texture2d = modelData.resources.texture2d[texid];
 
     if (!texture2d) {
-        return null;
+        throw new Error(
+            `fast3mfBuilder: Cannot find texture resource \`${texid}\` referenced by texture group \`${texture2dgroupId}\` in model \`${modelKey}\`.`,
+        );
     }
 
     const data = textureData[texture2d.path];
     if (!data) {
-        return null;
+        throw new Error(
+            `fast3mfBuilder: Cannot find texture binary \`${texture2d.path}\` referenced by texture resource \`${texid}\` in model \`${modelKey}\`.`,
+        );
     }
 
     const blob = new Blob([data], { type: texture2d.contenttype });
