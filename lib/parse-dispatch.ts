@@ -33,84 +33,80 @@ import {
 import type { ParseEvent } from "./parse-events";
 import type { StateType } from "./util";
 
-function clearCurrentStateForEndTag(state: StateType, tagName: string) {
-    if (tagName === "object") state.current.currentObjectId = undefined;
-    if (tagName === "basematerials") state.current.currentBasematerialsId = undefined;
-    if (tagName.endsWith("colorgroup")) state.current.currentColorGroupId = undefined;
-    if (tagName.endsWith("texture2dgroup")) state.current.currentTexture2dGroupId = undefined;
+function getLocalName(tagName: string): string {
+    const idx = tagName.indexOf(":");
+    return idx === -1 ? tagName : tagName.substring(idx + 1);
+}
+
+function clearCurrentStateForEndTag(state: StateType, localName: string) {
+    if (localName === "object") state.current.currentObjectId = undefined;
+    else if (localName === "basematerials") state.current.currentBasematerialsId = undefined;
+    else if (localName === "colorgroup") state.current.currentColorGroupId = undefined;
+    else if (localName === "texture2dgroup") state.current.currentTexture2dGroupId = undefined;
 }
 
 export function dispatchParseEvent(state: StateType, event: ParseEvent) {
-    if (event.tagName === "model" && event.kind === "start") {
-        createModel(state, extractModelData(event));
-        return;
-    }
+    const localName = getLocalName(event.tagName);
 
-    if (event.tagName === "metadata" && event.kind === "text") {
-        createMetadata(state, extractMetadata(event));
-        return;
-    }
+    switch (localName) {
+        case "vertex":
+            if (event.kind === "start") createVertex(state, extractVertexData(event));
+            return;
 
-    if (event.tagName === "object") {
-        if (event.kind === "start") createObject(state, extractObjectStart(event));
-        if (event.kind === "end") clearCurrentStateForEndTag(state, event.tagName);
-        return;
-    }
+        case "triangle":
+            if (event.kind === "start") createTriangle(state, extractTriangleData(event));
+            return;
 
-    if (event.tagName === "vertex" && event.kind === "start") {
-        createVertex(state, extractVertexData(event));
-        return;
-    }
+        case "model":
+            if (event.kind === "start") createModel(state, extractModelData(event));
+            return;
 
-    if (event.tagName === "triangle" && event.kind === "start") {
-        createTriangle(state, extractTriangleData(event));
-        return;
-    }
+        case "metadata":
+            if (event.kind === "text") createMetadata(state, extractMetadata(event));
+            return;
 
-    if (event.tagName === "item" && event.kind === "start") {
-        createBuildItem(state, extractBuildItemData(event));
-        return;
-    }
+        case "object":
+            if (event.kind === "start") createObject(state, extractObjectStart(event));
+            if (event.kind === "end") clearCurrentStateForEndTag(state, localName);
+            return;
 
-    if (event.tagName === "component" && event.kind === "start") {
-        createComponent(state, extractComponentData(event));
-        return;
-    }
+        case "item":
+            if (event.kind === "start") createBuildItem(state, extractBuildItemData(event));
+            return;
 
-    if (event.tagName === "basematerials") {
-        if (event.kind === "start") createBasematerials(state, extractBasematerialsData(event));
-        if (event.kind === "end") clearCurrentStateForEndTag(state, event.tagName);
-        return;
-    }
+        case "component":
+            if (event.kind === "start") createComponent(state, extractComponentData(event));
+            return;
 
-    if (event.tagName === "base" && event.kind === "start") {
-        createBasematerial(state, extractBasematerialData(event));
-        return;
-    }
+        case "basematerials":
+            if (event.kind === "start") createBasematerials(state, extractBasematerialsData(event));
+            if (event.kind === "end") clearCurrentStateForEndTag(state, localName);
+            return;
 
-    if (event.tagName.endsWith("texture2d") && event.kind === "start") {
-        createTexture2d(state, extractTexture2dData(event));
-        return;
-    }
+        case "base":
+            if (event.kind === "start") createBasematerial(state, extractBasematerialData(event));
+            return;
 
-    if (event.tagName.endsWith("colorgroup")) {
-        if (event.kind === "start") createColorGroup(state, extractColorGroupData(event));
-        if (event.kind === "end") clearCurrentStateForEndTag(state, event.tagName);
-        return;
-    }
+        case "texture2d":
+            if (event.kind === "start") createTexture2d(state, extractTexture2dData(event));
+            return;
 
-    if (event.tagName.endsWith("color") && event.kind === "start") {
-        createColor(state, extractColorData(event));
-        return;
-    }
+        case "colorgroup":
+            if (event.kind === "start") createColorGroup(state, extractColorGroupData(event));
+            if (event.kind === "end") clearCurrentStateForEndTag(state, localName);
+            return;
 
-    if (event.tagName.endsWith("texture2dgroup")) {
-        if (event.kind === "start") createTexture2dGroup(state, extractTexture2dGroup(event));
-        if (event.kind === "end") clearCurrentStateForEndTag(state, event.tagName);
-        return;
-    }
+        case "color":
+            if (event.kind === "start") createColor(state, extractColorData(event));
+            return;
 
-    if (event.tagName.endsWith("tex2coord") && event.kind === "start") {
-        createTexture2dCoord(state, extractTexture2dCoord(event));
+        case "texture2dgroup":
+            if (event.kind === "start") createTexture2dGroup(state, extractTexture2dGroup(event));
+            if (event.kind === "end") clearCurrentStateForEndTag(state, localName);
+            return;
+
+        case "tex2coord":
+            if (event.kind === "start") createTexture2dCoord(state, extractTexture2dCoord(event));
+            return;
     }
 }
