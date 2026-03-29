@@ -67,6 +67,10 @@
   - 执行命令为 `npm run benchmark:release`
   - 文档样本已改为 `warmupRuns=2`、`measuredRuns=7`、`workerCount=6`
   - 当前样本下 `multipletextures.3mf` 为 `383.6 / 3.7 / 387.0ms`，`truck.3mf` 为 `544.8 / 16.3 / 561.2ms`
+- 2026-03-29 已确认 three.js benchmark DOM fallback 方向：
+  - 先把 `benchmark-threejs-adapter` 的 XML parser 从 `linkedom` 切到 `@xmldom/xmldom`
+  - 目标是验证 three.js 对照失败是否主要来自当前 Node XML namespace 兼容性
+  - 如果 `@xmldom/xmldom` 仍然不够，再升级到 `jsdom`
 
 ## In Progress
 
@@ -87,10 +91,14 @@
   - 已接受 spec
   - 已把 three.js 默认 loader 只有 `parse(data) -> Group` 的接口现实写进计划
   - 下一步等待确认执行方式后，按 plan 落地 adapter、comparison table 和文档刷新
+- 2026-03-29 当前新动作：
+  - 已定位 three.js 对照失败与 `linkedom` XML namespace 查询兼容性相关
+  - 正在先写一份小 spec，限定“先试 `@xmldom/xmldom`，不行再试 `jsdom`”的实现边界
 
 ## Next Up
 
 - 优先继续 Phase 3：围绕公开 API、warning/error 语义、浏览器运行前提继续稳定 `1.0` first-use ergonomics。
+- 执行 three.js benchmark DOM fallback 的小设计/计划链路，先验证 `@xmldom/xmldom` 是否能替代当前 `linkedom` parser。
 - 发布前在目标 release machine 上执行一次 `npm run release:check`，并用 `benchmark:release` 的输出刷新 benchmark 样本。
 - 在真正发布 `1.0` 前，用 `npm run release:check` 作为固定收口命令。
 
