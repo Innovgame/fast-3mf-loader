@@ -5,10 +5,7 @@
     "version": "0.0.7",
     "type": "module",
     "license": "MIT",
-    "author": {
-        "name": "rekor",
-        "email": "innovgamejs@163.com"
-    },
+    "author": "rekor <innovgamejs@163.com>",
     "files": [
         "dist"
     ],
@@ -42,9 +39,7 @@
     "devDependencies": {
         "@types/node": "^25.5.0",
         "@types/three": "^0.183.1",
-        "@xmldom/xmldom": "^0.8.11",
         "jsdom": "^29.0.1",
-        "linkedom": "^0.18.12",
         "three": "^0.183.2",
         "typescript": "~6.0.2",
         "vite": "^8.0.3",
@@ -54,5 +49,18 @@
     "dependencies": {
         "easysax": "^0.4.0",
         "fflate": "^0.8.2"
-    }
+    },
+    "directories": {
+        "doc": "docs",
+        "lib": "lib",
+        "test": "test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Innovgame/fast-3mf-loader.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Innovgame/fast-3mf-loader/issues"
+    },
+    "homepage": "https://github.com/Innovgame/fast-3mf-loader#readme"
 }

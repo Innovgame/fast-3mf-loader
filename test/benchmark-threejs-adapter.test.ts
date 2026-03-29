@@ -1,5 +1,3 @@
-import { DOMParser as LinkedomDOMParser } from "linkedom";
-import { DOMParser as XmldomDOMParser } from "@xmldom/xmldom";
 import { JSDOM } from "jsdom";
 import { describe, expect, test, vi } from "vitest";
 
@@ -25,32 +23,6 @@ const TEXTURE_GROUP_XML = `<?xml version="1.0" encoding="UTF-8"?>
 </model>`;
 
 describe("probeXmlSelectorSupport", () => {
-    test("shows the current linkedom namespace selector gap", () => {
-        expect(
-            probeXmlSelectorSupport({
-                xml: TEXTURE_GROUP_XML,
-                selector: "texture2dgroup",
-                DOMParserClass: LinkedomDOMParser,
-            }),
-        ).toEqual({
-            supportsQuerySelectorAll: true,
-            matchCount: 0,
-        });
-    });
-
-    test("shows xmldom does not satisfy the selector contract three.js expects", () => {
-        expect(
-            probeXmlSelectorSupport({
-                xml: TEXTURE_GROUP_XML,
-                selector: "texture2dgroup",
-                DOMParserClass: XmldomDOMParser,
-            }),
-        ).toEqual({
-            supportsQuerySelectorAll: false,
-            matchCount: null,
-        });
-    });
-
     test("jsdom can satisfy the selector contract three.js expects", () => {
         const window = new JSDOM("", { contentType: "text/html" }).window;
 
@@ -110,6 +82,34 @@ describe("installDomParserPolyfill", () => {
 });
 
 describe("measureThreeFixture", () => {
+    test("defaults to a jsdom-backed DOMParser provider when none is injected", () => {
+        const row = measureThreeFixture({
+            fixtureName: "truck.3mf",
+            fixtureBytes: Uint8Array.from([1, 2, 3]),
+            ThreeMFLoaderClass: class {
+                parse() {
+                    const xml = new globalThis.DOMParser().parseFromString(TEXTURE_GROUP_XML, "application/xml");
+
+                    expect(typeof xml.querySelectorAll).toBe("function");
+                    expect(xml.querySelectorAll("texture2dgroup")).toHaveLength(1);
+
+                    return { children: [{}] };
+                }
+            },
+            now: createNow([10, 16]),
+        });
+
+        expect(row).toEqual({
+            fixture: "truck.3mf",
+            sizeKiB: 3 / 1024,
+            parseMs: 6,
+            buildMs: 0,
+            totalMs: 6,
+            children: 1,
+            status: "ok",
+        });
+    });
+
     test("installs and disposes a DOMParser provider for each parse", () => {
         const originalDOMParser = globalThis.DOMParser;
         const dispose = vi.fn();

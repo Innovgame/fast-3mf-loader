@@ -77,6 +77,10 @@
   - benchmark harness 现已改为每次 `measureThreeFixture()` 调用单独创建并释放 `jsdom` `DOMParser` provider，避免跨 fixture 复用 window 导致的 Node heap OOM
   - `npm run benchmark` 与 `npm run benchmark:release` 现在都能稳定完成，且 `three.js` 对照在两个大 fixture 上都返回 `ok (fused parse+build)`
   - `test/benchmark-threejs-adapter.test.ts` 已锁定 per-parse DOM provider 生命周期回归
+- 2026-03-29 已完成 three.js benchmark XML parser 依赖清理：
+  - 当前运行时只保留 `jsdom` 作为 benchmark adapter 的 XML `DOMParser` 实现
+  - `linkedom` 与 `@xmldom/xmldom` 已从当前依赖中移除，不再作为测试或运行时前提
+  - `test/benchmark-threejs-adapter.test.ts` 已收敛为 `jsdom-only` 路径，不再保留历史 parser capability gate 的直接依赖
 
 ## In Progress
 
