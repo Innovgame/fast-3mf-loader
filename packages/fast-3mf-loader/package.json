@@ -40,7 +40,7 @@
         "check:test": "tsc -p tsconfig.test.json --noEmit",
         "test": "vitest run",
         "benchmark": "node scripts/benchmark.mjs",
-        "benchmark:release": "FAST3MF_BENCHMARK_WARMUP_RUNS=2 FAST3MF_BENCHMARK_MEASURED_RUNS=7 FAST3MF_BENCHMARK_WORKERS=6 pnpm benchmark",
+        "benchmark:release": "node scripts/benchmark-release.mjs",
         "pack:check": "npm pack --dry-run"
     },
     "peerDependencies": {

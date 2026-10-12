@@ -78,7 +78,7 @@ const group = fast3mfBuilder(data3mf);
 
 ## 限制
 
-- 支持的运行环境是具备 `Worker` 与 `Blob` 的现代浏览器。worker 无法启动时，解析会抛出指向这一前提的 loader-facing error。
+- 支持的运行环境是具备 `Worker` 与 `Blob` 的现代浏览器。已验证组合见 [docs/browser-support.md](docs/browser-support.md)。worker 无法启动时，解析会抛出指向这一前提的 loader-facing error。
 - `Fast3MFLoader#parse()` 接收 `ArrayBuffer`。内部采用 SAX 风格流式解析，以降低大型 archive 的内存压力。这不是公开的分块输入 API。
 - Print Ticket，以及超出当前样例覆盖的扩展资源，尚未支持。解析器返回空的 `printTicket` 并发出 warning。
 - Node 测试和基准使用兼容垫片，不构成受支持的 Node 运行时。

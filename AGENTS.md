@@ -29,7 +29,8 @@ pnpm dev
 
 ## 命令
 
-- `pnpm verify`：拉取请求的默认检查。包含 lint、类型检查、测试和构建。
+- `pnpm verify`：拉取请求的默认检查。包含 lint、类型检查、测试、构建，以及一次真实打包安装后的类型检查。
+- `pnpm consumer:check:browser`：把打包后的库装进新的 Vite 项目，并在 Chromium 里解析样例。CI 的 Pages 任务会跑这项。
 - `pnpm test`：库、页面和仓库级测试。
 - `pnpm build`：构建公开库和项目页。
 - `pnpm --filter @fast-3mf-loader/demo test:e2e`：浏览器检查。先执行 `pnpm --filter @fast-3mf-loader/demo exec playwright install chromium`。

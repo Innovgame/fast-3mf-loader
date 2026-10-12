@@ -78,7 +78,7 @@ The playground is at <https://innovgame.github.io/fast-3mf-loader/>. Sample arch
 
 ## Limits
 
-- The supported runtime is a modern browser with `Worker` and `Blob`. If workers cannot start, parsing fails with a loader-facing error that names that prerequisite.
+- The supported runtime is a modern browser with `Worker` and `Blob`. Verified combinations are in [docs/browser-support.en.md](docs/browser-support.en.md). If workers cannot start, parsing fails with a loader-facing error that names that prerequisite.
 - `Fast3MFLoader#parse()` accepts an `ArrayBuffer`. It uses SAX-style XML parsing internally to keep memory usage lower. That is not a chunked public API.
 - Print tickets and extension resources beyond the current fixtures are not supported. The parser returns an empty `printTicket` and warns.
 - Node tests and benchmarks use compatibility shims. They do not establish a supported Node runtime.

@@ -32,9 +32,8 @@ pnpm benchmark
 - Runtime: Node 22 with a small Worker compatibility shim backed by `node:worker_threads`
 - Comparison runtime: `three.js` `ThreeMFLoader` with a per-measurement `jsdom`-backed `DOMParser` provider inside the benchmark harness
 - Fixtures: `multipletextures.3mf`, `truck.3mf`
-- Warmup: 1 parse per fixture before measurements
-- Measured runs: 5 parse/build passes per fixture
-- Worker count: `min(hardwareConcurrency - 1, 15)` to mirror the loader default
+- Default command `pnpm benchmark`: warmup `1`, measured runs `5`, worker count `min(hardwareConcurrency - 1, 15)`
+- Release command `pnpm benchmark:release`: warmup `2`, measured runs `7`, worker count `6`. The preset is applied by `node scripts/benchmark-release.mjs`, so it does not depend on a POSIX shell assignment.
 - Phase semantics:
   - `fast Parse`, `fast Build`, `fast Total` keep the existing parse/build split from `Fast3MFLoader` + `fast3mfBuilder`
   - `three.js` does not expose a separate public build step; in this harness `three Parse` is the full `ThreeMFLoader.parse(data)` wall-clock time, `three Build` is fixed at `0.0ms`, and `three Total` repeats the same fused total when parsing succeeds
@@ -46,25 +45,25 @@ pnpm benchmark
 
 ## Sample Results
 
-Release preset sample run collected on 2026-03-29:
+Release preset sample run collected on 2026-10-12:
 
-- Environment: Node `v22.13.1` on `darwin arm64`
+- Environment: Node `v26.5.1` on `darwin arm64`
 - Worker count: `6`
 - Command: `pnpm benchmark:release`
 - Sampling preset: warmup `2`, measured runs `7`
 - Table values below are medians across the measured runs, not single-run point estimates
 - Parse-heavy fixtures can still move materially across same-machine reruns, so treat these numbers as sample evidence instead of pass/fail thresholds
-- In the current Node harness, the `three.js` comparison now completes for both large fixtures; if a future fixture still fails, the row will fall back to `unsupported/failed` without gating the fast-loader release check
+- In the current Node harness, the `three.js` comparison completes for both large fixtures; if a future fixture still fails, the row will fall back to `unsupported/failed` without gating the fast-loader release check
 
 | Fixture | Size (KiB) | fast Parse | fast Build | fast Total | three Parse | three Build | three Total | Status |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `multipletextures.3mf` | 3020.7 | 391.4 | 3.4 | 397.6 | 5925.2 | 0.0 | 5925.2 | `ok (fused parse+build)` |
-| `truck.3mf` | 2587.2 | 551.7 | 18.6 | 571.7 | 9329.1 | 0.0 | 9329.1 | `ok (fused parse+build)` |
+| `multipletextures.3mf` | 3020.7 | 212.2 | 2.1 | 214.2 | 2856.4 | 0.0 | 2856.4 | `ok (fused parse+build)` |
+| `truck.3mf` | 2587.2 | 277.2 | 5.5 | 283.0 | 4447.1 | 0.0 | 4447.1 | `ok (fused parse+build)` |
 
 Run spread from the same sample:
 
-- `multipletextures.3mf`: fast parse `374.1-414.6ms`, fast build `3.2-6.2ms`, fast total `377.4-418.3ms`
-- `truck.3mf`: fast parse `532.1-559.8ms`, fast build `12.9-31.7ms`, fast total `545.0-588.3ms`
+- `multipletextures.3mf`: fast parse `199.5-215.2ms`, fast build `1.7-6.3ms`, fast total `205.3-221.0ms`
+- `truck.3mf`: fast parse `270.4-294.5ms`, fast build `5.4-5.8ms`, fast total `276.2-299.9ms`
 
 ## Historical Large Fixture Comparison
 

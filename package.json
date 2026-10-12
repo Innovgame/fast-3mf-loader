@@ -13,7 +13,9 @@
         "lint:fix": "eslint . --fix",
         "typecheck": "pnpm --filter @innovgame/fast-3mf-loader check:lib && pnpm --filter @innovgame/fast-3mf-loader check:test && pnpm --filter @fast-3mf-loader/demo check",
         "test": "pnpm --filter @innovgame/fast-3mf-loader test && pnpm --filter @fast-3mf-loader/demo test && pnpm exec vitest run",
-        "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+        "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm consumer:check",
+        "consumer:check": "node scripts/consumer-smoke.mjs",
+        "consumer:check:browser": "node scripts/consumer-smoke.mjs --browser",
         "benchmark": "pnpm --filter @innovgame/fast-3mf-loader benchmark",
         "benchmark:release": "pnpm --filter @innovgame/fast-3mf-loader benchmark:release",
         "release:check": "pnpm verify && pnpm benchmark:release && pnpm --filter @innovgame/fast-3mf-loader pack:check"

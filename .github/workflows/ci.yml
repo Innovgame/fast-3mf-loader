@@ -51,6 +51,9 @@ jobs:
             - name: Install Chromium
               run: pnpm --filter @fast-3mf-loader/demo exec playwright install --with-deps chromium
 
+            - name: Check a fresh package install in Chromium
+              run: pnpm consumer:check:browser
+
             - name: Build Pages site
               run: pnpm build:demo
               env:

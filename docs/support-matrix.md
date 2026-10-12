@@ -18,5 +18,5 @@ If a capability is not listed here with evidence, it should be treated as unsupp
 
 ## Notes
 
-- Runtime behavior currently targets browsers. The Node-based tests use inline worker mocks so the parser can be regression-tested without a browser worker runtime.
+- Runtime behavior currently targets browsers. Verified browser and Three.js combinations are in [browser-support.en.md](browser-support.en.md). The Node-based tests use inline worker mocks so the parser can be regression-tested without a browser worker runtime.
 - Unsupported features should be considered data-loss risks until explicit support is added and covered by fixtures.

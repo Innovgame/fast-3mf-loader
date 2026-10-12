@@ -11,7 +11,9 @@ describe("stable 1.0 release gates", () => {
         const packageJson = JSON.parse(await readText("package.json"));
 
         expect(packageJson.packageManager).toBe("pnpm@10.33.0");
-        expect(packageJson.scripts.verify).toBe("pnpm lint && pnpm typecheck && pnpm test && pnpm build");
+        expect(packageJson.scripts.verify).toBe("pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm consumer:check");
+        expect(packageJson.scripts["consumer:check"]).toBe("node scripts/consumer-smoke.mjs");
+        expect(packageJson.scripts["consumer:check:browser"]).toBe("node scripts/consumer-smoke.mjs --browser");
         expect(packageJson.scripts["benchmark:release"]).toBe("pnpm --filter @innovgame/fast-3mf-loader benchmark:release");
         expect(packageJson.scripts["release:check"]).toBe(
             "pnpm verify && pnpm benchmark:release && pnpm --filter @innovgame/fast-3mf-loader pack:check",
@@ -23,12 +25,14 @@ describe("stable 1.0 release gates", () => {
 
         expect(packageJson.devDependencies.jsdom).toBeDefined();
         expect(packageJson.devDependencies["@types/jsdom"]).toBeDefined();
+        expect(packageJson.scripts["benchmark:release"]).toBe("node scripts/benchmark-release.mjs");
     });
 
     test("CI uses the shared verify entrypoint", async () => {
         const ci = await readText(".github/workflows/ci.yml");
 
         expect(ci).toContain("run: pnpm verify");
+        expect(ci).toContain("run: pnpm consumer:check:browser");
     });
 
     test("publish workflow uses the shared release:check entrypoint", async () => {
