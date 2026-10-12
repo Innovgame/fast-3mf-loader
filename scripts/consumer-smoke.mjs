@@ -161,12 +161,12 @@ async function waitForPreview() {
     const deadline = Date.now() + 20000;
     while (Date.now() < deadline) {
         try {
-            const response = await fetch("http://127.0.0.1:4188/");
+            const response = await globalThis.fetch("http://127.0.0.1:4188/");
             if (response.ok) return;
         } catch {
             // preview is still starting
         }
-        await new Promise((resolvePromise) => setTimeout(resolvePromise, 200));
+        await new Promise((resolvePromise) => globalThis.setTimeout(resolvePromise, 200));
     }
     throw new Error("Consumer preview did not start.");
 }
