@@ -2,6 +2,7 @@
 
 ## Current Focus
 
+- 2026-10-12 已按 AGENTS.md 惯例重写根目录 `AGENTS.md`。它说明项目、命令、公开契约和浏览器运行边界。Node.js 仍只用于开发，不作为库运行时。
 - 2026-10-12 已把公开包声明收成一份 `dist/index.d.ts`。npm 包现在只包含这份声明、ESM bundle 和 UMD bundle。公开导入路径没有变。
 - 2026-10-12 已补齐 Production 路径属性的命名空间校验：根据命名空间 URI 和元素作用域识别属性，保留普通 `path` 兼容，已覆盖冲突、前缀重绑定及作用域恢复。
 - 2026-10-12 已修复 BambuStudio Production 扩展跨模型组件引用：`p:path` 会被解析，builder 会到目标 model part 查找对象。下载目录中的“双生盗龙链接件”可以构建出网格。
@@ -15,6 +16,7 @@
 
 ## Latest Completed
 
+- 2026-10-12 已重建标准 `AGENTS.md`。旧文件只指向内部接力文档。新文件按项目、环境、命令、代码约定、测试、提交和发布组织，并保留内部文档入口。
 - 2026-10-12 已收敛公开包编译产物。`vite-plugin-dts` 现在把声明滚成 `dist/index.d.ts`，发布包不再带上每个内部模块的 `.d.ts`。`package.json` 的 `types` 与 `exports.types` 指向这份文件。仓库内的 `easysax` 环境声明不会进入发布文件。打包检查锁定 6 个文件，并用严格 TypeScript 检查了消费者导入。
 - 2026-10-12 npm 发布已恢复。`fast-3mf-loader@0.0.8` 已在 registry 上。之前失败是因为仓库 secret `NPM_TOKEN` 仍是 2025-10-10 的 legacy token，npm 自 2025-11 起不再接受。
 - 2026-10-12 已完成开源标准化差距盘点（分析任务，未改实现）：
