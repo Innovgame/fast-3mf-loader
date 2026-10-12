@@ -14,7 +14,7 @@
 
 ## Latest Completed
 
-- 2026-10-12 正在发布 `0.0.8`：变更记录已从 Unreleased 移到该版本，包版本与 README 版本已对齐。公开声明不再从 `easysax` 导入不存在的 `SAXGetAttr` / `SAXGetStringNode`，消费者严格类型检查已通过。
+- 2026-10-12 已发布 GitHub Release `v0.0.8`，CI 已通过。GitHub Packages 已发布 `@innovgame/fast-3mf-loader@0.0.8`。npm 发布失败：Actions 的 `NPM_TOKEN` 对 `fast-3mf-loader` 返回 404，本机 npm 登录也是 401。需要更新 secret 后重跑 Publish packages。
 - 2026-10-12 已完成开源标准化差距盘点（分析任务，未改实现）：
   - 基础文件、双语公开文档、社区模板、Pages、CI 和回归覆盖已具备；接下来优先补正式发布与真实消费者接入验证。
   - 已直接引用构建产物执行严格 TypeScript 检查，复现 `dist/util.d.ts` 从 `easysax` 导入不存在的 `SAXGetAttr` / `SAXGetStringNode` 导致 TS2305。源码测试使用仓库内类型声明，无法替代产物消费者检查；临时检查文件已清理。
