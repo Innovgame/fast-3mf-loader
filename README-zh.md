@@ -14,6 +14,18 @@
 
 打开[浏览器验证页](https://innovgame.github.io/fast-3mf-loader/)，可以在本机预览 3MF 文件，并测量解析与构建耗时。文件留在浏览器内，不会上传。
 
+![fast-3mf-loader 验证页，已载入模型并显示解析与构建耗时](docs/images/playground-desktop.png)
+
+### 手机验证页
+
+同一页面在手机上会把文件区、模型预览和耗时叠成一屏。
+
+<p>
+  <img src="docs/images/playground-mobile-source.png" alt="手机文件区，已载入 3MF，下方开始显示模型预览" width="240" />
+  <img src="docs/images/playground-mobile-preview.png" alt="手机模型预览，以及解析与构建耗时" width="240" />
+  <img src="docs/images/playground-mobile-results.png" alt="手机耗时和接入示例" width="240" />
+</p>
+
 ## 安装
 
 当前版本 `0.0.7`。变更记录见 [CHANGELOG.md](CHANGELOG.md)。

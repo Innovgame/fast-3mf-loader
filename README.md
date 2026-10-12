@@ -14,6 +14,18 @@ Browser-first TypeScript parser and Three.js builder for 3MF archives. SAX-style
 
 Open the [browser playground](https://innovgame.github.io/fast-3mf-loader/) to preview a local 3MF file and measure parse and build time on your own device. The file stays in the browser.
 
+![fast-3mf-loader playground with a loaded model, parse time, and build time](docs/images/playground-desktop.png)
+
+### Mobile playground
+
+Open the same page on a phone. The file panel, model preview, and timings stack on one screen.
+
+<p>
+  <img src="docs/images/playground-mobile-source.png" alt="Mobile file panel with a loaded 3MF and the start of the model preview" width="240" />
+  <img src="docs/images/playground-mobile-preview.png" alt="Mobile model preview with parse and build timings" width="240" />
+  <img src="docs/images/playground-mobile-results.png" alt="Mobile timings and the integration example" width="240" />
+</p>
+
 ## Install
 
 Version `0.0.7`. Changes are in [CHANGELOG.md](CHANGELOG.md).
