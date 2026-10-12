@@ -20,12 +20,12 @@ describe("stable 1.0 release gates", () => {
         );
     });
 
-    test("package.json includes jsdom type declarations for TypeScript test coverage", async () => {
+    test("the library benchmark command stays available without the three.js comparison adapter", async () => {
         const packageJson = JSON.parse(await readText("packages/fast-3mf-loader/package.json"));
 
-        expect(packageJson.devDependencies.jsdom).toBeDefined();
-        expect(packageJson.devDependencies["@types/jsdom"]).toBeDefined();
+        expect(packageJson.scripts.benchmark).toBe("node scripts/benchmark.mjs");
         expect(packageJson.scripts["benchmark:release"]).toBe("node scripts/benchmark-release.mjs");
+        expect(packageJson.devDependencies.jsdom).toBeUndefined();
     });
 
     test("CI uses the shared verify entrypoint", async () => {
