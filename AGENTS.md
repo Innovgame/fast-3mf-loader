@@ -68,11 +68,10 @@ pnpm dev
 
 ## 继续工作前
 
-仓库还有一份内部接力文档。涉及架构、长期方向或当前任务时，先读：
+涉及架构或长期方向时，先读：
 
 1. `docs/superpowers/context/current-architecture-context.md`
 2. `docs/superpowers/context/user-preferences.md`
-3. `docs/superpowers/status/current-work.md`
-4. `docs/superpowers/roadmap/current-roadmap.md`
+3. `docs/superpowers/roadmap/current-roadmap.md`
 
-请求和这些文档里的支持边界冲突时，先说明冲突，确认后再改代码。开始任务、到达关键节点或完成任务后，更新 `docs/superpowers/status/current-work.md`。
+请求和这些文档里的支持边界冲突时，先说明冲突，确认后再改代码。不要维护任务接力日志。

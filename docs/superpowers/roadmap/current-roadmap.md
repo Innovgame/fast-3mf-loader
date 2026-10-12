@@ -57,6 +57,5 @@
 ## Reading Order
 
 - 先读 `docs/superpowers/context/current-architecture-context.md`，建立稳定背景。
-- 再读 `docs/superpowers/status/current-work.md`，确认当前处于哪个 phase、最近完成了什么、下一步是什么。
 - 如果要讨论 `1.0` 范围、发布门槛或路线冲突，再读 `docs/superpowers/specs/2026-03-28-stable-1-0-roadmap-design.md`。
 - 如果要开始逐项执行，再读 `docs/superpowers/plans/2026-03-28-stable-1-0-roadmap.md`。
