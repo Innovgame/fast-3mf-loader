@@ -43,7 +43,7 @@ test("published package contains only the standard library artifacts", () => {
     expect(declaration).toContain("export declare class Fast3MFLoader");
     expect(declaration).toContain("export declare function fast3mfBuilder");
     typecheckConsumer();
-});
+}, 60_000);
 
 function typecheckConsumer() {
     const dir = mkdtempSync(resolve(tmpdir(), "fast-3mf-consumer-"));
