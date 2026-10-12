@@ -2,6 +2,7 @@
 
 ## Current Focus
 
+- 2026-10-12 已修复 BambuStudio Production 扩展跨模型组件引用：`p:path` 会被解析，builder 会到目标 model part 查找对象。下载目录中的“双生盗龙链接件”可以构建出网格。
 - 2026-10-12 已完成标准化 GitHub Pages 页面：参考 `D:\lichun\slicer-converter`，采用 React / Radix UI / Tailwind / Lucide，完成项目介绍、首次接入和浏览器内验证。实施与生产子路径检查均已完成，后续回到稳态 `1.0` 主线。
 - 把项目长期方向收敛到 `稳态 1.0` 发布：围绕 README 已承诺的性能、WebWorker、TypeScript、浏览器兼容性和易用性，定义清晰的 release gates，并把后续执行拆成可连续交付的阶段。
 
@@ -12,6 +13,10 @@
 
 ## Latest Completed
 
+- 2026-10-12 已修复 demo 导入 BambuStudio 3MF 时的 `Cannot find component object`：
+  - 根因是组件 `objectid="1"` 通过 `p:path="/3D/Objects/object_10.model"` 指向另一个 model part，parser 没有收下带命名空间的 `path`，builder 也只在当前模型里查找。
+  - `node-extract.ts` 现在读取 `path` 与 `*:path`；`fast3mfBuilder()` 会按包内绝对路径或相对路径解析 component 和 build item。
+  - `test/builder.test.ts` 锁定这条回归。用原文件复现时，构建结果为 1 个 mesh、482 个顶点。
 - 2026-10-12 已将 `apps/demo` 从文件选择与控制台计时页升级为开源项目主页和浏览器验证区：
   - 采用 React、Radix UI、Tailwind CSS 与 Lucide，提供中英文、明暗主题、桌面三列工作台、手机布局、安装与代码复制、支持矩阵和社区入口。
   - 本地 3MF 文件支持真实 worker 解析、Three.js 预览、旋转/缩放/平移、视角重置、线框、全屏、模型部件查看及 Parse / Build / Total 计时。

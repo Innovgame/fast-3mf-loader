@@ -61,7 +61,7 @@
 - 当前已覆盖并有文档或测试锚点的能力包括：
   - archive unzip
   - root relationships (`_rels/.rels`)
-  - multi-object / components
+  - multi-object / components，包括 Production 扩展里指向其他 model part 的 `path` / `p:path`
   - base mesh geometry
   - vertex color groups
   - texture resources 与 texture groups

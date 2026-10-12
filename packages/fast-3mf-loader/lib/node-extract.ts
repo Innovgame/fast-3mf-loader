@@ -24,6 +24,17 @@ function isStartLikeEvent(input: ExtractableEvent): input is StateInput | ParseS
     return ("kind" in input && input.kind === "start") || (!("kind" in input) && input.start === true);
 }
 
+function readLocalAttribute(attributes: Record<string, string>, localName: string) {
+    if (localName in attributes) return attributes[localName];
+
+    const suffix = `:${localName}`;
+    for (const key in attributes) {
+        if (key.endsWith(suffix)) return attributes[key];
+    }
+
+    return undefined;
+}
+
 // All helpers after this point
 function getScaleFromUnit(unit: string = "millimeter") {
     const mapping: { [key: string]: number } = {
@@ -158,11 +169,12 @@ export function extractBuildItemData(input: ExtractableEvent) {
         objectId: attributes["objectid"],
     } as BuildItemType;
     for (const key of ["transform", "partnumber", "path"] as const) {
-        if (key in attributes) {
+        const value = key === "path" ? readLocalAttribute(attributes, key) : attributes[key];
+        if (value !== undefined) {
             if (key === "transform") {
-                data["transform"] = matrixFromTransformString(attributes[key]);
+                data["transform"] = matrixFromTransformString(value);
             } else {
-                data[key] = attributes[key];
+                data[key] = value;
             }
         }
     }
@@ -180,11 +192,12 @@ export function extractComponentData(input: ExtractableEvent) {
     } as ComponentType;
 
     for (const key of ["id", "transform", "path"] as const) {
-        if (key in attributes) {
+        const value = key === "path" ? readLocalAttribute(attributes, key) : attributes[key];
+        if (value !== undefined) {
             if (key === "transform") {
-                data["transform"] = matrixFromTransformString(attributes[key]);
+                data["transform"] = matrixFromTransformString(value);
             } else {
-                data[key] = attributes[key];
+                data[key] = value;
             }
         }
     }

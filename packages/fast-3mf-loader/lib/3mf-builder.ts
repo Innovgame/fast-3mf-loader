@@ -34,6 +34,7 @@ type BuilderContext = {
     objectCache: BuildObjectCache;
     resourceCache: ResourceCache;
     textureData: Record<string, ArrayBuffer>;
+    models: ParseResult["model"];
 };
 
 const COLOR_SPACE_3MF = THREE.SRGBColorSpace;
@@ -67,10 +68,11 @@ function build(objectCache: BuildObjectCache, data3mf: ParseResult) {
 
     for (let i = 0; i < buildData.length; i++) {
         const buildItem = buildData[i] as BuildItemType;
-        const object3D = objectCache.get(getObjectCacheKey(rootModelKey, buildItem.objectId));
+        const itemModelKey = resolveReferencedModelKey(rootModelKey, buildItem.path);
+        const object3D = objectCache.get(getObjectCacheKey(itemModelKey, buildItem.objectId));
 
         if (!object3D) {
-            throw new Error(`fast3mfBuilder: Cannot find build object \`${buildItem.objectId}\` in model \`${rootModelKey}\`.`);
+            throw new Error(`fast3mfBuilder: Cannot find build object \`${buildItem.objectId}\` in model \`${itemModelKey}\`.`);
         }
 
         const builtObject = object3D.clone();
@@ -100,12 +102,13 @@ function fetch3DModelPart(rels: ParseResult["rels"]) {
 }
 
 function buildObjects(data3mf: ParseResult) {
+    const modelsData = data3mf.model;
     const context: BuilderContext = {
         objectCache: new Map(),
         resourceCache: new Map(),
         textureData: collectTextureData(data3mf),
+        models: modelsData,
     };
-    const modelsData = data3mf.model;
     const modelsKeys = Object.keys(modelsData);
 
     for (let i = 0; i < modelsKeys.length; i++) {
@@ -159,7 +162,7 @@ function buildObject(modelKey: string, objectId: string, modelData: BuilderModel
     }
 
     if (Array.isArray(objectData.components) && objectData.components.length > 0) {
-        builtObject = buildComposite(modelKey, objectData.components, modelData, context);
+        builtObject = buildComposite(modelKey, objectData.components, context);
     }
 
     if (builtObject) {
@@ -175,6 +178,32 @@ function buildObject(modelKey: string, objectId: string, modelData: BuilderModel
 
 function getObjectCacheKey(modelKey: string, objectId: string) {
     return `${modelKey}:${objectId}`;
+}
+
+function resolveReferencedModelKey(modelKey: string, path: string | undefined) {
+    if (!path) return modelKey;
+
+    const normalized = path.replaceAll("\\", "/");
+    if (normalized.startsWith("/")) {
+        return toArchivePartKey(normalized, "component model path");
+    }
+
+    const parts = modelKey.split("/").slice(0, -1);
+    for (const segment of normalized.split("/")) {
+        if (segment === "" || segment === ".") continue;
+        if (segment === "..") {
+            parts.pop();
+            continue;
+        }
+        parts.push(segment);
+    }
+
+    const resolved = parts.join("/");
+    if (!resolved) {
+        throw new Error(`fast3mfBuilder: Invalid component model path \`${path}\`.`);
+    }
+
+    return resolved;
 }
 
 function buildGroup(
@@ -681,23 +710,25 @@ function parseTransform(t: number[]) {
     return matrix;
 }
 
-function buildComposite(modelKey: string, compositeData: ComponentType[], modelData: BuilderModelData, context: BuilderContext) {
+function buildComposite(modelKey: string, compositeData: ComponentType[], context: BuilderContext) {
     const composite = new THREE.Group();
 
     for (let i = 0; i < compositeData.length; i++) {
         const component = compositeData[i];
-        if (!modelData.resources.object[component.objectId]) {
-            throw new Error(`fast3mfBuilder: Cannot find component object \`${component.objectId}\` in model \`${modelKey}\`.`);
+        const targetModelKey = resolveReferencedModelKey(modelKey, component.path);
+        const targetModel = context.models[targetModelKey];
+        if (!targetModel?.resources.object[component.objectId]) {
+            throw new Error(`fast3mfBuilder: Cannot find component object \`${component.objectId}\` in model \`${targetModelKey}\`.`);
         }
 
-        let build = context.objectCache.get(getObjectCacheKey(modelKey, component.objectId));
+        let build = context.objectCache.get(getObjectCacheKey(targetModelKey, component.objectId));
 
         if (build === undefined) {
-            build = buildObject(modelKey, component.objectId, modelData, context);
+            build = buildObject(targetModelKey, component.objectId, targetModel, context);
         }
 
         if (!build) {
-            throw new Error(`fast3mfBuilder: Cannot find component object \`${component.objectId}\` in model \`${modelKey}\`.`);
+            throw new Error(`fast3mfBuilder: Cannot find component object \`${component.objectId}\` in model \`${targetModelKey}\`.`);
         }
 
         const object3D = build.clone();

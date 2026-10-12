@@ -1,3 +1,4 @@
+import { strToU8, zipSync } from "fflate";
 import * as THREE from "three";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import "./helpers/mock-inline-workers";
@@ -423,4 +424,67 @@ describe("fast3mfBuilder", () => {
         expect(group.children.length).toBeGreaterThan(0);
         expect(collectMeshes(group).length).toBeGreaterThan(0);
     });
+
+    test("builds a mesh from a production-extension component path", async () => {
+        const loader = new Fast3MFLoader();
+        const data = await loader.parse(createProductionComponentArchive());
+        const rootObject = data.model["3D/3dmodel.model"].resources.object["2"];
+
+        expect(rootObject.components[0]?.path).toBe("/3D/Objects/object_1.model");
+        expect(rootObject.components[0]?.objectId).toBe("1");
+
+        const group = fast3mfBuilder(data);
+        const meshes = collectMeshes(group);
+
+        expect(meshes).toHaveLength(1);
+        expect(meshes[0].geometry.getAttribute("position").count).toBe(3);
+    });
 });
+
+function createProductionComponentArchive() {
+    const rootModel = `<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06" requiredextensions="p">
+    <resources>
+        <object id="2" type="model">
+            <components>
+                <component p:path="/3D/Objects/object_1.model" objectid="1" transform="1 0 0 0 1 0 0 0 1 0 0 0" />
+            </components>
+        </object>
+    </resources>
+    <build>
+        <item objectid="2" />
+    </build>
+</model>`;
+    const childModel = `<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
+    <resources>
+        <object id="1" type="model">
+            <mesh>
+                <vertices>
+                    <vertex x="0" y="0" z="0" />
+                    <vertex x="1" y="0" z="0" />
+                    <vertex x="0" y="1" z="0" />
+                </vertices>
+                <triangles>
+                    <triangle v1="0" v2="1" v3="2" />
+                </triangles>
+            </mesh>
+        </object>
+    </resources>
+    <build />
+</model>`;
+    const archive = {
+        "_rels/.rels": strToU8(`<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
+</Relationships>`),
+        "3D/_rels/3dmodel.model.rels": strToU8(`<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Target="/3D/Objects/object_1.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
+</Relationships>`),
+        "3D/3dmodel.model": strToU8(rootModel),
+        "3D/Objects/object_1.model": strToU8(childModel),
+    };
+    const zipped = zipSync(archive);
+    return zipped.buffer.slice(zipped.byteOffset, zipped.byteOffset + zipped.byteLength) as ArrayBuffer;
+}
