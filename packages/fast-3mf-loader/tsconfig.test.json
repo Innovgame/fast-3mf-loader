@@ -4,5 +4,5 @@
         "noEmit": true,
         "types": ["node"]
     },
-    "include": ["test", "lib", "types", "vite-env.d.ts"]
+    "include": ["test", "src", "types", "vite-env.d.ts"]
 }

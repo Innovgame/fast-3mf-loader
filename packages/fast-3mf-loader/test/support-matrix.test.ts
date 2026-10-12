@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import "./helpers/mock-inline-workers";
 import { readFixture } from "./helpers/read-fixture";
 
-const { Fast3MFLoader, fast3mfBuilder } = await import("../lib/main");
+const { Fast3MFLoader, fast3mfBuilder } = await import("../src/index");
 
 function collectMeshes(group: THREE.Group) {
     const meshes: THREE.Mesh[] = [];

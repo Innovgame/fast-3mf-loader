@@ -4,7 +4,7 @@ This file records changes that users can see. Versions follow repository tags, f
 
 ## Unreleased
 
-- The published package ships one declaration file, `dist/index.d.ts`, beside the ESM and UMD bundles. Internal declaration files are no longer included.
+- The published package ships `dist/index.js`, `dist/index.umd.cjs`, and `dist/index.d.ts`. Import the package by name; these files are the package entrypoints.
 
 ## 0.0.8
 

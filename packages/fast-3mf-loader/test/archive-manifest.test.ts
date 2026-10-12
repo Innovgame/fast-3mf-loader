@@ -1,6 +1,6 @@
 import { strToU8 } from "fflate";
 import { describe, expect, test, vi } from "vitest";
-import { collectArchiveManifest, createProgressTracker } from "../lib/archive-manifest";
+import { collectArchiveManifest, createProgressTracker } from "../src/archive-manifest";
 
 describe("collectArchiveManifest", () => {
     test("classifies root model, sub-models, textures, relationships, and print tickets", () => {

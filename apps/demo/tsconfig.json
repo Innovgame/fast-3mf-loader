@@ -4,7 +4,7 @@
         "jsx": "react-jsx",
         "types": ["vite/client", "node"],
         "paths": {
-            "@innovgame/fast-3mf-loader": ["../../packages/fast-3mf-loader/lib/main.ts"]
+            "@innovgame/fast-3mf-loader": ["../../packages/fast-3mf-loader/src/index.ts"]
         }
     },
     "include": ["src", "tests", "../../packages/fast-3mf-loader/vite-env.d.ts", "../../packages/fast-3mf-loader/types/easysax.d.ts"]

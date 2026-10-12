@@ -1,7 +1,7 @@
 import { strToU8, zipSync } from "fflate";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import type * as ArchiveManifestModule from "../lib/archive-manifest";
-import type { ArchiveManifest } from "../lib/archive-manifest";
+import type * as ArchiveManifestModule from "../src/archive-manifest";
+import type { ArchiveManifest } from "../src/archive-manifest";
 import { readFixture } from "./helpers/read-fixture";
 
 function createMinimalArchive() {
@@ -67,11 +67,11 @@ async function loadFast3MFLoader(
     } = {},
 ) {
     vi.resetModules();
-    const { unzipBuffer } = await import("../lib/unzip");
+    const { unzipBuffer } = await import("../src/unzip");
 
     if (options.manifestMissing || options.manifestOverride) {
-        vi.doMock("../lib/archive-manifest", async () => {
-            const actual = await vi.importActual<typeof ArchiveManifestModule>("../lib/archive-manifest");
+        vi.doMock("../src/archive-manifest", async () => {
+            const actual = await vi.importActual<typeof ArchiveManifestModule>("../src/archive-manifest");
 
             return {
                 ...actual,
@@ -93,7 +93,7 @@ async function loadFast3MFLoader(
         });
     }
 
-    vi.doMock("../lib/unzip.worker?worker&inline", () => {
+    vi.doMock("../src/unzip.worker?worker&inline", () => {
         if (options.unzipWorkerConstructorError) {
             return {
                 default: class MockUnzipWorker {
@@ -128,7 +128,7 @@ async function loadFast3MFLoader(
     });
 
     if (options.parseWorkerMessage) {
-        vi.doMock("../lib/parse-model.worker?worker&inline", () => {
+        vi.doMock("../src/parse-model.worker?worker&inline", () => {
             return {
                 default: class MockParseModelWorker {
                     private messageHandlers: Array<(event: MessageEvent<{ type: "error"; message: string }>) => void> = [];
@@ -150,7 +150,7 @@ async function loadFast3MFLoader(
             };
         });
     } else if (options.parseWorkerErrorEvent !== undefined) {
-        vi.doMock("../lib/parse-model.worker?worker&inline", () => {
+        vi.doMock("../src/parse-model.worker?worker&inline", () => {
             return {
                 default: class MockParseModelWorker {
                     private errorHandlers: Array<(event: ErrorEvent) => void> = [];
@@ -172,8 +172,8 @@ async function loadFast3MFLoader(
             };
         });
     } else {
-        const { parseModelBuffer } = await import("../lib/parse-model");
-        vi.doMock("../lib/parse-model.worker?worker&inline", () => {
+        const { parseModelBuffer } = await import("../src/parse-model");
+        vi.doMock("../src/parse-model.worker?worker&inline", () => {
             return {
                 default: class MockParseModelWorker {
                     private messageHandlers: Array<(event: MessageEvent<{ type: "done"; state: Awaited<ReturnType<typeof parseModelBuffer>>["state"] } | { type: "error"; message: string }>) => void> = [];
@@ -214,14 +214,14 @@ async function loadFast3MFLoader(
         });
     }
 
-    const { Fast3MFLoader } = await import("../lib/main");
+    const { Fast3MFLoader } = await import("../src/index");
     return Fast3MFLoader;
 }
 
 afterEach(() => {
-    vi.doUnmock("../lib/unzip.worker?worker&inline");
-    vi.doUnmock("../lib/parse-model.worker?worker&inline");
-    vi.doUnmock("../lib/archive-manifest");
+    vi.doUnmock("../src/unzip.worker?worker&inline");
+    vi.doUnmock("../src/parse-model.worker?worker&inline");
+    vi.doUnmock("../src/archive-manifest");
 });
 
 describe("Fast3MFLoader.parse error handling", () => {

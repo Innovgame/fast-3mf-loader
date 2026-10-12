@@ -2,9 +2,9 @@ import { strToU8, zipSync } from "fflate";
 import { Box3, Mesh } from "three";
 import { describe, expect, test } from "vitest";
 import "./helpers/mock-inline-workers";
-import type { ParseResult } from "../lib/main";
+import type { ParseResult } from "../src/index";
 
-const { Fast3MFLoader, fast3mfBuilder } = await import("../lib/main");
+const { Fast3MFLoader, fast3mfBuilder } = await import("../src/index");
 const productionUri = "http://schemas.microsoft.com/3dmanufacturing/production/2015/06";
 const childPath = "/3D/Objects/child.model";
 

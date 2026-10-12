@@ -31,6 +31,19 @@ const data3mf = await new Fast3MFLoader().parse(buffer);
 const group = fast3mfBuilder(data3mf);
 ```
 
-`three` is a peer dependency. `parse()` accepts an `ArrayBuffer`. The browser needs `Worker` and `Blob`.
+`three` is a required peer dependency. `parse()` accepts one complete `ArrayBuffer`. The supported runtime is a modern browser with `Worker` and `Blob`.
 
-Support boundaries and benchmarks are documented in the [repository](https://github.com/Innovgame/fast-3mf-loader).
+## API
+
+| Export | Use |
+| --- | --- |
+| `Fast3MFLoader#parse` | Parse an `ArrayBuffer` into `ParseResult` |
+| `fast3mfBuilder` | Build a `THREE.Group` from that result |
+| `Model3MF` | Alias of `ParseResult` |
+| `ParseOptions` | `workerCount` and `onProgress` |
+
+`ParseResult` includes `rels`, optional `modelRels`, `model`, an empty `printTicket`, and `texture`. Print tickets are not supported.
+
+## License
+
+[MIT](LICENSE)

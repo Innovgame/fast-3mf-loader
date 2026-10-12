@@ -3,7 +3,7 @@ import {
     createTriangleColorBuffer,
     createTrianglePositionBuffer,
     createTriangleUvBuffer,
-} from "../lib/build-geometry";
+} from "../src/build-geometry";
 
 describe("build-geometry helpers", () => {
     test("writes triangle positions into a packed Float32Array", () => {

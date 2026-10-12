@@ -12,8 +12,8 @@ const publishedFiles = [
     "README.md",
     "package.json",
     "dist/index.d.ts",
-    "dist/fast-3mf-loader.js",
-    "dist/fast-3mf-loader.umd.cjs",
+    "dist/index.js",
+    "dist/index.umd.cjs",
 ];
 
 function packedFiles() {

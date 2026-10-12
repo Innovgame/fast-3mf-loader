@@ -40,9 +40,9 @@ export default defineConfig({
     },
     build: {
         lib: {
-            entry: "./lib/main.ts",
+            entry: "./src/index.ts",
             name: "Fast3MFLoader",
-            fileName: "fast-3mf-loader",
+            fileName: "index",
         },
         rollupOptions: {
             external: ["three"],

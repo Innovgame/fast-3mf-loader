@@ -2,8 +2,8 @@ import { afterEach, expect, test, vi } from "vitest";
 import "./helpers/mock-inline-workers";
 import { readFixture } from "./helpers/read-fixture";
 
-const { Fast3MFLoader } = await import("../lib/main");
-const { resolveWorkerCount } = await import("../lib/fast-3mf-loader");
+const { Fast3MFLoader } = await import("../src/index");
+const { resolveWorkerCount } = await import("../src/fast-3mf-loader");
 
 afterEach(() => {
     vi.restoreAllMocks();

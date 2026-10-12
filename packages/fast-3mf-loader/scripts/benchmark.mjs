@@ -19,7 +19,7 @@ const { warmupRuns, measuredRuns, workerCount } = resolveBenchmarkConfig({
 });
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "../..");
-const distEntry = resolve(packageRoot, "dist/fast-3mf-loader.js");
+const distEntry = resolve(packageRoot, "dist/index.js");
 
 installNavigatorPolyfill(hardwareConcurrency);
 installWorkerPolyfill();
@@ -30,7 +30,7 @@ let fast3mfBuilder;
 try {
     ({ Fast3MFLoader, fast3mfBuilder } = await import(pathToFileURL(distEntry).href));
 } catch (error) {
-    console.error("Failed to load dist/fast-3mf-loader.js. Run `pnpm build` first.");
+    console.error("Failed to load dist/index.js. Run `pnpm build` first.");
     throw error;
 }
 

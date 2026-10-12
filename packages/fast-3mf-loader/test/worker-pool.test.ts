@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { WorkerPool } from "../lib/WorkerPool";
+import { WorkerPool } from "../src/WorkerPool";
 
 type MessageHandler = (event: MessageEvent<string>) => void;
 

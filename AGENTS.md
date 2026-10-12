@@ -42,8 +42,8 @@ pnpm dev
 - 公开导入保持 `Fast3MFLoader`、`fast3mfBuilder`，以及 `ParseResult` / `Model3MF` 的现有形状。
 - `parse()` 只接受完整的 `ArrayBuffer`。不要把它写成公开的分块输入 API。
 - 支持边界以 `docs/support-matrix.md` 为准。新能力要同时补实现、测试和文档。Print Ticket 仍未支持。
-- 库源码在 `packages/fast-3mf-loader/lib/`。解析编排、事件、分发和几何构建保持现有职责，不要把内部模块重新导出成公开 API。
-- 发布产物只保留 `dist/fast-3mf-loader.js`、`dist/fast-3mf-loader.umd.cjs` 和 `dist/index.d.ts`。`package.json` 的 `types` 指向 `dist/index.d.ts`。
+- 库源码在 `packages/fast-3mf-loader/src/`。公开入口是 `src/index.ts`。解析编排、事件、分发和几何构建保持现有职责，不要把内部模块重新导出成公开 API。
+- 发布产物只保留 `dist/index.js`、`dist/index.umd.cjs` 和 `dist/index.d.ts`。`package.json` 的 `types` 指向 `dist/index.d.ts`。
 - 注释只写代码本身看不出来的约束。不要给直观实现补说明。
 - 匹配周围代码的格式。TypeScript 停在仓库当前版本，不要单独升到 TypeScript 7。
 

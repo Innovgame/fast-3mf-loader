@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createParseEventRuntime, toEndEvent, toStartEvent, toTextEvent } from "../lib/parse-events";
+import { createParseEventRuntime, toEndEvent, toStartEvent, toTextEvent } from "../src/parse-events";
 
 describe("parse-events", () => {
     test("metadata 文本事件会继承最近一次 metadata 的名称", () => {

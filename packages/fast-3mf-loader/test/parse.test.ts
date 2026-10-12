@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { parse } from "../lib/parse";
+import { parse } from "../src/parse";
 
 type SaxHandler = (message?: string) => void;
 

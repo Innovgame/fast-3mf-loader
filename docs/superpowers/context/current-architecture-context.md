@@ -10,24 +10,24 @@
 
 ### Parse Path
 
-- `lib/fast-3mf-loader.ts`
+- `src/fast-3mf-loader.ts`
   负责 archive 解压、文件分类、进度聚合和整体 parse 生命周期协调。
-- `lib/parse-model.ts` 与 `lib/parse-model.worker.ts`
+- `src/parse-model.ts` 与 `src/parse-model.worker.ts`
   负责 worker 内的模型解析、typed array 收尾以及 worker-safe 返回结果。
-- `lib/parse.ts`
+- `src/parse.ts`
   现在应保持为编排层，只负责 parser 初始化、事件转交、Promise resolve/reject。
-- `lib/parse-events.ts`
+- `src/parse-events.ts`
   负责把 EasySAX 原始回调归一化成内部 parse event，并持有短生命周期解析上下文，包括按元素进入/退出维护的命名空间作用域。作用域不写入公开解析结果。
-- `lib/parse-dispatch.ts`
+- `src/parse-dispatch.ts`
   负责标签分发、extract/create 组合调用，以及 end-tag 状态清理。
-- `lib/node-extract.ts` 与 `lib/node-create.ts`
+- `src/node-extract.ts` 与 `src/node-create.ts`
   继续保持“提取”和“状态写入”职责分离。
 
 ### Build Path
 
-- `lib/3mf-builder.ts`
+- `src/3mf-builder.ts`
   负责把解析结果转换为 Three.js 场景对象。
-- `lib/build-geometry.ts`
+- `src/build-geometry.ts`
   负责热点路径中的几何数据拼装与 typed array 辅助逻辑。
 
 ### Workspace
@@ -36,11 +36,11 @@
 - `apps/demo` 是基于 React / Radix UI / Tailwind CSS / Lucide 的项目主页与浏览器验证区。文件在本地读取，库解析与 Three.js 场景构建保持分离；页面显示真实耗时和支持边界，three.js 对照由用户主动触发。
 - 页面状态、内容及预览分别位于 `src/use-demo.ts`、`src/content.ts`、`src/viewer.ts`；UI 组件位于 `src/components/`。`src/model-runner.ts` 与 `src/model-resources.ts` 管理计时和资源释放。页面测试归属 `apps/demo/tests/`，不依赖公开库的测试目录。
 - `pnpm verify` 覆盖库和页面的单元验证及构建；CI 另外验证 `/fast-3mf-loader/` 生产子路径和真实文件预览。`master` 上 CI 成功后发布到 GitHub Pages。
-- 库源码仍在包内的 `lib/`。下面的路径相对于 `packages/fast-3mf-loader/`。
+- 库源码在包内的 `src/`。公开入口是 `src/index.ts`。下面的路径相对于 `packages/fast-3mf-loader/`。
 
 ### Runtime And Tooling
 
-- `lib/unzip.ts`、`lib/unzip.worker.ts`、`lib/WorkerPool.ts`
+- `src/unzip.ts`、`src/unzip.worker.ts`、`src/WorkerPool.ts`
   负责解压与 worker 生命周期。
 - `scripts/benchmark.mjs` 与 `scripts/benchmark-core.mjs`
   负责 parse/build/total phase benchmark。
@@ -49,7 +49,7 @@
 
 ## Public Surface And Behavioral Guardrails
 
-- 公开入口以 `lib/main.ts` 导出的 `Fast3MFLoader`、`fast3mfBuilder` 及相关类型别名为准。
+- 公开入口以 `src/index.ts` 导出的 `Fast3MFLoader`、`fast3mfBuilder` 及相关类型别名为准。
 - 当前设计允许内部重构，但默认不改：
   - `Fast3MFLoader -> parseModelBuffer -> parse()` 主链路
   - `ParseResult` / `Model3MF` 等公开返回结构

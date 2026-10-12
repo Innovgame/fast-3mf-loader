@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 
-vi.mock("../../lib/unzip.worker?worker&inline", async () => {
-    const { unzipBuffer } = await import("../../lib/unzip");
+vi.mock("../../src/unzip.worker?worker&inline", async () => {
+    const { unzipBuffer } = await import("../../src/unzip");
 
     return {
         default: class MockUnzipWorker {
@@ -26,8 +26,8 @@ vi.mock("../../lib/unzip.worker?worker&inline", async () => {
     };
 });
 
-vi.mock("../../lib/parse-model.worker?worker&inline", async () => {
-    const { parseModelBuffer } = await import("../../lib/parse-model");
+vi.mock("../../src/parse-model.worker?worker&inline", async () => {
+    const { parseModelBuffer } = await import("../../src/parse-model");
 
     return {
         default: class MockParseModelWorker {

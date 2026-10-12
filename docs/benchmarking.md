@@ -9,7 +9,7 @@ pnpm build
 pnpm benchmark
 ```
 
-The benchmark imports the built `dist/fast-3mf-loader.js` bundle, runs end-to-end parse/build measurements against the large supported fixtures in `3mf/`, and reports median parse, build, and total times alongside the min/max spread from the measured runs.
+The benchmark imports the built `dist/index.js` bundle, runs end-to-end parse/build measurements against the large supported fixtures in `3mf/`, and reports median parse, build, and total times alongside the min/max spread from the measured runs.
 It also runs the same fixtures through the default `three.js` `ThreeMFLoader` so the benchmark output includes a same-machine comparison baseline instead of only a single-library sample.
 
 For the stable `1.0` release gate, use the fixed release preset instead of retyping environment variables:

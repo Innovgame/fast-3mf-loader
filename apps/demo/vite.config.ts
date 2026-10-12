@@ -19,7 +19,7 @@ export default defineConfig({
     base: process.env.GITHUB_PAGES === "true" ? "/fast-3mf-loader/" : "/",
     resolve: {
         alias: {
-            "@innovgame/fast-3mf-loader": path.resolve(projectRoot, "packages/fast-3mf-loader/lib/main.ts"),
+            "@innovgame/fast-3mf-loader": path.resolve(projectRoot, "packages/fast-3mf-loader/src/index.ts"),
         },
     },
     server: {

@@ -1,6 +1,6 @@
 import { expectTypeOf, test } from "vitest";
-import type { Fast3MFLoader} from "../lib/main";
-import { type Model3MF, type ParseOptions, type ParseResult, type ParsedModelPart, type Relationship } from "../lib/main";
+import type { Fast3MFLoader} from "../src/index";
+import { type Model3MF, type ParseOptions, type ParseResult, type ParsedModelPart, type Relationship } from "../src/index";
 
 test("parse returns a typed promise", () => {
     expectTypeOf<ReturnType<Fast3MFLoader["parse"]>>().toEqualTypeOf<Promise<ParseResult>>();

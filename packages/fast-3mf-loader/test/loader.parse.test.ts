@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import "./helpers/mock-inline-workers";
 import { readFixture } from "./helpers/read-fixture";
 
-const { Fast3MFLoader } = await import("../lib/main");
+const { Fast3MFLoader } = await import("../src/index");
 
 function createArchive(options: {
         rels: string;

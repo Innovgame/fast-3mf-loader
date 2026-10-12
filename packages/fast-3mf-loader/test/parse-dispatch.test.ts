@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { dispatchParseEvent } from "../lib/parse-dispatch";
-import { makeModelsStateExtras } from "../lib/util";
+import { dispatchParseEvent } from "../src/parse-dispatch";
+import { makeModelsStateExtras } from "../src/util";
 
 describe("parse-dispatch", () => {
     afterEach(() => {
