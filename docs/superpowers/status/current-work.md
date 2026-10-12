@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-- 2026-10-12 当前正在补齐 Production 路径属性的命名空间校验：根据命名空间 URI 和元素作用域识别属性，保留普通 `path` 兼容，添加冲突、前缀重绑定及作用域恢复的回归覆盖。
+- 2026-10-12 已补齐 Production 路径属性的命名空间校验：根据命名空间 URI 和元素作用域识别属性，保留普通 `path` 兼容，已覆盖冲突、前缀重绑定及作用域恢复。
 - 2026-10-12 已修复 BambuStudio Production 扩展跨模型组件引用：`p:path` 会被解析，builder 会到目标 model part 查找对象。下载目录中的“双生盗龙链接件”可以构建出网格。
 - 2026-10-12 已完成标准化 GitHub Pages 页面：参考 `D:\lichun\slicer-converter`，采用 React / Radix UI / Tailwind / Lucide，完成项目介绍、首次接入和浏览器内验证。实施与生产子路径检查均已完成，后续回到稳态 `1.0` 主线。
 - 把项目长期方向收敛到 `稳态 1.0` 发布：围绕 README 已承诺的性能、WebWorker、TypeScript、浏览器兼容性和易用性，定义清晰的 release gates，并把后续执行拆成可连续交付的阶段。
@@ -14,6 +14,15 @@
 
 ## Latest Completed
 
+- 2026-10-12 已关闭 `e47389e` 评审中发现的 P2 命名空间兼容性缺口：
+  - `parse-events.ts` 维护按元素进入/退出恢复的命名空间作用域，支持前缀别名、祖先/局部声明、重绑定、自闭合及显式闭合。命名空间 URI 中的 XML 字符引用使用 EasySAX 自带解码器归一化。
+  - `node-extract.ts` 仅接受 Production 命名空间 URI 对应的限定 `path`，其他扩展同名属性不再覆盖它；普通 `path` 的既有兼容性和优先级保留。component 与 build item 使用相同规则。
+  - 命名空间上下文仅存在于内部解析事件，不改变公开 `ParseResult` / `Model3MF` 形状。几何标签没有命名空间声明时，仍保留属性 getter 的延迟读取。
+  - 新增 `test/production-paths.test.ts` 的 14 个永久回归用例，使用合成 archive 及同名对象的不同几何坐标验证真正构建了目标对象。冲突和字符引用用例均先观察到失败，再完成修复。
+  - `pnpm verify` 已通过：23 个测试文件、111 个单元测试、类型检查及库/页面构建；没有新增 lint 错误，原有 22 条 `any` 警告保留。
+  - `/fast-3mf-loader/` 生产子路径的 8 项 Chrome 检查已通过，其中包括原下载文件及仅加入属性冲突的临时副本，两者均显示 1 个 mesh、960 个三角形。临时测试与副本已清理，原下载文件未修改。
+  - 支持矩阵与架构摘要已同步；永久页面浏览器测试仍为原有 7 项，本次额外原文件验收不依赖提交私人文件。
+
 - 2026-10-12 已按 `slicer-converter` 补上 GitHub Packages 的公开安装入口：
   - 根 README 中英文都写了 `.npmrc` 与 `@innovgame/fast-3mf-loader` 安装方式。
   - 发布工作流任务名改为 GitHub Packages。发布脚本本来就会在有 `GITHUB_TOKEN` 时发布到 `npm.pkg.github.com`。
@@ -21,7 +30,7 @@
 - 2026-10-12 已评审修复提交 `e47389e`：原文件的根因已解决，parser 保留 Production `p:path`，builder 按目标模型与 objectId 查找、缓存并构建对象。
   - 已重新用下载目录原文件运行解析/构建与真实 Chrome 导入，确认 1 个 mesh、960 个三角形及非空包围盒；相对路径、Production 前缀改名、根模型同名 objectId 的变体均保持原几何包围盒。
   - 发现一个已复现的 P2 兼容性问题：`node-extract.ts:readLocalAttribute()` 只匹配 `*:path` 后缀，不校验命名空间 URI。在 component 上让另一命名空间的 `audit:path` 排在 Production `p:path` 前面，会错误选中前者。
-  - 后续建议按 Production 命名空间 URI 解析属性，同时保留普通 `path` 兼容，并补命名空间冲突的永久回归测试。该问题不影响用户刚才的原始文件；本轮为评审，没有修改实现。
+  - 当时建议按 Production 命名空间 URI 解析属性，同时保留普通 `path` 兼容，并补命名空间冲突的永久回归测试；已由本轮补齐。该问题不影响用户当时的原始文件，评审阶段未修改实现。
   - 本地诊断脚本和临时测试已清理，原文件仍保留在下载目录；浏览器截图在 `apps/demo/test-results/original-download-review.png`。
 - 2026-10-12 已修复 demo 导入 BambuStudio 3MF 时的 `Cannot find component object`：
   - 根因是组件 `objectid="1"` 通过 `p:path="/3D/Objects/object_10.model"` 指向另一个 model part，parser 没有收下带命名空间的 `path`，builder 也只在当前模型里查找。

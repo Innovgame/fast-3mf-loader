@@ -12,7 +12,7 @@ import {
     hexToRgbaArray,
     matrixFromTransformString
 } from "./util";
-import type { ParseEvent, ParseStartEvent, ParseTextEvent } from "./parse-events";
+import { PRODUCTION_NAMESPACE_URI, type ParseEvent, type ParseStartEvent, type ParseTextEvent } from "./parse-events";
 
 type ExtractableEvent = StateInput | ParseEvent | ParseStartEvent | ParseTextEvent;
 
@@ -24,12 +24,13 @@ function isStartLikeEvent(input: ExtractableEvent): input is StateInput | ParseS
     return ("kind" in input && input.kind === "start") || (!("kind" in input) && input.start === true);
 }
 
-function readLocalAttribute(attributes: Record<string, string>, localName: string) {
-    if (localName in attributes) return attributes[localName];
+function readModelPath(attributes: Record<string, string>, namespaceUris?: ReadonlyMap<string, string>) {
+    if (Object.hasOwn(attributes, "path")) return attributes.path;
 
-    const suffix = `:${localName}`;
     for (const key in attributes) {
-        if (key.endsWith(suffix)) return attributes[key];
+        if (!key.endsWith(":path")) continue;
+        const prefix = key.slice(0, -5);
+        if (namespaceUris?.get(prefix) === PRODUCTION_NAMESPACE_URI) return attributes[key];
     }
 
     return undefined;
@@ -169,7 +170,7 @@ export function extractBuildItemData(input: ExtractableEvent) {
         objectId: attributes["objectid"],
     } as BuildItemType;
     for (const key of ["transform", "partnumber", "path"] as const) {
-        const value = key === "path" ? readLocalAttribute(attributes, key) : attributes[key];
+        const value = key === "path" ? readModelPath(attributes, "namespaceUris" in input ? input.namespaceUris : undefined) : attributes[key];
         if (value !== undefined) {
             if (key === "transform") {
                 data["transform"] = matrixFromTransformString(value);
@@ -192,7 +193,7 @@ export function extractComponentData(input: ExtractableEvent) {
     } as ComponentType;
 
     for (const key of ["id", "transform", "path"] as const) {
-        const value = key === "path" ? readLocalAttribute(attributes, key) : attributes[key];
+        const value = key === "path" ? readModelPath(attributes, "namespaceUris" in input ? input.namespaceUris : undefined) : attributes[key];
         if (value !== undefined) {
             if (key === "transform") {
                 data["transform"] = matrixFromTransformString(value);

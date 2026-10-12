@@ -4,6 +4,7 @@ declare module "easysax" {
     export type SAXGetStringNode = () => string;
 
     export default class EasySAXParser {
+        static entityDecode(value: string): string;
         constructor(options?: { autoEntity?: boolean; lazy?: boolean });
         on(event: "error", handler: (message: string) => void): void;
         getNodeString(): string;

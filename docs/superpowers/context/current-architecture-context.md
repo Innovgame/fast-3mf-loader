@@ -17,7 +17,7 @@
 - `lib/parse.ts`
   现在应保持为编排层，只负责 parser 初始化、事件转交、Promise resolve/reject。
 - `lib/parse-events.ts`
-  负责把 EasySAX 原始回调归一化成内部 parse event，并持有短生命周期解析上下文。
+  负责把 EasySAX 原始回调归一化成内部 parse event，并持有短生命周期解析上下文，包括按元素进入/退出维护的命名空间作用域。作用域不写入公开解析结果。
 - `lib/parse-dispatch.ts`
   负责标签分发、extract/create 组合调用，以及 end-tag 状态清理。
 - `lib/node-extract.ts` 与 `lib/node-create.ts`
@@ -61,7 +61,7 @@
 - 当前已覆盖并有文档或测试锚点的能力包括：
   - archive unzip
   - root relationships (`_rels/.rels`)
-  - multi-object / components，包括 Production 扩展里指向其他 model part 的 `path` / `p:path`
+  - multi-object / components，包括 Production 扩展里指向其他 model part 的路径引用；带前缀的 `path` 按命名空间 URI 及元素作用域识别，普通 `path` 保持兼容
   - base mesh geometry
   - vertex color groups
   - texture resources 与 texture groups

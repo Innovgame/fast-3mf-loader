@@ -8,7 +8,7 @@ If a capability is not listed here with evidence, it should be treated as unsupp
 | --- | --- | --- | --- |
 | Archive unzip | Supported | `test/loader.parse.test.ts` with `cube_gears.3mf` | 3MF archives are unzipped before model parsing |
 | Root relationships (`_rels/.rels`) | Supported | `test/loader.parse.test.ts` with `cube_gears.3mf` | Required to locate the root `.model` file |
-| Multi-object / component models | Supported | `test/loader.parse.test.ts` with `truck.3mf`; `test/builder.test.ts` production-extension case | Same-model components and production `path` / `p:path` references to other model parts are parsed and built |
+| Multi-object / component models | Supported | `test/loader.parse.test.ts` with `truck.3mf`; `test/builder.test.ts` production-extension case; `test/production-paths.test.ts` | Same-model components and production references to other model parts are parsed and built. Qualified `path` attributes are matched by the Production namespace URI with element scope; unqualified `path` remains compatible and takes precedence when both forms occur |
 | Base mesh geometry | Supported | `test/builder.test.ts` with `facecolors.3mf` | Produces a `THREE.Group` with meshes |
 | Vertex color groups | Supported | `test/builder.test.ts` with `vertexcolors.3mf` | Meshes expose a `color` attribute |
 | Texture resources and texture groups | Supported | `test/builder.test.ts` with `multipletextures.3mf` | Textured materials are built from 3MF texture groups |
