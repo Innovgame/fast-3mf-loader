@@ -7,8 +7,11 @@ This file records changes that users can see. Versions follow repository tags, f
 - The published package contains `dist/index.js`, `dist/index.umd.cjs`, and one declaration file, `dist/index.d.ts`. Internal module declarations are no longer included.
 - Install and import by package name: `fast-3mf-loader` on npm, or `@innovgame/fast-3mf-loader` on GitHub Packages. `Fast3MFLoader`, `fast3mfBuilder`, and the existing result types are unchanged.
 - The package page lists those exports, the `three` peer dependency, and the browser `Worker` and `Blob` requirement.
-- Verified browser and Three.js combinations are recorded in [docs/browser-support.md](docs/browser-support.md). Combinations that have not been checked are not listed as supported.
+- Verified browser and Three.js combinations are recorded in [docs/browser-support.md](docs/browser-support.md). Playwright Chromium on Ubuntu 24.04 and `three@0.186.1` are the checked combination. Firefox, Safari, and specific phone browsers are not listed as supported.
+- `pnpm consumer:check` installs the packed package into a fresh project and typechecks it. `pnpm consumer:check:browser` parses `facecolors.3mf` from that install in Chromium.
+- `pnpm benchmark:release` no longer depends on a POSIX shell assignment. The recorded sample was refreshed on 2026-10-12 for Node `v26.5.1` on `darwin arm64`: `multipletextures.3mf` fast total median `214.2ms`, `truck.3mf` fast total median `283.0ms`.
 - `truck.3mf` is identified as the three.js example file. The upstream example README does not state a separate license for it.
+- Draft notes for a future `1.0.0` tag are in [docs/releases/1.0.0-draft.md](docs/releases/1.0.0-draft.md). This version has not been tagged.
 
 ## 0.0.8
 
