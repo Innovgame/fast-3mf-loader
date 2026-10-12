@@ -100,14 +100,20 @@ export function QuickStart() {
                                 <TabsTrigger value="npm">npm</TabsTrigger>
                                 <TabsTrigger value="pnpm">pnpm</TabsTrigger>
                                 <TabsTrigger value="yarn">yarn</TabsTrigger>
+                                <TabsTrigger value="github">GitHub</TabsTrigger>
                             </TabsList>
                             {[
-                                { manager: "npm", command: "npm install" },
-                                { manager: "pnpm", command: "pnpm add" },
-                                { manager: "yarn", command: "yarn add" },
-                            ].map(({ manager, command }) => (
+                                { manager: "npm", command: "npm install fast-3mf-loader three", label: "npm" },
+                                { manager: "pnpm", command: "pnpm add fast-3mf-loader three", label: "pnpm" },
+                                { manager: "yarn", command: "yarn add fast-3mf-loader three", label: "yarn" },
+                                {
+                                    manager: "github",
+                                    command: "@innovgame:registry=https://npm.pkg.github.com\n\nnpm install @innovgame/fast-3mf-loader three",
+                                    label: "GitHub Packages",
+                                },
+                            ].map(({ manager, command, label }) => (
                                 <TabsContent key={manager} value={manager}>
-                                    <CodeBlock compact code={`${command} fast-3mf-loader three`} label={manager} />
+                                    <CodeBlock compact code={command} label={label} />
                                 </TabsContent>
                             ))}
                         </Tabs>

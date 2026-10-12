@@ -38,7 +38,7 @@ Use a short English conventional commit, such as `fix:`, `feat:`, `docs:`, or `c
 
 ## Releases
 
-Releases are cut from `master`. npm publish runs when a GitHub Release is published. The release tag must be `v` plus the version in `package.json`, for example `v0.0.8`.
+Releases are cut from `master`. Publishing runs when a GitHub Release is published. The release tag must be `v` plus the version in `packages/fast-3mf-loader/package.json`, for example `v0.0.8`. GitHub Packages receives `@innovgame/fast-3mf-loader`. npm receives `fast-3mf-loader` when `NPM_TOKEN` is set.
 
 1. Move the `Unreleased` notes in [CHANGELOG.md](CHANGELOG.md) under the new version heading.
 2. Update the version in `packages/fast-3mf-loader/package.json` to the same version.

@@ -1190,6 +1190,9 @@ pre {
     color: var(--link);
 }
 .install-card .ui-tabs-list {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 100%;
     margin-bottom: 12px;
 }
 .code-block {

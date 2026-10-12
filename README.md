@@ -24,11 +24,29 @@ A browser-first 3MF parser for TypeScript projects that uses SAX-style XML parsi
 
 Version `0.0.7`. Changes are in [CHANGELOG.md](CHANGELOG.md).
 
+### npm
+
 ```bash
 npm install fast-3mf-loader
 # or
 yarn add fast-3mf-loader
 ```
+
+Import from `fast-3mf-loader`.
+
+### GitHub Packages
+
+Add this to `.npmrc`, then install `@innovgame/fast-3mf-loader`:
+
+```text
+@innovgame:registry=https://npm.pkg.github.com
+```
+
+```bash
+npm install @innovgame/fast-3mf-loader
+```
+
+Import that package from `@innovgame/fast-3mf-loader`. The API is the same. A published GitHub Release publishes this package. npm publish also runs when `NPM_TOKEN` is set.
 
 ## Usage Example
 

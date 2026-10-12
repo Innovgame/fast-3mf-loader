@@ -20,11 +20,29 @@
 
 当前版本 `0.0.7`。变更记录见 [CHANGELOG.md](CHANGELOG.md)。
 
+### npm
+
 ```bash
 npm install fast-3mf-loader
 # 或
 yarn add fast-3mf-loader
 ```
+
+导入路径是 `fast-3mf-loader`。
+
+### GitHub Packages
+
+先在 `.npmrc` 里写上，再安装 `@innovgame/fast-3mf-loader`：
+
+```text
+@innovgame:registry=https://npm.pkg.github.com
+```
+
+```bash
+npm install @innovgame/fast-3mf-loader
+```
+
+导入路径是 `@innovgame/fast-3mf-loader`。API 与 npm 包相同。发布 GitHub Release 时会发布这个包。设置了 `NPM_TOKEN` 时，也会同时发布到 npm。
 
 ## 使用示例
 

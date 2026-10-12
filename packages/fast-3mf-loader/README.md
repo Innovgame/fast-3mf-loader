@@ -18,6 +18,8 @@ GitHub Packages uses `@innovgame/fast-3mf-loader`. Point the scope at GitHub Pac
 npm install @innovgame/fast-3mf-loader
 ```
 
+Import that package from `@innovgame/fast-3mf-loader`. The API is the same.
+
 ## Usage
 
 ```typescript

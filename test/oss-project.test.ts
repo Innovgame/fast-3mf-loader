@@ -42,10 +42,14 @@ test("READMEs link the community files without changing the public parsing claim
     const readmeZh = await readText("README-zh.md");
 
     expect(readme).toContain("Uses SAX-style XML parsing internally to keep memory usage lower");
+    expect(readme).toContain("https://npm.pkg.github.com");
+    expect(readme).toContain("@innovgame/fast-3mf-loader");
     expect(readme).toContain("[CONTRIBUTING.md](CONTRIBUTING.md)");
     expect(readme).toContain("[CHANGELOG.md](CHANGELOG.md)");
     expect(readme).toContain("actions/workflows/ci.yml");
     expect(readmeZh).toContain("内部采用 SAX 风格流式解析");
+    expect(readmeZh).toContain("https://npm.pkg.github.com");
+    expect(readmeZh).toContain("@innovgame/fast-3mf-loader");
     expect(readmeZh).toContain("[CONTRIBUTING.md](CONTRIBUTING.md)");
     expect(readmeZh).toContain("![npm version]");
 });

@@ -2,6 +2,7 @@
 
 ## Current Focus
 
+- 2026-10-12 当前正在补齐 Production 路径属性的命名空间校验：根据命名空间 URI 和元素作用域识别属性，保留普通 `path` 兼容，添加冲突、前缀重绑定及作用域恢复的回归覆盖。
 - 2026-10-12 已修复 BambuStudio Production 扩展跨模型组件引用：`p:path` 会被解析，builder 会到目标 model part 查找对象。下载目录中的“双生盗龙链接件”可以构建出网格。
 - 2026-10-12 已完成标准化 GitHub Pages 页面：参考 `D:\lichun\slicer-converter`，采用 React / Radix UI / Tailwind / Lucide，完成项目介绍、首次接入和浏览器内验证。实施与生产子路径检查均已完成，后续回到稳态 `1.0` 主线。
 - 把项目长期方向收敛到 `稳态 1.0` 发布：围绕 README 已承诺的性能、WebWorker、TypeScript、浏览器兼容性和易用性，定义清晰的 release gates，并把后续执行拆成可连续交付的阶段。
@@ -13,6 +14,15 @@
 
 ## Latest Completed
 
+- 2026-10-12 已按 `slicer-converter` 补上 GitHub Packages 的公开安装入口：
+  - 根 README 中英文都写了 `.npmrc` 与 `@innovgame/fast-3mf-loader` 安装方式。
+  - 发布工作流任务名改为 GitHub Packages。发布脚本本来就会在有 `GITHUB_TOKEN` 时发布到 `npm.pkg.github.com`。
+  - 项目页安装区增加 GitHub 标签。Packages 页面要等发布工作流成功跑过一次才会出现包。
+- 2026-10-12 已评审修复提交 `e47389e`：原文件的根因已解决，parser 保留 Production `p:path`，builder 按目标模型与 objectId 查找、缓存并构建对象。
+  - 已重新用下载目录原文件运行解析/构建与真实 Chrome 导入，确认 1 个 mesh、960 个三角形及非空包围盒；相对路径、Production 前缀改名、根模型同名 objectId 的变体均保持原几何包围盒。
+  - 发现一个已复现的 P2 兼容性问题：`node-extract.ts:readLocalAttribute()` 只匹配 `*:path` 后缀，不校验命名空间 URI。在 component 上让另一命名空间的 `audit:path` 排在 Production `p:path` 前面，会错误选中前者。
+  - 后续建议按 Production 命名空间 URI 解析属性，同时保留普通 `path` 兼容，并补命名空间冲突的永久回归测试。该问题不影响用户刚才的原始文件；本轮为评审，没有修改实现。
+  - 本地诊断脚本和临时测试已清理，原文件仍保留在下载目录；浏览器截图在 `apps/demo/test-results/original-download-review.png`。
 - 2026-10-12 已修复 demo 导入 BambuStudio 3MF 时的 `Cannot find component object`：
   - 根因是组件 `objectid="1"` 通过 `p:path="/3D/Objects/object_10.model"` 指向另一个 model part，parser 没有收下带命名空间的 `path`，builder 也只在当前模型里查找。
   - `node-extract.ts` 现在读取 `path` 与 `*:path`；`fast3mfBuilder()` 会按包内绝对路径或相对路径解析 component 和 build item。
