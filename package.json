@@ -4,7 +4,7 @@
     "private": true,
     "type": "module",
     "description": "Browser-first 3MF loader monorepo",
-    "packageManager": "pnpm@12.11.2",
+    "packageManager": "pnpm@10.33.0",
     "scripts": {
         "dev": "pnpm --filter @fast-3mf-loader/demo dev",
         "build": "pnpm --filter @innovgame/fast-3mf-loader build",

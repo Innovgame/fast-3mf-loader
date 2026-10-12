@@ -11,6 +11,7 @@
 
 ## Latest Completed
 
+- 2026-10-12 已修复 Windows 上 `pnpm dev` 无法启动：`packageManager` 改回本机可用的 `pnpm@10.33.0`。`pnpm@12.11.2` 的版本切换在 Windows 上会去执行没有原生程序的 shell shim。
 - 2026-10-12 已把仓库改成 pnpm workspace，并按 `slicer-converter` 接上 ESLint、打包发布和 GitHub Pages：
   - 公开库在 `packages/fast-3mf-loader`，仓库包名 `@innovgame/fast-3mf-loader`，npm 发布名仍是 `fast-3mf-loader`
   - 测试页在 `apps/demo`，`master` CI 成功后部署到 GitHub Pages

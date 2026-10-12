@@ -10,6 +10,7 @@ describe("stable 1.0 release gates", () => {
     test("package.json exposes verify, benchmark:release, and release:check scripts", async () => {
         const packageJson = JSON.parse(await readText("package.json"));
 
+        expect(packageJson.packageManager).toBe("pnpm@10.33.0");
         expect(packageJson.scripts.verify).toBe("pnpm lint && pnpm typecheck && pnpm test && pnpm build");
         expect(packageJson.scripts["benchmark:release"]).toBe("pnpm --filter @innovgame/fast-3mf-loader benchmark:release");
         expect(packageJson.scripts["release:check"]).toBe(
