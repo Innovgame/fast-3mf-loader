@@ -14,6 +14,14 @@
 
 ## Latest Completed
 
+- 2026-10-12 正在发布 `0.0.8`：变更记录已从 Unreleased 移到该版本，包版本与 README 版本已对齐。公开声明不再从 `easysax` 导入不存在的 `SAXGetAttr` / `SAXGetStringNode`，消费者严格类型检查已通过。
+- 2026-10-12 已完成开源标准化差距盘点（分析任务，未改实现）：
+  - 基础文件、双语公开文档、社区模板、Pages、CI 和回归覆盖已具备；接下来优先补正式发布与真实消费者接入验证。
+  - 已直接引用构建产物执行严格 TypeScript 检查，复现 `dist/util.d.ts` 从 `easysax` 导入不存在的 `SAXGetAttr` / `SAXGetStringNode` 导致 TS2305。源码测试使用仓库内类型声明，无法替代产物消费者检查；临时检查文件已清理。
+  - 已复现 Windows 的 `benchmark:release` 因 POSIX 风格环境变量赋值失败；`pack:check` 本身已通过。应先修跨平台命令，再确保本机与发布 CI 都能执行完整 `release:check`。
+  - GitHub / npm 公开接口本次核对：远端 master 为 `e47389e`、CI/Pages 成功；master 的 protected 标志为 false；最新 GitHub Release 与 npm 均为 `v0.0.7` / `0.0.7`。近期修复已进入 Unreleased 变更记录，仍需通过新版本交付，并补安装后冒烟验证。
+  - 其他建议：真实打包安装后的 Vite / TypeScript / worker 验证、Three.js/浏览器支持版本矩阵、CSP/资源释放与错误说明、更新性能样本、补齐 `truck.3mf` 来源与许可记录、同步 roadmap 状态及迁移后的路径。
+
 - 2026-10-12 已重写 `CHANGELOG.md` 的 Unreleased：补上 Production 跨模型引用、命名空间路径校验和项目页，并按用户可见变化分组。版本仍是 `0.0.7`，没有切新版本。
 - 2026-10-12 已把公开 README 改成与 `slicer-converter` 相同的开源入口结构：安装、快速开始、限制、支持能力、API 与开发。中英文一起更新，支持边界没有扩大。
 - 2026-10-12 已在 README 中补上浏览器验证页截图：桌面工作台一张，手机文件区、预览和耗时各一张，文件在 `docs/images/`。

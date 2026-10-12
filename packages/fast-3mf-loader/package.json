@@ -1,6 +1,6 @@
 {
     "name": "@innovgame/fast-3mf-loader",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "type": "module",
     "description": "Browser-first TypeScript parser and Three.js builder for 3MF archives",
     "license": "MIT",

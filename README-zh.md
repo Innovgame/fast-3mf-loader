@@ -28,7 +28,7 @@
 
 ## 安装
 
-当前版本 `0.0.7`。变更记录见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本 `0.0.8`。变更记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 `three` 是 peer dependency，需要和解析库一起安装。
 

@@ -1,4 +1,7 @@
-import EasySAXParser, { type SAXGetAttr, type SAXGetStringNode } from "easysax";
+import EasySAXParser from "easysax";
+
+type SAXGetAttr = () => Record<string, string>;
+type SAXGetStringNode = () => string;
 
 export const PRODUCTION_NAMESPACE_URI = "http://schemas.microsoft.com/3dmanufacturing/production/2015/06";
 

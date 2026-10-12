@@ -1,6 +1,6 @@
 {
     "name": "fast-3mf-loader-monorepo",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "private": true,
     "type": "module",
     "description": "Browser-first 3MF loader monorepo",

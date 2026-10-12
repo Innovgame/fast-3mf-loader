@@ -28,7 +28,7 @@ Open the same page on a phone. The file panel, model preview, and timings stack 
 
 ## Install
 
-Version `0.0.7`. Changes are in [CHANGELOG.md](CHANGELOG.md).
+Version `0.0.8`. Changes are in [CHANGELOG.md](CHANGELOG.md).
 
 `three` is a peer dependency. Install it with the loader.
 

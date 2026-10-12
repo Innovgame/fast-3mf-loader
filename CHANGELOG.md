@@ -4,6 +4,8 @@ This file records changes that users can see. Versions follow repository tags, f
 
 ## Unreleased
 
+## 0.0.8
+
 - Component and build item references with a Production `path` or `p:path` now build the object from the referenced model part. Package-absolute paths such as `/3D/Objects/object_10.model` and paths relative to the current model both resolve. Files that previously failed with `Cannot find component object` can open when that object lives in another model part.
 - A namespaced `path` is accepted only when its namespace is the 3MF Production extension. Another extension's `path` attribute no longer replaces it. An unprefixed `path` still works, and it wins when both forms are present.
 - The project site at <https://innovgame.github.io/fast-3mf-loader/> previews a local 3MF file, shows parse, build, and total time, and can compare the same file with three.js on request. Files stay in the browser. The page has English and Chinese, light and dark themes, and a phone layout.
@@ -20,6 +22,7 @@ This file records changes that users can see. Versions follow repository tags, f
 - npm publish keeps the package name `fast-3mf-loader`. GitHub Packages publishes `@innovgame/fast-3mf-loader` when a GitHub Release is published.
 - The repository includes contributing, security, and code of conduct files, issue templates, and weekly dependency update checks.
 - Benchmark output can include a same-machine comparison with three.js `ThreeMFLoader`. Those samples are environment-specific evidence, not a browser speed promise.
+- Published declarations no longer import `SAXGetAttr` or `SAXGetStringNode` from `easysax`. Those names are not exported by that package, so a strict consumer typecheck failed.
 
 ## 0.0.7
 

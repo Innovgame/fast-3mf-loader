@@ -56,7 +56,8 @@
 //     }
 // }
 
-import type { SAXGetAttr, SAXGetStringNode } from "easysax";
+type SAXGetAttr = () => Record<string, string>;
+type SAXGetStringNode = () => string;
 
 export type TriangleProperty = {
     v1: number;
