@@ -4,6 +4,8 @@ This file records changes that users can see. Versions follow repository tags, f
 
 ## Unreleased
 
+- The published package ships one declaration file, `dist/index.d.ts`, beside the ESM and UMD bundles. Internal declaration files are no longer included.
+
 ## 0.0.8
 
 - Component and build item references with a Production `path` or `p:path` now build the object from the referenced model part. Package-absolute paths such as `/3D/Objects/object_10.model` and paths relative to the current model both resolve. Files that previously failed with `Cannot find component object` can open when that object lives in another model part.

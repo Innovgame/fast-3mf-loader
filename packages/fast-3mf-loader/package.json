@@ -21,10 +21,10 @@
     ],
     "main": "./dist/fast-3mf-loader.umd.cjs",
     "module": "./dist/fast-3mf-loader.js",
-    "types": "./dist/lib/main.d.ts",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "types": "./dist/lib/main.d.ts",
+            "types": "./dist/index.d.ts",
             "import": "./dist/fast-3mf-loader.js",
             "require": "./dist/fast-3mf-loader.umd.cjs"
         }
@@ -36,7 +36,7 @@
         "test": "vitest run",
         "benchmark": "node scripts/benchmark.mjs",
         "benchmark:release": "FAST3MF_BENCHMARK_WARMUP_RUNS=2 FAST3MF_BENCHMARK_MEASURED_RUNS=7 FAST3MF_BENCHMARK_WORKERS=6 pnpm benchmark",
-        "pack:check": "pnpm pack --dry-run"
+        "pack:check": "npm pack --dry-run"
     },
     "peerDependencies": {
         "three": ">=0.170.0"
@@ -46,6 +46,7 @@
         "fflate": "^0.8.3"
     },
     "devDependencies": {
+        "@microsoft/api-extractor": "^7.59.4",
         "@types/jsdom": "^30.0.0",
         "@types/node": "^26.6.5",
         "@types/three": "^0.186.0",
