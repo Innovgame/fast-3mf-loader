@@ -7,24 +7,24 @@ Repository: <https://github.com/Innovgame/fast-3mf-loader>
 ## Setup
 
 - Node.js 22
-- npm
+- pnpm 10
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
-`npm run dev` starts the local test page.
+`pnpm dev` starts the local test page. The page is also published to GitHub Pages after CI succeeds on `master`.
 
 ## Checks before a pull request
 
 ```bash
-npm run verify
+pnpm verify
 ```
 
-`npm run verify` typechecks the demo and the tests, runs the test suite, and builds the package.
+`pnpm verify` lints the workspace, typechecks the library, tests, and demo, runs the test suite, and builds the package.
 
-Maintainers run `npm run release:check` before publishing. That command also runs the release benchmark and a pack dry run. It is not the default pull request check.
+Maintainers run `pnpm release:check` before publishing. That command also runs the release benchmark and a pack dry run. It is not the default pull request check.
 
 ## Public contract
 
@@ -41,7 +41,7 @@ Use a short English conventional commit, such as `fix:`, `feat:`, `docs:`, or `c
 Releases are cut from `master`. npm publish runs when a GitHub Release is published. The release tag must be `v` plus the version in `package.json`, for example `v0.0.8`.
 
 1. Move the `Unreleased` notes in [CHANGELOG.md](CHANGELOG.md) under the new version heading.
-2. Update the version in `package.json` to the same version.
+2. Update the version in `packages/fast-3mf-loader/package.json` to the same version.
 3. Commit those changes.
 4. Wait until CI passes for that commit.
 5. Publish a GitHub Release with the matching `v*` tag.

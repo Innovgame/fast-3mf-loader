@@ -5,8 +5,8 @@
 ## Command
 
 ```bash
-npm run build
-npm run benchmark
+pnpm build
+pnpm benchmark
 ```
 
 The benchmark imports the built `dist/fast-3mf-loader.js` bundle, runs end-to-end parse/build measurements against the large supported fixtures in `3mf/`, and reports median parse, build, and total times alongside the min/max spread from the measured runs.
@@ -15,7 +15,7 @@ It also runs the same fixtures through the default `three.js` `ThreeMFLoader` so
 For the stable `1.0` release gate, use the fixed release preset instead of retyping environment variables:
 
 ```bash
-npm run benchmark:release
+pnpm benchmark:release
 ```
 
 Optional overrides for deeper sampling or release-machine calibration:
@@ -24,7 +24,7 @@ Optional overrides for deeper sampling or release-machine calibration:
 FAST3MF_BENCHMARK_WARMUP_RUNS=2 \
 FAST3MF_BENCHMARK_MEASURED_RUNS=7 \
 FAST3MF_BENCHMARK_WORKERS=6 \
-npm run benchmark
+pnpm benchmark
 ```
 
 ## Methodology
@@ -50,7 +50,7 @@ Release preset sample run collected on 2026-03-29:
 
 - Environment: Node `v22.13.1` on `darwin arm64`
 - Worker count: `6`
-- Command: `npm run benchmark:release`
+- Command: `pnpm benchmark:release`
 - Sampling preset: warmup `2`, measured runs `7`
 - Table values below are medians across the measured runs, not single-run point estimates
 - Parse-heavy fixtures can still move materially across same-machine reruns, so treat these numbers as sample evidence instead of pass/fail thresholds
@@ -79,10 +79,10 @@ The builder-side wins are the clearest signal here: `multipletextures.3mf` dropp
 
 ## Stable 1.0 Benchmark Gate
 
-Before publishing `1.0`, run `npm run release:check` on the release machine and refresh the large-fixture benchmark sample if the medians or spread moved materially. If the release machine is noisy, re-run with explicit sampling overrides instead of silently replacing the sample with a single quick local run.
+Before publishing `1.0`, run `pnpm release:check` on the release machine and refresh the large-fixture benchmark sample if the medians or spread moved materially. If the release machine is noisy, re-run with explicit sampling overrides instead of silently replacing the sample with a single quick local run.
 
-`npm run release:check` now delegates benchmark evidence collection to `npm run benchmark:release`, which fixes `warmupRuns=2`, `measuredRuns=7`, and `workerCount=6` for the release-machine sample.
+`pnpm release:check` delegates benchmark evidence collection to `pnpm benchmark:release`, which fixes `warmupRuns=2`, `measuredRuns=7`, and `workerCount=6` for the release-machine sample.
 
 The release gate still belongs to `fast-3mf-loader` itself. A `three unsupported` or `three failed` comparison row does not make `release:check` fail on its own.
 
-Run `node scripts/benchmark.mjs` after `npm run build` to refresh this section with current medians and spread for your machine.
+Run `node packages/fast-3mf-loader/scripts/benchmark.mjs` after `pnpm build` to refresh this section with current medians and spread for your machine.

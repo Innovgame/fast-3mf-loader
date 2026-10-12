@@ -1,0 +1,21 @@
+{
+    "name": "@fast-3mf-loader/demo",
+    "version": "0.0.7",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "check": "tsc -p tsconfig.json --noEmit"
+    },
+    "dependencies": {
+        "@innovgame/fast-3mf-loader": "workspace:*",
+        "three": "^0.186.1"
+    },
+    "devDependencies": {
+        "@types/three": "^0.186.0",
+        "typescript": "^6.0.3",
+        "vite": "^8.3.4"
+    }
+}

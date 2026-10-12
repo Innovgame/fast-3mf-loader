@@ -1,0 +1,9 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "paths": {
+            "@innovgame/fast-3mf-loader": ["../../packages/fast-3mf-loader/lib/main.ts"]
+        }
+    },
+    "include": ["src", "../../packages/fast-3mf-loader/vite-env.d.ts", "../../packages/fast-3mf-loader/types/easysax.d.ts"]
+}

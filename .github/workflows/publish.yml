@@ -1,0 +1,41 @@
+name: Publish packages
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  npm:
+    name: npm
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name || github.ref }}
+
+      - uses: ./.github/actions/setup-toolchain
+
+      - name: Check package version
+        if: github.event_name == 'release'
+        run: |
+          tag="${{ github.event.release.tag_name }}"
+          version="$(node -p "require('./packages/fast-3mf-loader/package.json').version")"
+          if [ "$tag" != "v$version" ]; then
+            echo "Tag $tag does not match @innovgame/fast-3mf-loader version $version" >&2
+            exit 1
+          fi
+
+      - name: Release check
+        run: pnpm release:check
+
+      - name: Publish package
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: bash scripts/publish-npm-package.sh

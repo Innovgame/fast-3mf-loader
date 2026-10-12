@@ -1,0 +1,25 @@
+name: Setup toolchain
+description: Install Node.js, pnpm, and workspace dependencies
+
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: "22"
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v5
+      with:
+        package_json_file: package.json
+
+    - name: Setup Node
+      uses: actions/setup-node@v5
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: pnpm
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile

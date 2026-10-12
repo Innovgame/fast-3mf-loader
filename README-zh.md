@@ -100,7 +100,7 @@ type Model3MF = {
 
 ## 基准测试
 
-可以通过 `npm run build && npm run benchmark` 复现实测结果。
+可以通过 `pnpm build && pnpm benchmark` 复现实测结果。
 
 当前的基准流程和示例数据记录在 [docs/benchmarking.md](./docs/benchmarking.md) 中。文档里的数字来自 Apple Silicon / Node 22 上执行 `node scripts/benchmark.mjs` 的一次样本，适合作为可复现参考，而不是所有环境下的绝对承诺。
 
@@ -118,21 +118,23 @@ type Model3MF = {
 
 ## 开发
 
-需要 Node.js 22 和 npm。
+需要 Node.js 22 和 pnpm 10。
 
 ```bash
 git clone https://github.com/Innovgame/fast-3mf-loader.git
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ```bash
-npm run verify
-npm test
-npm run build
+pnpm verify
+pnpm test
+pnpm build
 ```
 
-推送到 `master` 的提交和 pull request 会运行 [CI](.github/workflows/ci.yml)。
+仓库是 pnpm workspace。`packages/fast-3mf-loader` 是发布到 npm 的库。`apps/demo` 是浏览器测试页。
+
+推送到 `master` 的提交，以及目标分支为 `master` 的 pull request，会运行 [CI](.github/workflows/ci.yml)。`master` 上的 CI 成功后，测试页会发布到 <https://innovgame.github.io/fast-3mf-loader/>。
 
 ## 文档
 

@@ -30,6 +30,12 @@
 - `lib/build-geometry.ts`
   负责热点路径中的几何数据拼装与 typed array 辅助逻辑。
 
+### Workspace
+
+- 仓库是 pnpm workspace。公开库在 `packages/fast-3mf-loader`，npm 发布名仍是 `fast-3mf-loader`，仓库内包名是 `@innovgame/fast-3mf-loader`。
+- `apps/demo` 是浏览器测试页。`master` 上 CI 成功后发布到 GitHub Pages。
+- 库源码仍在包内的 `lib/`。下面的路径相对于 `packages/fast-3mf-loader/`。
+
 ### Runtime And Tooling
 
 - `lib/unzip.ts`、`lib/unzip.worker.ts`、`lib/WorkerPool.ts`

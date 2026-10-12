@@ -2,7 +2,7 @@
 
 ## Verification
 
-- [ ] `npm run verify`
+- [ ] `pnpm verify`
 - [ ] Relevant tests:
 
 ## Public contract

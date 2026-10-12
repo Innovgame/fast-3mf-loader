@@ -104,7 +104,7 @@ Unsupported features, including print tickets and extension resources beyond cur
 
 ## Benchmarking
 
-Benchmarks are collected with `npm run build && npm run benchmark`.
+Benchmarks are collected with `pnpm build && pnpm benchmark`.
 
 The current procedure and sample results are documented in [docs/benchmarking.md](./docs/benchmarking.md). Those numbers were collected with `node scripts/benchmark.mjs` on Apple Silicon / Node 22 and should be treated as reproducible samples rather than universal guarantees.
 
@@ -122,21 +122,23 @@ Supports all modern browsers (Chrome, Firefox, Safari, Edge, etc.) and environme
 
 ## Development
 
-Requirements: Node.js 22 and npm.
+Requirements: Node.js 22 and pnpm 10.
 
 ```bash
 git clone https://github.com/Innovgame/fast-3mf-loader.git
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ```bash
-npm run verify
-npm test
-npm run build
+pnpm verify
+pnpm test
+pnpm build
 ```
 
-Pushes to `master`, and pull requests, run [CI](.github/workflows/ci.yml).
+The repository is a pnpm workspace. `packages/fast-3mf-loader` is the published library. `apps/demo` is the browser test page.
+
+Pushes to `master`, and pull requests targeting `master`, run [CI](.github/workflows/ci.yml). After CI succeeds on `master`, the test page is published to <https://innovgame.github.io/fast-3mf-loader/>.
 
 ## Documentation
 

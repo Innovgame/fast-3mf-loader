@@ -4,6 +4,9 @@ This file records changes that users can see. Versions follow repository tags, f
 
 ## Unreleased
 
+- The repository is a pnpm workspace. The published library lives in `packages/fast-3mf-loader`, and the browser test page lives in `apps/demo`.
+- CI lints with ESLint, verifies the workspace with pnpm, and publishes the test page to GitHub Pages after `master` CI succeeds.
+- npm publish keeps the `fast-3mf-loader` package name. GitHub Packages publishes `@innovgame/fast-3mf-loader`.
 - Invalid `workerCount` values warn and fall back to the default worker strategy.
 - `parse()` rejects input that is not an `ArrayBuffer`.
 - Worker startup failures name the `Worker` and `Blob` prerequisite.

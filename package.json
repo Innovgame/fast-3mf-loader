@@ -1,70 +1,30 @@
 {
-    "name": "fast-3mf-loader",
-    "private": false,
-    "description": "Browser-first TypeScript parser and Three.js builder for 3MF archives",
+    "name": "fast-3mf-loader-monorepo",
     "version": "0.0.7",
+    "private": true,
     "type": "module",
-    "license": "MIT",
-    "publishConfig": {
-        "access": "public"
-    },
-    "author": "rekor <innovgamejs@163.com>",
-    "files": [
-        "dist"
-    ],
-    "keywords": [
-        "xml",
-        "3mf",
-        "three"
-    ],
-    "main": "./dist/fast-3mf-loader.umd.cjs",
-    "module": "./dist/fast-3mf-loader.js",
-    "types": "./dist/lib/main.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/lib/main.d.ts",
-            "import": "./dist/fast-3mf-loader.js",
-            "require": "./dist/fast-3mf-loader.umd.cjs"
-        },
-        "./*": "./*"
-    },
+    "description": "Browser-first 3MF loader monorepo",
+    "packageManager": "pnpm@12.11.2",
     "scripts": {
-        "dev": "vite",
-        "build": "tsc -p tsconfig.lib.json && vite build",
-        "benchmark": "node scripts/benchmark.mjs",
-        "benchmark:release": "FAST3MF_BENCHMARK_WARMUP_RUNS=2 FAST3MF_BENCHMARK_MEASURED_RUNS=7 FAST3MF_BENCHMARK_WORKERS=6 npm run benchmark",
-        "check:demo": "tsc -p tsconfig.demo.json --noEmit",
-        "check:test": "tsc -p tsconfig.test.json --noEmit",
-        "test": "vitest run",
-        "verify": "npm run check:demo && npm run check:test && npm test && npm run build",
-        "release:check": "npm run verify && npm run benchmark:release && npm pack --dry-run"
+        "dev": "pnpm --filter @fast-3mf-loader/demo dev",
+        "build": "pnpm --filter @innovgame/fast-3mf-loader build",
+        "build:demo": "pnpm --filter @fast-3mf-loader/demo build",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "typecheck": "pnpm --filter @innovgame/fast-3mf-loader check:lib && pnpm --filter @innovgame/fast-3mf-loader check:test && pnpm --filter @fast-3mf-loader/demo check",
+        "test": "pnpm --filter @innovgame/fast-3mf-loader test && pnpm exec vitest run",
+        "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+        "benchmark": "pnpm --filter @innovgame/fast-3mf-loader benchmark",
+        "benchmark:release": "pnpm --filter @innovgame/fast-3mf-loader benchmark:release",
+        "release:check": "pnpm verify && pnpm benchmark:release && pnpm --filter @innovgame/fast-3mf-loader pack:check"
     },
     "devDependencies": {
-        "@types/jsdom": "^28.0.1",
-        "@types/node": "^25.5.0",
-        "@types/three": "^0.183.1",
-        "jsdom": "^29.0.1",
-        "three": "^0.183.2",
-        "typescript": "~6.0.2",
-        "vite": "^8.0.3",
-        "vite-plugin-dts": "^4.5.4",
-        "vitest": "^4.1.2"
-    },
-    "dependencies": {
-        "easysax": "^0.4.0",
-        "fflate": "^0.8.2"
-    },
-    "directories": {
-        "doc": "docs",
-        "lib": "lib",
-        "test": "test"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/Innovgame/fast-3mf-loader.git"
-    },
-    "bugs": {
-        "url": "https://github.com/Innovgame/fast-3mf-loader/issues"
-    },
-    "homepage": "https://github.com/Innovgame/fast-3mf-loader#readme"
+        "@eslint/js": "^10.0.1",
+        "@types/node": "^26.6.5",
+        "eslint": "^10.12.0",
+        "prettier": "^3.9.10",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.71.1",
+        "vitest": "^5.0.4"
+    }
 }

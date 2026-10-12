@@ -13,7 +13,7 @@ test("community files point contributors at the public repository contract", asy
     const changelog = await readText("CHANGELOG.md");
 
     expect(contributing).toContain("https://github.com/Innovgame/fast-3mf-loader");
-    expect(contributing).toContain("npm run verify");
+    expect(contributing).toContain("pnpm verify");
     expect(contributing).toContain("SECURITY.md");
     expect(security).toContain("https://github.com/Innovgame/fast-3mf-loader/security/advisories/new");
     expect(conduct).toContain("Contributor Covenant");
@@ -34,7 +34,7 @@ test("issue and pull request templates describe this loader", async () => {
     expect(feature).toContain("fast-3mf-loader");
     expect(compatibility).toContain(".3mf");
     expect(config).toContain("https://github.com/Innovgame/fast-3mf-loader/security/advisories/new");
-    expect(pullRequest).toContain("npm run verify");
+    expect(pullRequest).toContain("pnpm verify");
 });
 
 test("READMEs link the community files without changing the public parsing claim", async () => {
@@ -56,9 +56,11 @@ test("repository hygiene matches a published package", async () => {
     const dependabot = await readText(".github/dependabot.yml");
     const docsIndex = await readText("docs/README.md");
     const examples = await readText("examples/README.md");
-    const packageJson = JSON.parse(await readText("package.json"));
+    const packageJson = JSON.parse(await readText("packages/fast-3mf-loader/package.json"));
     const ci = await readText(".github/workflows/ci.yml");
-    const publish = await readText(".github/workflows/npm-publish.yml");
+    const publish = await readText(".github/workflows/publish.yml");
+    const publishScript = await readText("scripts/publish-npm-package.sh");
+    const deploy = await readText(".github/workflows/deploy.yml");
 
     expect(attributes).toContain("*.3mf binary");
     expect(editorconfig).toContain("root = true");
@@ -70,8 +72,12 @@ test("repository hygiene matches a published package", async () => {
     expect(packageJson.description.length).toBeGreaterThan("fast 3mf loader".length);
     expect(packageJson.publishConfig.access).toBe("public");
     expect(ci).toContain("cancel-in-progress: true");
-    expect(ci).toContain("run: npm run verify");
+    expect(ci).toContain("run: pnpm verify");
     expect(publish).toContain('tag" != "v$version"');
-    expect(publish).toContain("npm publish --provenance");
-    expect(publish).toContain("run: npm run release:check");
+    expect(publish).toContain("run: pnpm release:check");
+    expect(publishScript).toContain("npm publish --provenance");
+    expect(publishScript).toContain("npm.pkg.github.com");
+    expect(deploy).toContain('GITHUB_PAGES: "true"');
+    expect(deploy).toContain("apps/demo/dist");
+    expect(deploy).toContain("actions/deploy-pages@v5");
 });

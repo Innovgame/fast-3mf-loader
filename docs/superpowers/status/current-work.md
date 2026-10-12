@@ -11,6 +11,11 @@
 
 ## Latest Completed
 
+- 2026-10-12 已把仓库改成 pnpm workspace，并按 `slicer-converter` 接上 ESLint、打包发布和 GitHub Pages：
+  - 公开库在 `packages/fast-3mf-loader`，仓库包名 `@innovgame/fast-3mf-loader`，npm 发布名仍是 `fast-3mf-loader`
+  - 测试页在 `apps/demo`，`master` CI 成功后部署到 GitHub Pages
+  - 根脚本改为 `pnpm verify` 与 `pnpm release:check`
+  - 依赖升到当前工具链能用的最新版本。TypeScript 停在 `6.0.3`，因为 `typescript-eslint` 还不支持 TypeScript 7
 - 2026-10-12 已按 `slicer-converter` 的公开仓库形态补齐开源项目约定，未改解析 API 或支持边界：
   - 新增 `CONTRIBUTING.md`、`CODE_OF_CONDUCT.md`、`SECURITY.md`、`CHANGELOG.md`
   - 议题模板改为 3MF loader 语义，并补上兼容性模板、PR 模板和 Dependabot
