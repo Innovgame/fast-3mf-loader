@@ -51,7 +51,7 @@ test("READMEs link the community files without changing the public parsing claim
     expect(readmeZh).toContain("https://npm.pkg.github.com");
     expect(readmeZh).toContain("@innovgame/fast-3mf-loader");
     expect(readmeZh).toContain("[CONTRIBUTING.md](CONTRIBUTING.md)");
-    expect(readmeZh).toContain("![npm version]");
+    expect(readmeZh).toContain("https://img.shields.io/npm/v/fast-3mf-loader");
 });
 
 test("repository hygiene matches a published package", async () => {

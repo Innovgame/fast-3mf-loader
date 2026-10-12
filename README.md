@@ -2,37 +2,33 @@
 
 [English](README.md) | [简体中文](README-zh.md)
 
-[![CI](https://github.com/Innovgame/fast-3mf-loader/actions/workflows/ci.yml/badge.svg)](https://github.com/Innovgame/fast-3mf-loader/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/fast-3mf-loader)](https://www.npmjs.com/package/fast-3mf-loader)
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![bundlephobia minzipped size](https://badgen.net/bundlephobia/minzip/fast-3mf-loader)](https://bundlephobia.com/package/fast-3mf-loader)
+Browser-first TypeScript parser and Three.js builder for 3MF archives. SAX-style XML parsing and WebWorkers keep large model parts lighter.
 
-> [!WARNING]  
+[![CI](https://github.com/Innovgame/fast-3mf-loader/actions/workflows/ci.yml/badge.svg)](https://github.com/Innovgame/fast-3mf-loader/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/fast-3mf-loader)](https://www.npmjs.com/package/fast-3mf-loader)
+[![release](https://img.shields.io/github/v/release/Innovgame/fast-3mf-loader)](https://github.com/Innovgame/fast-3mf-loader/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+> [!WARNING]
 > This project is in early development. The API may change before a stable 1.0 release. Use with caution in production.
 
-A browser-first 3MF parser for TypeScript projects that uses SAX-style XML parsing internally and WebWorker parallelism to keep large archive parsing efficient.
+Open the [browser playground](https://innovgame.github.io/fast-3mf-loader/) to preview a local 3MF file and measure parse and build time on your own device. The file stays in the browser.
 
-## Features
-
-- 🚀 **Streaming-Oriented Parsing** - Uses SAX-style XML parsing internally to keep memory usage lower on large 3MF archives
-- ⚡ **WebWorker Parallelism** - Parses model parts across WebWorkers with an auto-sized worker pool
-- 📦 **Benchmark-Backed Efficiency** - Ships measured optimizations for large texture-heavy and component-heavy fixtures
-- 🛠 **Stable TypeScript Surface** - Exports `Fast3MFLoader`, `fast3mfBuilder`, and the documented helper types
-- 🌐 **Browser-First Runtime** - Targets modern browsers with `Worker` and `Blob` support
-
-## Installation
+## Install
 
 Version `0.0.7`. Changes are in [CHANGELOG.md](CHANGELOG.md).
+
+`three` is a peer dependency. Install it with the loader.
 
 ### npm
 
 ```bash
-npm install fast-3mf-loader
-# or
-yarn add fast-3mf-loader
+npm install fast-3mf-loader three
 ```
 
-Import from `fast-3mf-loader`.
+```ts
+import { Fast3MFLoader, fast3mfBuilder } from "fast-3mf-loader";
+```
 
 ### GitHub Packages
 
@@ -43,100 +39,88 @@ Add this to `.npmrc`, then install `@innovgame/fast-3mf-loader`:
 ```
 
 ```bash
-npm install @innovgame/fast-3mf-loader
+npm install @innovgame/fast-3mf-loader three
 ```
 
-Import that package from `@innovgame/fast-3mf-loader`. The API is the same. A published GitHub Release publishes this package. npm publish also runs when `NPM_TOKEN` is set.
+Import that package from `@innovgame/fast-3mf-loader`. The API is the same.
 
-## Usage Example
+## Quick start
 
-```typescript
+```ts
 import { Fast3MFLoader, fast3mfBuilder } from "fast-3mf-loader";
 
-// Get file using fetch
 const response = await fetch("path/to/model.3mf");
 const buffer = await response.arrayBuffer();
-
-// Parse 3MF file
 const loader = new Fast3MFLoader();
 const data3mf = await loader.parse(buffer, {
-  onProgress(progress) {
-    console.log(`Parsing progress: ${progress}%`);
-  },
+    onProgress(progress) {
+        console.log(`Parsing progress: ${progress}%`);
+    },
 });
-
 const group = fast3mfBuilder(data3mf);
-console.log("Parsing result:", group);
 ```
+
+`parse()` accepts one complete `ArrayBuffer`. Add `group` to an existing Three.js scene.
+
+The playground is at <https://innovgame.github.io/fast-3mf-loader/>. Sample archives in `3mf/` are regression fixtures. Their licenses are in [3mf/README.md](3mf/README.md).
+
+## Limits
+
+- The supported runtime is a modern browser with `Worker` and `Blob`. If workers cannot start, parsing fails with a loader-facing error that names that prerequisite.
+- `Fast3MFLoader#parse()` accepts an `ArrayBuffer`. It uses SAX-style XML parsing internally to keep memory usage lower. That is not a chunked public API.
+- Print tickets and extension resources beyond the current fixtures are not supported. The parser returns an empty `printTicket` and warns.
+- Node tests and benchmarks use compatibility shims. They do not establish a supported Node runtime.
+- Historical benchmark samples are environment-specific evidence, not a browser speed promise.
+
+## What it does
+
+- Unzips a 3MF archive and locates the root model from `_rels/.rels`.
+- Uses SAX-style XML parsing internally to keep memory usage lower on large 3MF archives.
+- Parses model parts across WebWorkers. The pool size defaults to `min(hardwareConcurrency - 1, 15)`, or `4` when concurrency cannot be read. Invalid `workerCount` values warn and use that default.
+- Builds a `THREE.Group` from mesh geometry, vertex colors, textures, and component instances, including Production `path` references to another model part.
+- Reports progress through `onProgress`. Unsupported data warns instead of pretending to succeed.
+
+## Supported capabilities
+
+The evidence and notes live in [docs/support-matrix.md](docs/support-matrix.md). If a capability is not listed there, treat it as unsupported.
+
+| Capability | Status |
+| --- | --- |
+| Archive unzip and root relationships | Supported |
+| Multi-object and component models, including Production `path` references | Supported |
+| Mesh geometry | Supported |
+| Vertex color groups | Supported |
+| Texture resources, texture groups, and model relationships | Supported |
+| Print tickets | Not yet supported |
+| Extension resources beyond current fixture coverage | Not yet supported |
 
 ## API
 
-### `Fast3MFLoader#parse(data: ArrayBuffer, options?: ParseOptions): Promise<Model3MF>`
+Install `fast-3mf-loader` from npm, or `@innovgame/fast-3mf-loader` from GitHub Packages.
 
-Parses 3MF file and returns model data.
+```ts
+import { Fast3MFLoader, fast3mfBuilder } from "fast-3mf-loader";
+import type { Model3MF, ParseOptions, ParsedModelPart, Relationship } from "fast-3mf-loader";
 
-**Parameters:**
-- `data`: 3MF file data, `ArrayBuffer`. Other input types are rejected with a loader-facing error.
-- `options`: Optional configuration object
-  - `workerCount`: number - Number of WebWorkers to use. Defaults to an auto-detected value based on available runtime concurrency, with a safe fallback. Invalid values warn and fall back to the default strategy.
-  - `onProgress`: (progress: number) => void - Progress callback function
-
-**Return Value:**
-Promise that resolves to `Model3MF`. The package exports `Model3MF` as a documentation-friendly alias of `ParseResult`, plus the related helper types `ParseOptions`, `ParsedModelPart`, and `Relationship`.
-
-```typescript
-import type {
-  Model3MF,
-  ParseOptions,
-  ParsedModelPart,
-  Relationship,
-} from "fast-3mf-loader";
-
-type Model3MF = {
-  rels: Relationship[];
-  modelRels?: Relationship[];
-  model: Record<string, ParsedModelPart>;
-  printTicket: Record<string, never>;
-  texture: Record<string, ArrayBuffer>;
-};
+const data3mf: Model3MF = await new Fast3MFLoader().parse(buffer, {
+    workerCount: 4,
+    onProgress(progress) {
+        console.log(progress);
+    },
+});
+const group = fast3mfBuilder(data3mf);
 ```
 
-Use `fast3mfBuilder(data3mf)` to convert the parsed data into a `THREE.Group`.
+| Export | Use |
+| --- | --- |
+| `Fast3MFLoader#parse` | Parse an `ArrayBuffer` into `Model3MF` |
+| `fast3mfBuilder` | Build a `THREE.Group` from parsed data |
+| `Model3MF` | Documentation alias of `ParseResult` |
+| `ParseOptions` | `workerCount` and `onProgress` |
+| `ParsedModelPart` | One parsed `.model` part |
+| `Relationship` | One package relationship |
 
-## Support Matrix
-
-Current support is documented in [docs/support-matrix.md](./docs/support-matrix.md).
-
-| Feature | Status | Notes |
-| --- | --- | --- |
-| Base materials | Supported | Built into Three.js materials |
-| Texture groups | Supported | Covered by `multipletextures.3mf` |
-| Vertex colors | Supported | Covered by `vertexcolors.3mf` |
-| Components | Supported | Covered by `truck.3mf` |
-| Print tickets | Not yet supported | Parser returns an empty object and warns |
-
-## Support Boundary
-
-Current support is defined by fixture-backed behavior and documented in [docs/support-matrix.md](./docs/support-matrix.md).
-Unsupported features, including print tickets and extension resources beyond current fixture coverage, should be treated as unsupported until explicitly documented otherwise.
-
-## Benchmarking
-
-Benchmarks are collected with `pnpm build && pnpm benchmark`.
-
-The current procedure and sample results are documented in [docs/benchmarking.md](./docs/benchmarking.md). Those numbers were collected with `node scripts/benchmark.mjs` on Apple Silicon / Node 22 and should be treated as reproducible samples rather than universal guarantees.
-
-## Browser Support
-
-Supports all modern browsers (Chrome, Firefox, Safari, Edge, etc.) and environments that support WebWorker and Blob API.
-
-## Runtime Notes
-
-- Designed for modern browsers with `Worker` and `Blob` support
-- If the runtime cannot initialize inline workers, parsing fails with a loader-facing error that points back to the `Worker` / `Blob` prerequisite
-- `workerCount` defaults to `min(hardwareConcurrency - 1, 15)` with a safe fallback of `4`
-- Invalid `workerCount` values warn and fall back to the default worker strategy
-- Unsupported features currently warn instead of silently pretending to succeed
+`Model3MF` contains `rels`, optional `modelRels`, `model`, `printTicket`, and `texture`. `printTicket` is empty until print tickets are supported. Input that is not an `ArrayBuffer` is rejected before parsing starts.
 
 ## Development
 
@@ -148,15 +132,24 @@ pnpm install
 pnpm dev
 ```
 
+`pnpm dev` starts the React project site and browser playground.
+
 ```bash
 pnpm verify
 pnpm test
 pnpm build
 ```
 
-The repository is a pnpm workspace. `packages/fast-3mf-loader` is the published library. `apps/demo` is the React project site and browser playground, built with Radix UI, Tailwind CSS, and Lucide. It previews local 3MF files, displays parse/build timings, and offers an optional three.js comparison. Files are processed locally without uploading.
+Pushes to `master`, and pull requests targeting `master`, run [CI](.github/workflows/ci.yml), including browser checks of the production Pages path. After CI succeeds on `master`, the site is published to <https://innovgame.github.io/fast-3mf-loader/>. `pnpm --filter @fast-3mf-loader/demo test:e2e` runs those browser checks locally.
 
-Pushes to `master`, and pull requests targeting `master`, run [CI](.github/workflows/ci.yml), including browser checks of the production Pages path. After CI succeeds on `master`, the project site is published to <https://innovgame.github.io/fast-3mf-loader/>. `pnpm build` builds both the library and site; `pnpm --filter @fast-3mf-loader/demo test:e2e` runs the browser checks locally.
+The repository layout:
+
+- `packages/fast-3mf-loader/`: published library
+- `apps/demo/`: Vite, React, Radix UI, Tailwind CSS, and Lucide project site
+- `3mf/`: fixture archives
+- `docs/`: support matrix, benchmarking, and maintainer notes
+
+Maintainer publish steps are in [CONTRIBUTING.md](CONTRIBUTING.md). A GitHub Release publishes `@innovgame/fast-3mf-loader` to GitHub Packages. npm receives `fast-3mf-loader` when `NPM_TOKEN` is set.
 
 ## Documentation
 
@@ -164,6 +157,7 @@ Pushes to `master`, and pull requests targeting `master`, run [CI](.github/workf
 - [Support matrix](docs/support-matrix.md)
 - [Benchmarking](docs/benchmarking.md)
 - [Examples](examples/README.md)
+- [Package README](packages/fast-3mf-loader/README.md)
 
 Maintainer notes live in `docs/superpowers/` and are not the usage guide.
 

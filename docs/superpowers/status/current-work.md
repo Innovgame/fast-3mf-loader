@@ -14,6 +14,7 @@
 
 ## Latest Completed
 
+- 2026-10-12 已把公开 README 改成与 `slicer-converter` 相同的开源入口结构：安装、快速开始、限制、支持能力、API 与开发。中英文一起更新，支持边界没有扩大。
 - 2026-10-12 已关闭 `e47389e` 评审中发现的 P2 命名空间兼容性缺口：
   - `parse-events.ts` 维护按元素进入/退出恢复的命名空间作用域，支持前缀别名、祖先/局部声明、重绑定、自闭合及显式闭合。命名空间 URI 中的 XML 字符引用使用 EasySAX 自带解码器归一化。
   - `node-extract.ts` 仅接受 Production 命名空间 URI 对应的限定 `path`，其他扩展同名属性不再覆盖它；普通 `path` 的既有兼容性和优先级保留。component 与 build item 使用相同规则。
