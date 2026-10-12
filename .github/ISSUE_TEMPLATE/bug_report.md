@@ -1,30 +1,25 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
+about: Parsing, building, or the public API does not match the expected result
+title: ""
 labels: bug
-assignees: ''
-
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## What happened
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## Expected result
 
-**Reproduction URL**
-Providing a minimal reproduction in a code playground, like [CodeSandbox](https://codesandbox.io/), is incredibly helpful and speeds up the progress of a solution being found.
+## Steps
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+1.
+2.
 
-**Module Versions**
-Which versions of the jSquash packages are you using? Have you tried the latest version?
+## Environment
 
-**Additional context**
-Add any other context about the problem here.
+- fast-3mf-loader version or commit:
+- Surface: browser / Node test / package import
+- Browser or runtime:
+
+## Sample
+
+Attach a minimal `.3mf` file when you can, or name the fixture. Do not attach credentials or private models.

@@ -1,6 +1,11 @@
 # fast-3mf-loader
 
-[![npm version](https://img.shields.io/npm/v/fast-3mf-loader)](https://www.npmjs.com/package/fast-3mf-loader) [![license](https://img.shields.io/npm/l/fast-3mf-loader)](https://github.com/Innovgame/fast-3mf-loader/blob/master/LICENSE) [![bundlephobia minzipped size](https://badgen.net/bundlephobia/minzip/fast-3mf-loader)](https://bundlephobia.com/package/fast-3mf-loader)
+[English](README.md) | [简体中文](README-zh.md)
+
+[![CI](https://github.com/Innovgame/fast-3mf-loader/actions/workflows/ci.yml/badge.svg)](https://github.com/Innovgame/fast-3mf-loader/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/fast-3mf-loader)](https://www.npmjs.com/package/fast-3mf-loader)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![bundlephobia minzipped size](https://badgen.net/bundlephobia/minzip/fast-3mf-loader)](https://bundlephobia.com/package/fast-3mf-loader)
 
 > [!WARNING]  
 > This project is in early development. The API may change before a stable 1.0 release. Use with caution in production.
@@ -16,6 +21,8 @@ A browser-first 3MF parser for TypeScript projects that uses SAX-style XML parsi
 - 🌐 **Browser-First Runtime** - Targets modern browsers with `Worker` and `Blob` support
 
 ## Installation
+
+Version `0.0.7`. Changes are in [CHANGELOG.md](CHANGELOG.md).
 
 ```bash
 npm install fast-3mf-loader
@@ -115,23 +122,35 @@ Supports all modern browsers (Chrome, Firefox, Safari, Edge, etc.) and environme
 
 ## Development
 
+Requirements: Node.js 22 and npm.
+
 ```bash
-# Clone repository
 git clone https://github.com/Innovgame/fast-3mf-loader.git
-
-# Install dependencies
 npm install
-
-# Development mode, develop test page
 npm run dev
-
-# Build production version
-npm run build
-
-# Run tests
-npm test
 ```
+
+```bash
+npm run verify
+npm test
+npm run build
+```
+
+Pushes to `master`, and pull requests, run [CI](.github/workflows/ci.yml).
+
+## Documentation
+
+- [Documentation index](docs/README.md)
+- [Support matrix](docs/support-matrix.md)
+- [Benchmarking](docs/benchmarking.md)
+- [Examples](examples/README.md)
+
+Maintainer notes live in `docs/superpowers/` and are not the usage guide.
 
 ## Contributing
 
-Issues and Pull Requests are welcome! Please ensure you follow the project's code style and test coverage requirements.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## License
+
+[MIT](LICENSE)

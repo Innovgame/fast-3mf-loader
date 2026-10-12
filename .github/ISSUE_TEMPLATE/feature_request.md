@@ -1,20 +1,14 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
-title: ''
+about: Propose a parsing, building, or documentation capability for fast-3mf-loader
+title: ""
 labels: feature-request
-assignees: ''
-
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## Problem
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## Proposed behavior
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## 3MF scope
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+If this is a new 3MF feature, name the extension or part, and say whether you can share a small sample. Unsupported features stay unsupported until implementation, tests, and docs land together.

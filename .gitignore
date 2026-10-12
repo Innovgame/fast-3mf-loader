@@ -9,8 +9,12 @@ lerna-debug.log*
 
 node_modules
 dist
+coverage
 .worktrees/
 *.local
+.env
+.env.*
+Thumbs.db
 
 # Editor directories and files
 .vscode/*

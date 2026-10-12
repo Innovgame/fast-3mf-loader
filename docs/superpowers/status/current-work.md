@@ -11,6 +11,11 @@
 
 ## Latest Completed
 
+- 2026-10-12 已按 `slicer-converter` 的公开仓库形态补齐开源项目约定，未改解析 API 或支持边界：
+  - 新增 `CONTRIBUTING.md`、`CODE_OF_CONDUCT.md`、`SECURITY.md`、`CHANGELOG.md`
+  - 议题模板改为 3MF loader 语义，并补上兼容性模板、PR 模板和 Dependabot
+  - README 双语入口补上 CI、变更记录和社区文件链接
+  - `.gitattributes` 将 `*.3mf` 标为二进制，发布工作流要求 tag 与包版本一致，并使用 npm provenance
 - 2026-03-28 完成 parse pipeline stabilization，包括 `parse-events.ts`、`parse-dispatch.ts` 的边界拆分，以及对应的 focused coverage。
 - 2026-03-28 确认 `docs/superpowers/specs/2026-03-28-stable-1-0-roadmap-design.md`，把 `1.0` 定义为“稳态发布”而不是“能力扩张发布”。
 - 2026-03-28 已同步 `current-architecture-context.md`、`current-roadmap.md`，并新增 `docs/superpowers/plans/2026-03-28-stable-1-0-roadmap.md`，把 `1.0` 剩余工作拆成可执行任务。

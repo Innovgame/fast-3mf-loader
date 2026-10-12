@@ -1,10 +1,13 @@
 {
     "name": "fast-3mf-loader",
     "private": false,
-    "description": "fast 3mf loader",
+    "description": "Browser-first TypeScript parser and Three.js builder for 3MF archives",
     "version": "0.0.7",
     "type": "module",
     "license": "MIT",
+    "publishConfig": {
+        "access": "public"
+    },
     "author": "rekor <innovgamejs@163.com>",
     "files": [
         "dist"

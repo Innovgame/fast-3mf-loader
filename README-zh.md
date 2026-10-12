@@ -1,7 +1,10 @@
 # fast-3mf-loader
 
-[https://img.shields.io/npm/v/fast-3mf-loader.svg](https://www.npmjs.com/package/fast-3mf-loader)
-[https://img.shields.io/badge/license-MIT-blue.svg](https://opensource.org/licenses/MIT)
+[English](README.md) | [简体中文](README-zh.md)
+
+[![CI](https://github.com/Innovgame/fast-3mf-loader/actions/workflows/ci.yml/badge.svg)](https://github.com/Innovgame/fast-3mf-loader/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/fast-3mf-loader)](https://www.npmjs.com/package/fast-3mf-loader)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 一个面向现代浏览器的 TypeScript 3MF 解析库，内部采用 SAX 风格流式解析与 WebWorker 并行处理，在大型 archive 上兼顾性能与较低内存占用。
 
@@ -14,6 +17,8 @@
 - 🌐 **浏览器优先运行时** - 面向支持 `Worker` 与 `Blob` 的现代浏览器
 
 ## 安装
+
+当前版本 `0.0.7`。变更记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 ```bash
 npm install fast-3mf-loader
@@ -113,23 +118,35 @@ type Model3MF = {
 
 ## 开发
 
+需要 Node.js 22 和 npm。
+
 ```bash
-# 克隆仓库
 git clone https://github.com/Innovgame/fast-3mf-loader.git
-
-# 安装依赖
 npm install
-
-# 开发模式
 npm run dev
-
-# 构建生产版本
-npm run build
-
-# 运行测试
-# npm test
 ```
+
+```bash
+npm run verify
+npm test
+npm run build
+```
+
+推送到 `master` 的提交和 pull request 会运行 [CI](.github/workflows/ci.yml)。
+
+## 文档
+
+- [文档索引](docs/README.md)
+- [支持矩阵](docs/support-matrix.md)
+- [基准测试](docs/benchmarking.md)
+- [示例](examples/README.md)
+
+维护者笔记在 `docs/superpowers/`，不是使用说明。
 
 ## 贡献
 
-欢迎提交Issue和Pull Request！请确保遵循项目的代码风格和测试覆盖率要求。
+见 [CONTRIBUTING.md](CONTRIBUTING.md)、[SECURITY.md](SECURITY.md) 和 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
+
+## 许可证
+
+[MIT](LICENSE)
