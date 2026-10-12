@@ -33,7 +33,9 @@
 ### Workspace
 
 - 仓库是 pnpm workspace。公开库在 `packages/fast-3mf-loader`，npm 发布名仍是 `fast-3mf-loader`，仓库内包名是 `@innovgame/fast-3mf-loader`。
-- `apps/demo` 是浏览器测试页。`master` 上 CI 成功后发布到 GitHub Pages。
+- `apps/demo` 是基于 React / Radix UI / Tailwind CSS / Lucide 的项目主页与浏览器验证区。文件在本地读取，库解析与 Three.js 场景构建保持分离；页面显示真实耗时和支持边界，three.js 对照由用户主动触发。
+- 页面状态、内容及预览分别位于 `src/use-demo.ts`、`src/content.ts`、`src/viewer.ts`；UI 组件位于 `src/components/`。`src/model-runner.ts` 与 `src/model-resources.ts` 管理计时和资源释放。页面测试归属 `apps/demo/tests/`，不依赖公开库的测试目录。
+- `pnpm verify` 覆盖库和页面的单元验证及构建；CI 另外验证 `/fast-3mf-loader/` 生产子路径和真实文件预览。`master` 上 CI 成功后发布到 GitHub Pages。
 - 库源码仍在包内的 `lib/`。下面的路径相对于 `packages/fast-3mf-loader/`。
 
 ### Runtime And Tooling

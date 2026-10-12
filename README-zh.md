@@ -132,9 +132,9 @@ pnpm test
 pnpm build
 ```
 
-仓库是 pnpm workspace。`packages/fast-3mf-loader` 是发布到 npm 的库。`apps/demo` 是浏览器测试页。
+仓库是 pnpm workspace。`packages/fast-3mf-loader` 是发布到 npm 的库。`apps/demo` 是使用 React、Radix UI、Tailwind CSS 和 Lucide 构建的项目主页与浏览器验证区，提供本地 3MF 预览、解析与构建计时，以及主动运行的 three.js 对照。文件在浏览器内处理，不会上传。
 
-推送到 `master` 的提交，以及目标分支为 `master` 的 pull request，会运行 [CI](.github/workflows/ci.yml)。`master` 上的 CI 成功后，测试页会发布到 <https://innovgame.github.io/fast-3mf-loader/>。
+推送到 `master` 的提交，以及目标分支为 `master` 的 pull request，会运行 [CI](.github/workflows/ci.yml)，其中包含 Pages 生产子路径的浏览器验证。`master` 上的 CI 成功后，项目主页会发布到 <https://innovgame.github.io/fast-3mf-loader/>。`pnpm build` 同时构建库和页面；`pnpm --filter @fast-3mf-loader/demo test:e2e` 运行本地浏览器检查。
 
 ## 文档
 

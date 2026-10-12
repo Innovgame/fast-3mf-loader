@@ -1,40 +1,70 @@
 name: CI
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-  workflow_dispatch:
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
+    workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    group: ci-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  lint:
-    name: lint
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7
+    lint:
+        name: lint
+        runs-on: ubuntu-24.04
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@v7
 
-      - uses: ./.github/actions/setup-toolchain
+            - uses: ./.github/actions/setup-toolchain
 
-      - name: Run lint
-        run: pnpm lint
+            - name: Run lint
+              run: pnpm lint
 
-  verify:
-    name: verify
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v7
+    verify:
+        name: verify
+        runs-on: ubuntu-24.04
+        timeout-minutes: 20
+        steps:
+            - uses: actions/checkout@v7
 
-      - uses: ./.github/actions/setup-toolchain
+            - uses: ./.github/actions/setup-toolchain
 
-      - name: Verify package
-        run: pnpm verify
+            - name: Verify package
+              run: pnpm verify
+
+    pages:
+        name: Pages browser checks
+        runs-on: ubuntu-24.04
+        timeout-minutes: 20
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: ./.github/actions/setup-toolchain
+
+            - name: Install Chromium
+              run: pnpm --filter @fast-3mf-loader/demo exec playwright install --with-deps chromium
+
+            - name: Build Pages site
+              run: pnpm build:demo
+              env:
+                  GITHUB_PAGES: "true"
+
+            - name: Check production site and real 3MF files
+              run: pnpm --filter @fast-3mf-loader/demo test:e2e
+              env:
+                  DEMO_PRODUCTION: "true"
+
+            - name: Upload browser evidence
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: pages-browser-evidence
+                  path: apps/demo/test-results
+                  retention-days: 7

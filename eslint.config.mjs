@@ -4,13 +4,7 @@ import tseslint from "typescript-eslint";
 
 export default defineConfig([
     {
-        ignores: [
-            "**/dist/**",
-            "**/node_modules/**",
-            "**/coverage/**",
-            "3mf/**",
-            "docs/**",
-        ],
+        ignores: ["**/dist/**", "**/node_modules/**", "**/coverage/**", "3mf/**", "docs/**"],
     },
     eslint.configs.recommended,
     ...tseslint.configs.recommended,
@@ -25,7 +19,7 @@ export default defineConfig([
         },
     },
     {
-        files: ["**/*.ts", "**/*.mjs"],
+        files: ["**/*.ts", "**/*.tsx", "**/*.mjs"],
         rules: {
             eqeqeq: ["error", "always"],
             "no-var": "error",

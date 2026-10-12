@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 coverage
+test-results/
+playwright-report/
 .pnpm-store
 .worktrees/
 *.local

@@ -136,9 +136,9 @@ pnpm test
 pnpm build
 ```
 
-The repository is a pnpm workspace. `packages/fast-3mf-loader` is the published library. `apps/demo` is the browser test page.
+The repository is a pnpm workspace. `packages/fast-3mf-loader` is the published library. `apps/demo` is the React project site and browser playground, built with Radix UI, Tailwind CSS, and Lucide. It previews local 3MF files, displays parse/build timings, and offers an optional three.js comparison. Files are processed locally without uploading.
 
-Pushes to `master`, and pull requests targeting `master`, run [CI](.github/workflows/ci.yml). After CI succeeds on `master`, the test page is published to <https://innovgame.github.io/fast-3mf-loader/>.
+Pushes to `master`, and pull requests targeting `master`, run [CI](.github/workflows/ci.yml), including browser checks of the production Pages path. After CI succeeds on `master`, the project site is published to <https://innovgame.github.io/fast-3mf-loader/>. `pnpm build` builds both the library and site; `pnpm --filter @fast-3mf-loader/demo test:e2e` runs the browser checks locally.
 
 ## Documentation
 

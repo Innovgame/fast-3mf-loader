@@ -14,7 +14,7 @@ pnpm install
 pnpm dev
 ```
 
-`pnpm dev` starts the local test page. The page is also published to GitHub Pages after CI succeeds on `master`.
+`pnpm dev` starts the React project site and browser playground. The site is also published to GitHub Pages after CI succeeds on `master`.
 
 ## Checks before a pull request
 
@@ -22,7 +22,7 @@ pnpm dev
 pnpm verify
 ```
 
-`pnpm verify` lints the workspace, typechecks the library, tests, and demo, runs the test suite, and builds the package.
+`pnpm verify` lints the workspace, typechecks the library, tests, and demo, runs the unit test suites, and builds the package and site. For UI changes, also run `pnpm --filter @fast-3mf-loader/demo test:e2e` after installing Chromium with `pnpm --filter @fast-3mf-loader/demo exec playwright install chromium`. The CI browser job checks the production `/fast-3mf-loader/` path.
 
 Maintainers run `pnpm release:check` before publishing. That command also runs the release benchmark and a pack dry run. It is not the default pull request check.
 

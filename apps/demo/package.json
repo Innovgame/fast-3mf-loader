@@ -7,15 +7,34 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "check": "tsc -p tsconfig.json --noEmit"
+        "check": "tsc -p tsconfig.json --noEmit",
+        "test": "vitest run",
+        "test:e2e": "playwright test"
     },
     "dependencies": {
         "@innovgame/fast-3mf-loader": "workspace:*",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "lucide-react": "^1.55.0",
+        "radix-ui": "^1.8.0",
+        "react": "^19.3.0",
+        "react-dom": "^19.3.0",
+        "tailwind-merge": "^3.7.0",
         "three": "^0.186.1"
     },
     "devDependencies": {
+        "@playwright/test": "^1.64.0",
+        "@tailwindcss/vite": "^4.3.3",
+        "@testing-library/react": "^16.3.3",
+        "@types/node": "^26.6.5",
+        "@types/react": "^19.3.0",
+        "@types/react-dom": "^19.3.0",
         "@types/three": "^0.186.0",
+        "@vitejs/plugin-react": "^6.1.2",
+        "jsdom": "^29.1.1",
+        "tailwindcss": "^4.3.3",
         "typescript": "^6.0.3",
-        "vite": "^8.3.4"
+        "vite": "^8.3.4",
+        "vitest": "^5.0.4"
     }
 }

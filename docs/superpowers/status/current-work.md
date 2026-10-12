@@ -2,6 +2,7 @@
 
 ## Current Focus
 
+- 2026-10-12 已完成标准化 GitHub Pages 页面：参考 `D:\lichun\slicer-converter`，采用 React / Radix UI / Tailwind / Lucide，完成项目介绍、首次接入和浏览器内验证。实施与生产子路径检查均已完成，后续回到稳态 `1.0` 主线。
 - 把项目长期方向收敛到 `稳态 1.0` 发布：围绕 README 已承诺的性能、WebWorker、TypeScript、浏览器兼容性和易用性，定义清晰的 release gates，并把后续执行拆成可连续交付的阶段。
 
 ## Why It Matters
@@ -11,6 +12,15 @@
 
 ## Latest Completed
 
+- 2026-10-12 已将 `apps/demo` 从文件选择与控制台计时页升级为开源项目主页和浏览器验证区：
+  - 采用 React、Radix UI、Tailwind CSS 与 Lucide，提供中英文、明暗主题、桌面三列工作台、手机布局、安装与代码复制、支持矩阵和社区入口。
+  - 本地 3MF 文件支持真实 worker 解析、Three.js 预览、旋转/缩放/平移、视角重置、线框、全屏、模型部件查看及 Parse / Build / Total 计时。
+  - three.js 对照按需加载，重新读取源文件以避开 worker 转移后的缓冲区；失败独立展示，保留 fast-loader 结果。页面没有扩大公开 API、运行时或格式支持承诺。
+  - 页面状态、计时、资源释放、预览和 UI 分模块维护。页面版本取自公开库包版本；新验证说明位于 `apps/demo/README.md`。
+  - `pnpm build` 同时构建库和页面；`pnpm verify` 包含页面类型检查与单元测试。CI 新增 Pages 浏览器验证，继续复用现有部署工作流。
+  - 已验证 `pnpm verify`：22 个测试文件、96 个单元测试及库/页面构建通过；原有 22 条 `any` lint 警告仍保留，没有新增 lint 错误。
+  - 已使用本机 Chrome 在 `/fast-3mf-loader/` 生产子路径运行全部 7 项 Playwright 检查，覆盖 1440/1024/768/375 宽度、颜色/纹理/组件模型、模型替换与清除、语言/主题持久化、键盘、剪贴板、对照失败、损坏文件恢复与 WebGL 降级。
+  - 用户反馈的样式中间状态已修复；已查看桌面明暗主题、手机与真实纹理模型截图。截图在 `apps/demo/test-results/`，不纳入 git。
 - 2026-10-12 已修复 Windows 上 `pnpm dev` 无法启动：`packageManager` 改回本机可用的 `pnpm@10.33.0`。`pnpm@12.11.2` 的版本切换在 Windows 上会去执行没有原生程序的 shell shim。
 - 2026-10-12 已把仓库改成 pnpm workspace，并按 `slicer-converter` 接上 ESLint、打包发布和 GitHub Pages：
   - 公开库在 `packages/fast-3mf-loader`，仓库包名 `@innovgame/fast-3mf-loader`，npm 发布名仍是 `fast-3mf-loader`
