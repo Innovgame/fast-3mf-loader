@@ -91,11 +91,10 @@ describe("support matrix coverage", () => {
         expect(coloredMesh).toBeTruthy();
     });
 
-    test("truck fixture confirms component support", async () => {
-        mockTextureLoader();
-
+    test("same-model component archive confirms component support", async () => {
+        const { createSameModelComponentArchive } = await import("./helpers/component-archive");
         const loader = new Fast3MFLoader();
-        const data = await loader.parse(await readFixture("truck.3mf"));
+        const data = await loader.parse(createSameModelComponentArchive());
         const group = fast3mfBuilder(data);
         const objectValues = Object.values(data.model).flatMap((model) => Object.values(model.resources.object));
 

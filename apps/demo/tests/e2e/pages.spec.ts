@@ -48,7 +48,7 @@ test("real files render, replace, compare and clear through browser workers", as
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto("./");
-    for (const fixture of ["facecolors.3mf", "vertexcolors.3mf", "multipletextures.3mf", "truck.3mf"]) {
+    for (const fixture of ["facecolors.3mf", "vertexcolors.3mf", "multipletextures.3mf"]) {
         if (fixture === "facecolors.3mf") {
             const chooserPromise = page.waitForEvent("filechooser");
             await page.getByRole("button", { name: "Open a 3MF file", exact: true }).click();

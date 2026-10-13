@@ -11,11 +11,13 @@
 ## 已验证
 
 - CI 的 Pages 检查在 Ubuntu 24.04 上用 Playwright Chromium 打开生产路径 `/fast-3mf-loader/`。
-- 同一次检查会通过浏览器 worker 解析并构建 `facecolors.3mf`、`vertexcolors.3mf`、`multipletextures.3mf` 和 `truck.3mf`。
+- 同一次检查会通过浏览器 worker 解析并构建 `facecolors.3mf`、`vertexcolors.3mf` 和 `multipletextures.3mf`。
 - `pnpm consumer:check:browser` 会把打包后的 `fast-3mf-loader` 安装到一个新的 Vite 项目，再用 Playwright Chromium 解析 `facecolors.3mf`。这个检查覆盖的是发布包，不是仓库源码别名。
+- 2026-10-13 在 `darwin arm64` 上，用同一条打包安装检查跑了 Playwright Firefox 157.0 和 Playwright WebKit 27.2。两者解析 `facecolors.3mf` 的结果都是 `ok models=1 meshes=1`。
 
 ## 未记录为已支持
 
-- Firefox、Safari，以及具体的手机浏览器版本，还没有在这里留下一次对应的检查记录。
+- 系统自带的 Safari 没有单独跑过。上面的 WebKit 结果是 Playwright 自带的 WebKit，不是 Safari。
+- 具体的手机浏览器版本还没有在这里留下一次对应的检查记录。
 - 演示页做过窄视口布局检查。那只说明页面布局，不表示那些视口宽度对应的手机浏览器已被验证。
 - Node.js 只用于安装、测试和构建，不是库的运行时。

@@ -21,7 +21,7 @@
 ## Phase 2: Performance Hardening
 
 - Status：持续进行中，并且是 `1.0` 的核心阻塞项之一。当前 benchmark 与热点优化已经落地，但还需要持续用大 fixture 维持证据链。
-- Why it matters：`multipletextures.3mf` 与 `truck.3mf` 仍然代表真实 parse/build 成本；性能主张必须建立在 benchmark phase split 和 focused regression coverage 之上。
+- Why it matters：`multipletextures.3mf` 仍然代表真实 parse/build 成本；性能主张必须建立在 benchmark phase split 和 focused regression coverage 之上。
 - Primary references：
   - `docs/superpowers/specs/2026-03-28-performance-hotspots-design.md`
   - `docs/superpowers/plans/2026-03-28-performance-hotspots.md`

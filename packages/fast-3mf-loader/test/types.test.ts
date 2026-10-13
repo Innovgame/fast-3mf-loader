@@ -15,6 +15,10 @@ test("public helper types stay aligned with the documented contract", () => {
     expectTypeOf<ParseResult["rels"][number]>().toEqualTypeOf<Relationship>();
 });
 
+test("1.0 ParseResult fields stay frozen", () => {
+    expectTypeOf<keyof ParseResult>().toEqualTypeOf<"rels" | "modelRels" | "model" | "printTicket" | "texture">();
+});
+
 test("parse keeps parsed model part and typed array result shapes stable", () => {
     type ParseOutput = Awaited<ReturnType<Fast3MFLoader["parse"]>>;
     type ParsedObjectMesh = ParseOutput["model"][string]["resources"]["object"][string]["mesh"];

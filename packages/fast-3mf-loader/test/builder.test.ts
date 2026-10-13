@@ -414,11 +414,10 @@ describe("fast3mfBuilder", () => {
         expect(texturedMesh!.geometry.getAttribute("position").count).toBe(texturedMesh!.geometry.getAttribute("uv").count);
     });
 
-    test("truck builds nested component content with visible meshes", async () => {
-        mockTextureLoader();
-
+    test("builds nested same-model component content with visible meshes", async () => {
+        const { createSameModelComponentArchive } = await import("./helpers/component-archive");
         const loader = new Fast3MFLoader();
-        const data = await loader.parse(await readFixture("truck.3mf"));
+        const data = await loader.parse(createSameModelComponentArchive());
         const group = fast3mfBuilder(data);
 
         expect(group.children.length).toBeGreaterThan(0);

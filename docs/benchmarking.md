@@ -30,7 +30,7 @@ pnpm benchmark
 ## Methodology
 
 - Runtime: Node with a small Worker compatibility shim backed by `node:worker_threads`
-- Fixtures: `multipletextures.3mf`, `truck.3mf`
+- Fixtures: `multipletextures.3mf`
 - Default command `pnpm benchmark`: warmup `1`, measured runs `5`, worker count `min(hardwareConcurrency - 1, 15)`
 - Release command `pnpm benchmark:release`: warmup `2`, measured runs `7`, worker count `6`. The preset is applied by `node scripts/benchmark-release.mjs`, so it does not depend on a POSIX shell assignment.
 - Phase semantics: `Parse`, `Build`, and `Total` keep the existing split from `Fast3MFLoader` + `fast3mfBuilder`
@@ -41,27 +41,23 @@ pnpm benchmark
 
 ## Sample Results
 
-The 2026-10-12 sample below was collected while this command still ran the three.js comparison. Those `three` columns are historical. Later runs of `pnpm benchmark:release` report only this library.
-
-Release preset sample run collected on 2026-10-12:
+Release preset sample run collected on 2026-10-13:
 
 - Environment: Node `v26.5.1` on `darwin arm64`
 - Worker count: `6`
 - Command: `pnpm benchmark:release`
 - Sampling preset: warmup `2`, measured runs `7`
+- Fixture: BSD-licensed `multipletextures.3mf`
 - Table values below are medians across the measured runs, not single-run point estimates
 - Parse-heavy fixtures can still move materially across same-machine reruns, so treat these numbers as sample evidence instead of pass/fail thresholds
-- The `three` columns in this table come from that last comparison run. They are not produced by the current command.
 
-| Fixture | Size (KiB) | fast Parse | fast Build | fast Total | three Parse | three Build | three Total | Status |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `multipletextures.3mf` | 3020.7 | 212.2 | 2.1 | 214.2 | 2856.4 | 0.0 | 2856.4 | `ok (fused parse+build)` |
-| `truck.3mf` | 2587.2 | 277.2 | 5.5 | 283.0 | 4447.1 | 0.0 | 4447.1 | `ok (fused parse+build)` |
+| Fixture | Size (KiB) | Parse | Build | Total |
+| --- | ---: | ---: | ---: | ---: |
+| `multipletextures.3mf` | 3020.7 | 201.2 | 1.7 | 202.5 |
 
 Run spread from the same sample:
 
-- `multipletextures.3mf`: fast parse `199.5-215.2ms`, fast build `1.7-6.3ms`, fast total `205.3-221.0ms`
-- `truck.3mf`: fast parse `270.4-294.5ms`, fast build `5.4-5.8ms`, fast total `276.2-299.9ms`
+- `multipletextures.3mf`: parse `198.5-212.1ms`, build `1.3-2.6ms`, total `200.3-214.5ms`
 
 ## Historical Large Fixture Comparison
 
@@ -80,6 +76,6 @@ Before publishing `1.0`, run `pnpm release:check` on the release machine and ref
 
 `pnpm release:check` delegates benchmark evidence collection to `pnpm benchmark:release`, which fixes `warmupRuns=2`, `measuredRuns=7`, and `workerCount=6` for the release-machine sample.
 
-The release gate still belongs to `fast-3mf-loader` itself. A `three unsupported` or `three failed` comparison row does not make `release:check` fail on its own.
+The release gate measures this library only.
 
 Run `node packages/fast-3mf-loader/scripts/benchmark.mjs` after `pnpm build` to refresh this section with current medians and spread for your machine.

@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const packageRoot = resolve(repoRoot, "packages/fast-3mf-loader");
 const browser = process.argv.includes("--browser");
+const browserName = process.argv.find((arg) => arg.startsWith("--browser-name="))?.split("=")[1] ?? "chromium";
 const threeVersion = "0.186.1";
 
 const directories = [];
@@ -135,8 +136,12 @@ async function checkBrowser(app) {
     try {
         await waitForPreview();
         const require = createRequire(resolve(repoRoot, "apps/demo/package.json"));
-        const { chromium } = require("@playwright/test");
-        const browser = await chromium.launch();
+        const playwright = require("@playwright/test");
+        const launcher = playwright[browserName];
+        if (!launcher) {
+            throw new Error(`Unsupported Playwright browser: ${browserName}`);
+        }
+        const browser = await launcher.launch();
         try {
             const page = await browser.newPage();
             const errors = [];

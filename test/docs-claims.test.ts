@@ -20,20 +20,21 @@ test("README-zh uses the same support-boundary framing", async () => {
     expect(readmeZh).not.toContain("支持分块加载和解析大文件");
 });
 
-test("fixture license notes identify truck.3mf without inventing a license", async () => {
+test("fixture license notes record why truck.3mf is not distributed", async () => {
     const notes = await readDoc("3mf/README.md");
 
-    expect(notes).toContain("### truck.3mf");
-    expect(notes).toContain("examples/models/3mf/truck.3mf");
-    expect(notes).toContain("does not list a separate license");
+    expect(notes).toContain("### Removed: truck.3mf");
+    expect(notes).toContain("no longer distributes it");
+    expect(notes).not.toContain("License: BSD 2-Clause \"Simplified\" License\n\n### truck");
 });
 
 test("browser support page records only verified combinations", async () => {
     const support = await readDoc("docs/browser-support.en.md");
 
     expect(support).toContain("Playwright Chromium");
+    expect(support).toContain("Playwright Firefox 157.0");
+    expect(support).toContain("not Safari");
     expect(support).toContain("three@0.186.1");
-    expect(support).toContain("Firefox, Safari");
 });
 
 test("summary roadmap stays on the stable 1.0 framing", async () => {

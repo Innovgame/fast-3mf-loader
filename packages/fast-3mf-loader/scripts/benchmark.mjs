@@ -10,7 +10,6 @@ import { installNodeTextureLoaderFallback, measureFixture, resolveBenchmarkConfi
 
 const fixtureNames = [
     "multipletextures.3mf",
-    "truck.3mf",
 ];
 const hardwareConcurrency = availableParallelism();
 const { warmupRuns, measuredRuns, workerCount } = resolveBenchmarkConfig({

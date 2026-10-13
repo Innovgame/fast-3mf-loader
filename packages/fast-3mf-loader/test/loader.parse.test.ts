@@ -1,6 +1,7 @@
 import { strToU8, zipSync } from "fflate";
 import { describe, expect, test } from "vitest";
 import "./helpers/mock-inline-workers";
+import { createSameModelComponentArchive } from "./helpers/component-archive";
 import { readFixture } from "./helpers/read-fixture";
 
 const { Fast3MFLoader } = await import("../src/index");
@@ -68,14 +69,13 @@ describe("Fast3MFLoader.parse", () => {
         expect(Object.keys(data!.texture).length).toBeGreaterThan(0);
     });
 
-    test("parses truck.3mf with multiple objects or components", async () => {
+    test("parses a same-model component archive", async () => {
         const loader = new Fast3MFLoader();
-        const data = await loader.parse(await readFixture("truck.3mf"));
-        const objectValues = Object.values(data!.model).flatMap((model) => Object.values(model.resources.object));
-        const hasComponents = objectValues.some((object) => object.components.length > 0);
+        const data = await loader.parse(createSameModelComponentArchive());
+        const objectValues = Object.values(data.model).flatMap((model) => Object.values(model.resources.object));
 
         expect(objectValues.length).toBeGreaterThan(1);
-        expect(hasComponents).toBe(true);
+        expect(objectValues.some((object) => object.components.length > 0)).toBe(true);
     });
 
     test("parses volumetric.3mf without throwing", async () => {
